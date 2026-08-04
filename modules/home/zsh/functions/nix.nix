@@ -21,7 +21,7 @@
       local repo="$HOME/nix-config"
 
       echo "Updating flake inputs..."
-      nix flake update --flake "$repo"
+      nix flake update --flake "$repo" || return 1
 
       echo "Building ${vars.hostname}..."
       sudo nixos-rebuild build \
@@ -33,16 +33,12 @@
     }
 
     function cleanup() {
-      nix-collect-garbage -d
-      sudo nix-collect-garbage -d
+      nix-collect-garbage -d &&
+        sudo nix-collect-garbage -d
     }
 
     function generations() {
       sudo nixos-rebuild list-generations
-    }
-
-    function nixcfg() {
-      cd "$HOME/nix-config" || return 1
     }
   '';
 }
