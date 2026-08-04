@@ -9,8 +9,16 @@
 
   outputs = { self, nixpkgs, disko, ... }:
   {
-    nixosConfigurations.tuf-f15 = nixpkgs.lib.nixosSystem {
-      system = "x86_64-linux";
+    nixosConfigurations.tuf-f15 =
+      let
+        vars = import ./hosts/tuf-f15/variables.nix;
+      in
+    nixpkgs.lib.nixosSystem {
+      system = vars.system;
+
+      specialArgs = {
+        inherit vars;
+      };
 
       modules = [
         disko.nixosModules.disko

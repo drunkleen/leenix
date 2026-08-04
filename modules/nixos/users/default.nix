@@ -1,9 +1,9 @@
-{ pkgs, ... }:
+{ pkgs, vars, ... }:
 
 {
-  users.users.snape = {
+  users.users.${vars.username} = {
     isNormalUser = true;
-    description = "Snape";
+    description = vars.fullName;
 
     extraGroups = [
       "networkmanager"

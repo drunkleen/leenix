@@ -1,3 +1,5 @@
+{ vars, ... }:
+
 {
   imports = [
     ./hardware-configuration.nix
@@ -9,6 +11,14 @@
     ../../modules/nixos/users
     ../../modules/nixos/services
   ];
+
+  networking.hostName = vars.hostname;
+
+  time.timeZone = vars.timezone;
+
+  i18n.defaultLocale = vars.locale;
+
+  console.keyMap = vars.keymap;
 
   system.stateVersion = "26.05";
 }
