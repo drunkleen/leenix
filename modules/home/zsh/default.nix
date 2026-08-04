@@ -7,6 +7,8 @@
     ./environment.nix
     ./options.nix
     ./completion.nix
+
+    ./autosuggestions.nix
   ];
 
   programs.zsh = {
