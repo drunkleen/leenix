@@ -1,8 +1,14 @@
-{ config, lib, ... }:
+{ ... }:
 
 {
-  hardware.enableRedistributableFirmware = true;
-
-  hardware.cpu.intel.updateMicrocode =
-    lib.mkDefault config.hardware.enableRedistributableFirmware;
+  imports = [
+    ./cpu.nix
+    ./firmware.nix
+    ./audio.nix
+    ./bluetooth.nix
+    ./graphics.nix
+    ./power.nix
+    ./thermal.nix
+    ./laptop
+  ];
 }
