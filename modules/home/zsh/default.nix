@@ -10,6 +10,7 @@
 
     ./autosuggestions.nix
     ./syntax-highlighting.nix
+    ./keybindings.nix
   ];
 
   programs.zsh = {
