@@ -16,7 +16,7 @@
       pull.rebase = false;
       push.autoSetupRemote = true;
 
-      core.editor = "nvim";
+      core.editor = "vim";
       color.ui = true;
     };
   };

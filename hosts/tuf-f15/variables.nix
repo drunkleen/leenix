@@ -8,7 +8,7 @@
   git = {
     name = "DrunkLeen";
     email = "snape@drunkleen.com";
-    defaultBranch = "main";
+    defaultBranch = "master";
   };
 
   timezone = "Europe/Berlin";

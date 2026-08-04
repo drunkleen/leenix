@@ -7,6 +7,7 @@
     "~" = "cd ~";
 
     cls = "clear";
+    c = "clear";
 
     nixc = "nixcfg";
   };
