@@ -6,6 +6,7 @@
     ../../modules/home/git
     ../../modules/home/zsh
     ../../modules/home/terminal
+    ../../modules/home/fzf
   ];
 
   home.username = vars.username;
