@@ -4,6 +4,7 @@
   imports = [
     ../../modules/home/cli
     ../../modules/home/git
+    ../../modules/home/zsh
   ];
 
   home.username = vars.username;

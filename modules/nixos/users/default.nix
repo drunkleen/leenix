@@ -1,6 +1,8 @@
 { pkgs, vars, ... }:
 
 {
+  programs.zsh.enable = true;
+
   users.users.${vars.username} = {
     isNormalUser = true;
     description = vars.fullName;
@@ -10,7 +12,7 @@
       "wheel"
     ];
 
-    shell = pkgs.bashInteractive;
+    shell = pkgs.zsh;
   };
 
   security.sudo.wheelNeedsPassword = true;
