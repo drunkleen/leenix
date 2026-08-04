@@ -4,5 +4,6 @@
     ./qt.nix
     ./cursor.nix
     ./icons.nix
+    ./mime.nix
   ];
 }
