@@ -1,6 +1,11 @@
 { vars, ... }:
 
 {
+  imports = [
+    ../../modules/home/cli
+    ../../modules/home/git
+  ];
+
   home.username = vars.username;
   home.homeDirectory = "/home/${vars.username}";
 
