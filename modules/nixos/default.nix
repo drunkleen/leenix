@@ -3,6 +3,7 @@
 {
   imports = [
     ./boot
+    ./hardware
     ./networking
     ./services
     ./storage
