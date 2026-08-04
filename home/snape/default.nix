@@ -7,6 +7,7 @@
     ../../modules/home/zsh
     ../../modules/home/terminal
     ../../modules/home/fzf
+    ../../modules/home/themes
   ];
 
   home.username = vars.username;
