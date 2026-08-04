@@ -25,14 +25,16 @@
     lg = "lazygit";
 
     # Nix
-    nb = "sudo nixos-rebuild build --flake ~/nix-config#tuf-f15";
-    nsw = "sudo nixos-rebuild switch --flake ~/nix-config#tuf-f15";
-    nt = "sudo nixos-rebuild test --flake ~/nix-config#tuf-f15";
+    nb = "rebuild-build";
+    nsw = "rebuild";
+    nt = "rebuild-test";
     nf = "nix flake";
     nfu = "nix flake update";
     nd = "nix develop";
     nr = "nix run";
     ns = "nix search nixpkgs";
+    nixc = "nixcfg";
+    ng = "generations";
 
     # Maintenance
     nix-clean = "nix-collect-garbage -d";
