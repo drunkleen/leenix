@@ -14,8 +14,7 @@
 
       modules = [
         disko.nixosModules.disko
-        ./hosts/tuf-f15/disko.nix
-        ./hosts/tuf-f15/default.nix
+        ./hosts/tuf-f15
       ];
     };
   };
