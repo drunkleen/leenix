@@ -9,6 +9,7 @@
     ./completion.nix
 
     ./autosuggestions.nix
+    ./syntax-highlighting.nix
   ];
 
   programs.zsh = {
