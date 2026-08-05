@@ -1,0 +1,19 @@
+{
+  imports = [
+    ./package.nix
+    ./uwsm.nix
+    ./environment.nix
+    ./monitors.nix
+    ./input.nix
+    ./binds.nix
+    ./startup.nix
+    ./workspaces.nix
+    ./rules.nix
+    ./decoration.nix
+    ./animations.nix
+    ./hypridle.nix
+    ./hyprlock.nix
+    ./hyprpaper.nix
+    ./hyprsunset.nix
+  ];
+}

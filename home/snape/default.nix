@@ -8,6 +8,7 @@
     ../../modules/home/terminal
     ../../modules/home/fzf
     ../../modules/home/themes
+    ../../modules/home/hyprland
   ];
 
   home.username = vars.username;
