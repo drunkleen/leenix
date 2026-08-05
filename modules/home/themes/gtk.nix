@@ -4,7 +4,7 @@
   gtk = {
     enable = true;
 
-    colorScheme = "dark";
+    # colorScheme = "dark";
 
     font = {
       name = "Noto Sans";

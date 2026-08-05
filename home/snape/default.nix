@@ -11,6 +11,7 @@
     ../../modules/home/themes
     ../../modules/home/hyprland
     ../../modules/home/waybar
+    ../../modules/home/walker
   ];
 
   home.username = vars.username;

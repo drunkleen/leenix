@@ -13,9 +13,16 @@
       url = "github:nix-community/home-manager/release-26.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    elephant.url = "github:abenz1267/elephant";
+
+    walker = {
+      url = "github:abenz1267/walker";
+      inputs.elephant.follows = "elephant";
+    };
   };
 
-  outputs = { self, nixpkgs, disko, home-manager, ... }:
+  outputs = inputs@{ self, nixpkgs, disko, home-manager, ... }:
   {
     nixosConfigurations.tuf-f15 =
       let
@@ -25,7 +32,7 @@
       system = vars.system;
 
       specialArgs = {
-        inherit vars;
+        inherit vars inputs;
       };
 
       modules = [
@@ -38,7 +45,7 @@
           home-manager.useUserPackages = true;
 
           home-manager.extraSpecialArgs = {
-            inherit vars;
+            inherit vars inputs;
           };
 
           home-manager.users.${vars.username} =
