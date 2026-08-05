@@ -296,3 +296,170 @@ Our temporary configuration currently differs from Omarchy:
 These settings must not be changed yet. They will be replaced atomically after the full Hyprland audit.
 
 
+## Input audit
+
+Source:
+
+- `default/hypr/input.conf`
+
+### Keyboard
+
+- Default layout: `us`
+- Caps Lock is configured as a Compose key through `compose:caps`
+- No custom keyboard model or variant is defined
+- Persian layout is not part of Omarchy defaults and must be added as our own override
+
+### Mouse and touchpad
+
+- Follow mouse: enabled
+- Pointer sensitivity: neutral
+- Natural scrolling: disabled by default
+
+### DPMS wake behavior
+
+- Keyboard input wakes displays
+- Mouse movement wakes displays
+
+### Local adaptation
+
+Our configuration will preserve Omarchy defaults, with these user-specific additions:
+
+- Add Persian as a secondary keyboard layout
+- Add a layout switching shortcut
+- Decide whether to retain Omarchy's disabled natural scrolling or preserve the current preference
+
+## Environment audit
+
+Source:
+
+- `default/hypr/envs.conf`
+
+### Cursor
+
+- `XCURSOR_SIZE=24`
+- `HYPRCURSOR_SIZE=24`
+
+### Wayland preference
+
+- GTK prefers Wayland with X11 fallback
+- Qt prefers Wayland with XCB fallback
+- Firefox Wayland is explicitly enabled
+- Electron/Ozone prefers Wayland
+- Session type is explicitly Wayland
+
+### Desktop identity
+
+- `XDG_CURRENT_DESKTOP=Hyprland`
+- `XDG_SESSION_DESKTOP=Hyprland`
+
+These values support portals and screen sharing.
+
+### XWayland
+
+- Force-zero-scaling is enabled
+- XWayland applications are rendered at native scale
+
+### Other behavior
+
+- `.XCompose` is used
+- Hyprland ecosystem update news is disabled
+- Omarchy theme variables for Gum are sourced dynamically
+
+### NixOS mapping
+
+These values belong in:
+
+- `modules/home/hyprland/environment.nix`
+- selected system variables may remain in `modules/nixos/desktop/hyprland.nix`
+
+Variables already managed correctly by UWSM or NixOS should not be duplicated without reason.
+
+## Autostart audit
+
+Source:
+
+- `default/hypr/autostart.conf`
+
+### Omarchy session processes
+
+- Hypridle
+- Mako
+- Waybar
+- fcitx5
+- swaybg
+- Polkit authentication agent
+- first-run initialization
+- power-profile initialization
+- monitor watcher
+- post-boot hooks
+
+### Environment synchronization
+
+Omarchy imports the graphical environment into:
+
+- systemd user manager
+- D-Bus activation environment
+
+### NixOS strategy
+
+We should prefer declarative user services where available:
+
+- Waybar: Home Manager systemd user service
+- Mako: Home Manager systemd user service
+- Hypridle: Home Manager systemd user service
+- Polkit agent: graphical-session systemd service
+- fcitx5: Home Manager/NixOS service
+- wallpaper: service or controlled startup command
+
+Only Omarchy-specific helper logic should be recreated as scripts or user services.
+
+### Omarchy-only helpers requiring replacements
+
+- first-run logic
+- power-profile initialization
+- monitor watcher
+- post-boot hooks
+- runtime Waybar toggle state
+
+## Window-rule audit
+
+Source:
+
+- `default/hypr/windows.conf`
+
+### Global behavior
+
+- Suppress application maximize requests
+- Tag all normal windows for default opacity
+- Apply default active opacity: `0.985`
+- Apply default inactive opacity: `0.96`
+
+### XWayland workaround
+
+Ignore focus for invisible empty floating XWayland windows.
+
+### App-specific rules
+
+Omarchy keeps app rules in a separate file:
+
+- `default/hypr/apps.conf`
+
+Apps can remove the default-opacity tag when transparency is undesirable.
+
+### NixOS mapping
+
+- Global rules belong in `modules/home/hyprland/rules.nix`
+- App rules should be split into `modules/home/hyprland/rules/apps.nix`
+- Firefox-specific rules should be explicit
+- Gaming and fullscreen application exceptions should be reviewed before enabling global opacity
+
+## Important compatibility decisions
+
+- Global opacity may cause issues with games, video playback, screen sharing, or some GPU-accelerated apps.
+- We will preserve Omarchy's behavior initially but add exclusions where necessary.
+- Environment variables already provided by UWSM should be checked before duplication.
+- Omarchy's Polkit GNOME agent will be replaced by `hyprpolkitagent`.
+- `swaybg` may later be replaced by an equivalent matching Omarchy's wallpaper workflow.
+
+
+
