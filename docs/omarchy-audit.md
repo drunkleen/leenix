@@ -154,3 +154,145 @@ Omarchy helper commands cannot be copied directly. We need equivalents for:
 8. Waybar configuration
 9. Mako configuration
 10. Hyprlock and Hypridle
+
+
+
+## Tiling and window management audit
+
+Source:
+
+- `default/hypr/bindings/tiling-v2.conf`
+
+### Close and window state
+
+- Super + W: close active window
+- Ctrl + Alt + Delete: close all windows
+- Super + J: toggle split
+- Super + P: pseudo window
+- Super + T: toggle floating/tiling
+- Super + F: fullscreen
+- Super + Ctrl + F: tiled fullscreen
+- Super + Alt + F: full-width window
+- Super + O: float and pin active window
+- Super + L: switch workspace layout
+
+### Focus and workspace navigation
+
+- Super + Arrow: move focus
+- Super + 1–0: workspaces 1–10
+- Super + Shift + 1–0: move and follow window
+- Super + Shift + Alt + 1–0: move window silently
+- Super + Tab: next workspace
+- Super + Shift + Tab: previous workspace
+- Super + Ctrl + Tab: former workspace
+
+### Scratchpad
+
+- Super + S: toggle scratchpad
+- Super + Alt + S: move active window to scratchpad
+
+### Window movement and resizing
+
+- Super + Shift + Arrow: swap windows
+- Super + minus/equal: horizontal resize
+- Super + Shift + minus/equal: vertical resize
+- Super + left mouse drag: move
+- Super + right mouse drag: resize
+
+### Multi-monitor behavior
+
+- Super + Shift + Alt + Arrow: move current workspace between monitors
+- Ctrl + Alt + Tab: next monitor
+- Ctrl + Alt + Shift + Tab: previous monitor
+- Super + slash: cycle monitor scaling
+
+### Window groups
+
+- Super + G: toggle group
+- Super + Alt + G: remove from group
+- Super + Alt + Arrow: join nearby group
+- Super + Alt + Tab: cycle grouped windows
+- Super + Ctrl + Left/Right: navigate grouped windows
+
+### Required helper replacements
+
+We need Nix-native implementations for:
+
+- close all windows
+- pop/float/pin active window
+- workspace layout toggle
+- monitor scaling cycle
+
+## Look and feel audit
+
+Source:
+
+- `default/hypr/looknfeel.conf`
+
+### General
+
+- gaps in: 5
+- gaps out: 10
+- border size: 2
+- layout: dwindle
+- tearing disabled
+- border resize disabled
+
+### Borders
+
+- Active border is a green/blue gradient.
+- Inactive border is translucent gray.
+- Theme may override the active border values.
+
+### Decoration
+
+- Window rounding: 0
+- Shadows enabled with a small range
+- Blur enabled
+- Blur size: 2
+- Blur passes: 2
+- Special workspaces are blurred
+- Blur brightness: 0.60
+- Blur contrast: 0.75
+
+### Animations
+
+- Window opening uses a pop-in animation.
+- Window closing uses a quick linear pop-out.
+- Layer surfaces fade.
+- Workspace transitions are disabled.
+- Special workspaces slide vertically.
+
+### Layout
+
+- Dwindle preserves splits.
+- Dwindle forces split direction.
+- Scrolling layout uses approximately half-screen columns.
+- Master layout inserts new windows as master.
+
+### Miscellaneous
+
+- Hyprland logo disabled
+- Splash rendering disabled
+- Scale notification disabled
+- Focus-on-activate enabled
+- Cursor hides on keyboard input
+- Cursor follows workspace changes
+- Special workspace hides when changing normal workspaces
+
+## Current parity differences
+
+Our temporary configuration currently differs from Omarchy:
+
+- rounding is currently 8, but Omarchy uses 0
+- blur is currently stronger than Omarchy
+- border colors are not yet Omarchy themed
+- animations are not yet implemented
+- only five workspaces are currently bound
+- grouping and scratchpad behavior are absent
+- multi-monitor workspace movement is absent
+- helper-script-dependent bindings are absent
+
+These settings must not be changed yet. They will be replaced atomically after the full Hyprland audit.
+
+
