@@ -9,6 +9,7 @@
     ../../modules/home/fzf
     ../../modules/home/themes
     ../../modules/home/hyprland
+    ../../modules/home/waybar
   ];
 
   home.username = vars.username;
