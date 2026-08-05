@@ -463,3 +463,156 @@ Apps can remove the default-opacity tag when transparency is undesirable.
 
 
 
+## Application-rule architecture
+
+Source:
+
+- `default/hypr/apps.conf`
+
+Omarchy keeps each application's rules in a separate file and imports them through one aggregator.
+
+### Audited app-rule groups
+
+- password managers
+- browser
+- screenshot tools
+- JetBrains IDEs
+- LocalSend
+- picture-in-picture
+- QEMU
+- RetroArch
+- Steam
+- NVIDIA/GeForce tools
+- Moonlight
+- system utilities
+- Telegram
+- Typora
+- terminals
+- Walker
+- webcam overlay
+
+### NixOS mapping
+
+Use this structure:
+
+```text
+modules/home/hyprland/rules/
+├── default.nix
+├── browser.nix
+├── gaming.nix
+├── terminals.nix
+├── walker.nix
+├── system.nix
+└── apps.nix
+
+
+## Walker audit
+
+Sources:
+
+- `config/walker/config.toml`
+- `bin/omarchy-launch-walker`
+- `default/walker/themes/omarchy-default/style.css`
+- `default/walker/themes/omarchy-default/layout.xml`
+
+### Role
+
+Walker is Omarchy's central launcher and search interface.
+
+It provides:
+
+- application launching
+- web search
+- file search
+- symbol and emoji lookup
+- calculator
+- clipboard history
+- provider discovery
+
+### Core behavior
+
+- Keyboard focus is forced to remain inside Walker.
+- Selection wraps between the first and last result.
+- Action hints are hidden globally.
+- Maximum results: 256.
+- Default providers:
+  - desktop applications
+  - web search
+
+### Provider prefixes
+
+| Prefix | Provider |
+|---|---|
+| `/` | provider list |
+| `.` | files |
+| `:` | symbols |
+| `=` | calculator |
+| `@` | web search |
+| `$` | clipboard |
+
+### Keybindings
+
+- Super + Space: default Walker mode
+- Super + Ctrl + E: symbols/emoji mode
+- Super + Ctrl + V: clipboard mode
+
+### Runtime architecture
+
+Walker depends on two long-running processes:
+
+- `elephant`
+- `walker --gapplication-service`
+
+The Omarchy launcher helper:
+
+1. starts Elephant when absent
+2. starts Walker's GApplication service when absent
+3. opens the visible Walker window
+
+Walker is launched with:
+
+- width: 644
+- minimum height: 300
+- maximum height: 300
+- Cairo GSK renderer
+
+### Theme architecture
+
+The theme consists of:
+
+- GTK CSS
+- GTK4 XML layout
+- colors imported from the active Omarchy theme
+
+### Visual details
+
+- Monospace font
+- Font size: 18px
+- Two-pixel border
+- Twenty-pixel outer padding
+- Ten-pixel search input padding
+- Single-column result list
+- Hidden scrollbar
+- Hidden result subtext
+- Small icons: 16px
+- Large icons: 32px
+- Selected item uses subtle transparent highlighting
+
+### NixOS module structure
+
+```text
+modules/home/walker/
+├── default.nix
+├── package.nix
+├── config.nix
+├── service.nix
+├── launcher.nix
+└── theme/
+    ├── default.nix
+    ├── style.css
+    └── layout.xml
+
+
+# Waybar audit
+
+

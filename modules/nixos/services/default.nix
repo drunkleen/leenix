@@ -1,6 +1,10 @@
 { pkgs, ... }:
 
 {
+  imports = [
+    ./nix-maintenance.nix
+  ];
+
   nix.settings.experimental-features = [
     "nix-command"
     "flakes"
