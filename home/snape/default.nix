@@ -7,9 +7,11 @@
     ../../modules/home/zsh
     ../../modules/home/terminal
     ../../modules/home/fzf
+
     ../../modules/home/themes
     ../../modules/home/hyprland
     ../../modules/home/waybar
+    ../../modules/home/launcher
   ];
 
   home.username = vars.username;

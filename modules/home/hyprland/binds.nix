@@ -28,6 +28,8 @@
       "$mod SHIFT, 3, movetoworkspace, 3"
       "$mod SHIFT, 4, movetoworkspace, 4"
       "$mod SHIFT, 5, movetoworkspace, 5"
+
+      "$mod, SPACE, exec, uwsm app -- rofi -show drun"
     ];
   };
 }
