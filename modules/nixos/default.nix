@@ -6,6 +6,7 @@
     ./desktop
     ./hardware
     ./networking
+    ./security
     ./services
     ./storage
     ./users
