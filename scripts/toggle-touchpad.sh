@@ -2,9 +2,9 @@
 
 set -euo pipefail
 
-device="asup1205:00-093a:2003-touchpad"
+device="${LEENIX_TOUCHPAD_DEVICE:?Touchpad device is not configured}"
 state_dir="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
-state_file="$state_dir/leenium-touchpad-disabled"
+state_file="$state_dir/leenix-touchpad-disabled"
 
 if [[ -e "$state_file" ]]; then
   hyprctl keyword "device[$device]:enabled" true >/dev/null

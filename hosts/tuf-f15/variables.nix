@@ -15,14 +15,17 @@
   locale = "en_US.UTF-8";
   keymap = "us";
 
-  hardware.cpu.intel.enable = true;
+  hardware = {
+    cpu.intel.enable = true;
+    touchpad.device = "asup1205:00-093a:2003-touchpad";
 
-  hardware.nvidia = {
-    enable = true;
+    nvidia = {
+      enable = true;
 
-    prime = {
-      intelBusId = "PCI:0@0:2:0";
-      nvidiaBusId = "PCI:1@0:0:0";
+      prime = {
+        intelBusId = "PCI:0@0:2:0";
+        nvidiaBusId = "PCI:1@0:0:0";
+      };
     };
   };
 }

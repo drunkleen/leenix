@@ -64,7 +64,7 @@
       ", XF86AudioNext, exec, playerctl next"
       ", XF86AudioPrev, exec, playerctl previous"
 
-      ", XF86TouchpadToggle, exec, leenium-toggle-touchpad"
+      ", XF86TouchpadToggle, exec, leenix-toggle-touchpad"
     ];
   };
 }

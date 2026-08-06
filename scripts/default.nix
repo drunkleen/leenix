@@ -1,8 +1,8 @@
-{ pkgs }:
+{ pkgs, touchpadDevice }:
 
 {
   toggleTouchpad = pkgs.writeShellApplication {
-    name = "leenium-toggle-touchpad";
+    name = "leenix-toggle-touchpad";
 
     runtimeInputs = with pkgs; [
       hyprland
@@ -10,6 +10,9 @@
       coreutils
     ];
 
-    text = builtins.readFile ./toggle-touchpad.sh;
+    text = ''
+      export LEENIX_TOUCHPAD_DEVICE=${pkgs.lib.escapeShellArg touchpadDevice}
+      ${builtins.readFile ./toggle-touchpad.sh}
+    '';
   };
 }

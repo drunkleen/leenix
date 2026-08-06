@@ -1,8 +1,9 @@
-{ pkgs, ... }:
+{ pkgs, vars, ... }:
 
 let
   scripts = import ../../../scripts/default.nix {
     inherit pkgs;
+    touchpadDevice = vars.hardware.touchpad.device;
   };
 in
 {
