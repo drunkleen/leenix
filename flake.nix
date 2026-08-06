@@ -26,13 +26,12 @@
     inputs@{
       self,
       nixpkgs,
-      disko,
-      home-manager,
       ...
     }:
     let
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
+      mkHost = import ./lib/mk-host.nix { inherit inputs; };
     in
     {
       formatter.${system} = pkgs.nixfmt-tree;
@@ -70,35 +69,6 @@
         tuf-f15 = self.nixosConfigurations.tuf-f15.config.system.build.toplevel;
       };
 
-      nixosConfigurations.tuf-f15 =
-        let
-          vars = import ./hosts/tuf-f15/variables.nix;
-        in
-        nixpkgs.lib.nixosSystem {
-          inherit (vars) system;
-
-          specialArgs = {
-            inherit vars inputs;
-          };
-
-          modules = [
-            disko.nixosModules.disko
-            home-manager.nixosModules.home-manager
-            ./hosts/tuf-f15
-
-            {
-              home-manager = {
-                useGlobalPkgs = true;
-                useUserPackages = true;
-
-                extraSpecialArgs = {
-                  inherit vars inputs;
-                };
-
-                users.${vars.username} = import ./home/${vars.username};
-              };
-            }
-          ];
-        };
+      nixosConfigurations.tuf-f15 = mkHost { hostName = "tuf-f15"; };
     };
 }
