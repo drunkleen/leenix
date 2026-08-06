@@ -2,10 +2,20 @@
   all: unset;
 }
 
+@define-color foreground @LEENIUM_FOREGROUND@;
+@define-color background @LEENIUM_BACKGROUND@;
+@define-color accent @LEENIUM_TEAL@;
+@define-color popup @LEENIUM_POPUP@;
+@define-color disabled @LEENIUM_DISABLED@;
+@define-color selection @LEENIUM_SELECTION@;
+@define-color bright @LEENIUM_BRIGHT@;
+@define-color cyan @LEENIUM_CYAN@;
+@define-color secondary @LEENIUM_SECONDARY@;
+
 * {
   font-family: "JetBrainsMono Nerd Font";
   font-size: 18px;
-  color: #d8e3e0;
+  color: @foreground;
 }
 
 scrollbar {
@@ -21,19 +31,19 @@ scrollbar {
 }
 
 .box-wrapper {
-  background: rgba(11, 17, 19, 0.95);
+  background: alpha(@background, 0.95);
   padding: 20px;
-  border: 2px solid #33b8a8;
+  border: 2px solid @accent;
 }
 
 .search-container {
-  background: #182326;
+  background: @popup;
   padding: 10px;
 }
 
 .input placeholder {
   opacity: 0.5;
-  color: #4a5f62;
+  color: @disabled;
 }
 
 .input:focus,
@@ -43,11 +53,11 @@ scrollbar {
 }
 
 child:selected {
-  background: #365156;
+  background: @selection;
 }
 
 child:selected .item-box * {
-  color: #f2f8f6;
+  color: @bright;
 }
 
 .item-box {
@@ -73,12 +83,12 @@ child:selected .item-box * {
 
 .current {
   font-style: italic;
-  color: #59d6c5;
+  color: @cyan;
 }
 
 .keybind-hints {
-  background: #0b1113;
-  color: #c0cecb;
+  background: @background;
+  color: @secondary;
   padding: 10px;
   margin-top: 10px;
 }
