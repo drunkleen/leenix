@@ -3,6 +3,7 @@
 
 let
   inherit (inputs)
+    agenix
     disko
     home-manager
     nixpkgs
@@ -18,6 +19,7 @@ nixpkgs.lib.nixosSystem {
   };
 
   modules = [
+    agenix.nixosModules.default
     disko.nixosModules.disko
     home-manager.nixosModules.home-manager
     ../hosts/${hostName}
