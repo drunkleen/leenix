@@ -14,4 +14,9 @@
   timezone = "Europe/Berlin";
   locale = "en_US.UTF-8";
   keymap = "us";
+
+  hardware.nvidia.prime = {
+    intelBusId = "PCI:0@0:2:0";
+    nvidiaBusId = "PCI:1@0:0:0";
+  };
 }
