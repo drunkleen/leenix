@@ -50,6 +50,23 @@
           touch $out
         '';
 
+        branding = pkgs.runCommand "branding-check" { nativeBuildInputs = [ pkgs.ripgrep ]; } ''
+          cd ${self}
+          legacy_name="omar""chy"
+
+          if rg --ignore-case "$legacy_name" .; then
+            echo "Forbidden legacy branding found in file contents" >&2
+            exit 1
+          fi
+
+          if rg --files . | rg --ignore-case "$legacy_name"; then
+            echo "Forbidden legacy branding found in a file path" >&2
+            exit 1
+          fi
+
+          touch $out
+        '';
+
         tuf-f15 = self.nixosConfigurations.tuf-f15.config.system.build.toplevel;
       };
 
