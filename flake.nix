@@ -72,7 +72,10 @@
         '';
 
         tuf-f15 = self.nixosConfigurations.tuf-f15.config.system.build.toplevel;
+        leenix-shell = self.packages.${system}.leenix-shell;
       };
+
+      packages.${system}.leenix-shell = pkgs.callPackage ./packages/leenix-shell { };
 
       nixosConfigurations.tuf-f15 = mkHost { hostName = "tuf-f15"; };
     };
