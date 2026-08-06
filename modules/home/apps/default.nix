@@ -1,9 +1,10 @@
 { pkgs, ... }:
 
 {
-  imports = [ ./firefox.nix ];
-
-  home.packages = with pkgs; [
-    vscode
+  imports = [
+    ./firefox.nix
+    ./vscode.nix
   ];
+
+  home.packages = with pkgs; [ vscode ];
 }
