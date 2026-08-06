@@ -1,4 +1,6 @@
 {
+  rgba = color: alpha: "rgba(${builtins.substring 1 6 color}${alpha})";
+
   neutral = {
     baseBlack = "#020405";
     background = "#0B1113";

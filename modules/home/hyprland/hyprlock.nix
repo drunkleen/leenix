@@ -1,3 +1,6 @@
+let
+  palette = import ../../../lib/leenium.nix;
+in
 {
   programs.hyprlock = {
     enable = true;
@@ -10,7 +13,7 @@
       background = [
         {
           monitor = "";
-          color = "rgba(0b1113ff)";
+          color = palette.rgba palette.background.main "ff";
           blur_passes = 3;
         }
       ];
@@ -29,16 +32,16 @@
           halign = "center";
           valign = "center";
 
-          inner_color = "rgba(0b1113ee)";
-          outer_color = "rgba(33b8a8ff)";
+          inner_color = palette.rgba palette.background.main "ee";
+          outer_color = palette.rgba palette.accent.teal "ff";
           outline_thickness = 4;
 
           font_family = "JetBrainsMono Nerd Font";
-          font_color = "rgba(d8e3e0ff)";
+          font_color = palette.rgba palette.neutral.foreground "ff";
 
           placeholder_text = "Enter Password";
-          check_color = "rgba(4dba7aff)";
-          fail_color = "rgba(e16f73ff)";
+          check_color = palette.rgba palette.accent.emerald "ff";
+          fail_color = palette.rgba palette.accent.red "ff";
           fail_text = "<i>$FAIL ($ATTEMPTS)</i>";
 
           rounding = 0;
