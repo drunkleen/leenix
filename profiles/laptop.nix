@@ -6,7 +6,5 @@
     ../modules/nixos/hardware/bluetooth.nix
     ../modules/nixos/hardware/graphics.nix
     ../modules/nixos/hardware/power.nix
-    ../modules/nixos/hardware/thermal.nix
-    ../modules/nixos/hardware/laptop
   ];
 }
