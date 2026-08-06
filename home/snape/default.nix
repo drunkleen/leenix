@@ -4,6 +4,7 @@
   imports = [
     ../../modules/home/cli
     ../../modules/home/git
+    ../../modules/home/neovim
     ../../modules/home/zsh
     ../../modules/home/terminal
     ../../modules/home/fzf

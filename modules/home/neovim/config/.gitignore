@@ -1,0 +1,16 @@
+# lazy.nvim lockfile — uncomment to pin plugin versions
+lazy-lock.json
+
+# Neovim swap / backup / undo files
+*.swp
+*.swo
+*~
+*.bak
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Claude Code session files
+.claude/

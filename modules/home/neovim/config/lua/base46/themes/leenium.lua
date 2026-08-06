@@ -1,0 +1,95 @@
+local M = {}
+
+-- Keep this palette in sync with the rest of the Leenium stack.
+M.base_30 = {
+  white = "#d8e3e0",
+  darker_black = "#091012",
+  black = "#0b1113",
+  black2 = "#11191c",
+  one_bg = "#11191c",
+  one_bg2 = "#1a2427",
+  one_bg3 = "#233033",
+  grey = "#365156",
+  grey_fg = "#718688",
+  grey_fg2 = "#8a9b9d",
+  light_grey = "#a7b6b4",
+  red = "#e16f73",
+  baby_pink = "#f08787",
+  pink = "#f08787",
+  line = "#233033",
+  green = "#4dba7a",
+  vibrant_green = "#67cf94",
+  nord_blue = "#5e9bff",
+  blue = "#5e9bff",
+  yellow = "#d9c76b",
+  sun = "#efd45e",
+  purple = "#8e7dff",
+  dark_purple = "#a89cff",
+  teal = "#33b8a8",
+  orange = "#f4a259",
+  cyan = "#59d6c5",
+  statusline_bg = "#11191c",
+  lightbg = "#162022",
+  pmenu_bg = "#33b8a8",
+  folder_bg = "#33b8a8",
+}
+
+M.base_16 = {
+  base00 = "#0b1113",
+  base01 = "#11191c",
+  base02 = "#365156",
+  base03 = "#718688",
+  base04 = "#8a9b9d",
+  base05 = "#d8e3e0",
+  base06 = "#eaf1ef",
+  base07 = "#f8fbfa",
+  base08 = "#e16f73",
+  base09 = "#f4a259",
+  base0A = "#d9c76b",
+  base0B = "#4dba7a",
+  base0C = "#59d6c5",
+  base0D = "#f08787",
+  base0E = "#33b8a8",
+  base0F = "#f08787",
+}
+
+M.type = "dark"
+
+M.polish_hl = {
+  syntax = {
+    Comment = { fg = "#718688", italic = true },
+    Constant = { fg = "#d9c76b" },
+    String = { fg = "#67cf94" },
+    Character = { fg = "#4dba7a" },
+    Number = { fg = "#d9c76b" },
+    Boolean = { fg = "#d9c76b" },
+    Float = { fg = "#efd45e" },
+    Identifier = { fg = "#d8e3e0" },
+    Function = { fg = "#f08787" },
+    Statement = { fg = "#33b8a8" },
+    Conditional = { fg = "#33b8a8" },
+    Repeat = { fg = "#33b8a8" },
+    Label = { fg = "#33b8a8" },
+    Operator = { fg = "#a4b4b2" },
+    Keyword = { fg = "#33b8a8" },
+    Exception = { fg = "#f08787" },
+    PreProc = { fg = "#67cf94" },
+    Include = { fg = "#59d6c5" },
+    Define = { fg = "#59d6c5" },
+    Macro = { fg = "#f08787" },
+    PreCondit = { fg = "#f4a259" },
+    Type = { fg = "#71e4d8" },
+    StorageClass = { fg = "#33b8a8" },
+    Structure = { fg = "#71e4d8" },
+    Typedef = { fg = "#71e4d8" },
+    Special = { fg = "#59d6c5" },
+    SpecialComment = { fg = "#718688" },
+    Underlined = { fg = "#59d6c5", underline = true },
+    Todo = { fg = "#0b1113", bg = "#d9c76b", bold = true },
+    Error = { fg = "#e16f73" },
+  },
+}
+
+M = require("base46").override_theme(M, "leenium")
+
+return M
