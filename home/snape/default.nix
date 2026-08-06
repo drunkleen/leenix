@@ -15,7 +15,6 @@
     ../../modules/home/swayosd
     ../../modules/home/waybar
     ../../modules/home/walker
-    ../../modules/home/power-menu
   ];
 
   home.username = vars.username;
