@@ -5,7 +5,7 @@
   ...
 }:
 
-{
+lib.mkIf vars.hardware.nvidia.enable {
   nixpkgs.config.allowUnfreePredicate =
     pkg:
     builtins.elem (lib.getName pkg) [
