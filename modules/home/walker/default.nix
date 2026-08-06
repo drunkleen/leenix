@@ -9,10 +9,15 @@
     enable = true;
     runAsService = true;
 
+    themes."leenium.hyprland" = {
+      style = builtins.readFile ./theme/style.css;
+    };
+
     config = {
       force_keyboard_focus = true;
       selection_wrap = true;
       hide_action_hints = true;
+      theme = "leenium.hyprland";
 
       placeholders.default = {
         input = " Search...";
