@@ -2,7 +2,7 @@
   imports = [
     ./hardware-configuration.nix
     ./disko.nix
-    ../../modules/nixos
+    ../../profiles/workstation.nix
   ];
 
   system.stateVersion = "26.05";
