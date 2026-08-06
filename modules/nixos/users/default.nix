@@ -1,18 +1,32 @@
-{ pkgs, vars, ... }:
+{
+  config,
+  pkgs,
+  vars,
+  ...
+}:
 
 {
   programs.zsh.enable = true;
 
-  users.users.${vars.username} = {
-    isNormalUser = true;
-    description = vars.fullName;
+  users = {
+    mutableUsers = false;
 
-    extraGroups = [
-      "networkmanager"
-      "wheel"
-    ];
+    users = {
+      root.hashedPassword = "!";
 
-    shell = pkgs.zsh;
+      ${vars.username} = {
+        isNormalUser = true;
+        description = vars.fullName;
+        hashedPasswordFile = config.age.secrets.user-password.path;
+
+        extraGroups = [
+          "networkmanager"
+          "wheel"
+        ];
+
+        shell = pkgs.zsh;
+      };
+    };
   };
 
   security.sudo.wheelNeedsPassword = true;
