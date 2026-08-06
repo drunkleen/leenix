@@ -1,3 +1,6 @@
+let
+  palette = import ../../../lib/leenium.nix;
+in
 {
   wayland.windowManager.hyprland.settings = {
     general = {
@@ -9,8 +12,9 @@
       resize_on_border = false;
       allow_tearing = false;
 
-      "col.active_border" = "rgba(33ccffee) rgba(00ff99ee) 45deg";
-      "col.inactive_border" = "rgba(595959aa)";
+      "col.active_border" =
+        "${palette.rgba palette.accent.teal "ee"} ${palette.rgba palette.accent.cyan "ee"} 45deg";
+      "col.inactive_border" = palette.rgba palette.neutral.activeBorder "aa";
     };
 
     decoration = {
@@ -20,7 +24,7 @@
         enabled = true;
         range = 2;
         render_power = 3;
-        color = "rgba(1a1a1aee)";
+        color = palette.rgba palette.neutral.baseBlack "ee";
       };
 
       blur = {
