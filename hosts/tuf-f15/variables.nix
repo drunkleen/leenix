@@ -15,6 +15,8 @@
   locale = "en_US.UTF-8";
   keymap = "us";
 
+  hardware.cpu.intel.enable = true;
+
   hardware.nvidia = {
     enable = true;
 
