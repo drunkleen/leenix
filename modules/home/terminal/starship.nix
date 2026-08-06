@@ -1,3 +1,6 @@
+let
+  palette = import ../../../lib/leenium.nix;
+in
 {
   programs.starship = {
     enable = true;
@@ -22,18 +25,18 @@
       username = {
         show_always = false;
         format = "[$user]($style) ";
-        style_user = "bold cyan";
-        style_root = "bold red";
+        style_user = "bold ${palette.accent.cyan}";
+        style_root = "bold ${palette.accent.red}";
       };
 
       hostname = {
         ssh_only = true;
-        format = "on [$hostname](bold blue) ";
+        format = "on [$hostname](bold ${palette.accent.blue}) ";
       };
 
       directory = {
         format = "in [$path]($style) ";
-        style = "bold cyan";
+        style = "bold ${palette.accent.cyan}";
         truncation_length = 3;
         truncate_to_repo = true;
         home_symbol = "~";
@@ -43,30 +46,30 @@
       git_branch = {
         symbol = " ";
         format = "on [$symbol$branch]($style) ";
-        style = "bold purple";
+        style = "bold ${palette.accent.teal}";
       };
 
       git_status = {
         format = "[$all_status$ahead_behind]($style) ";
-        style = "bold yellow";
+        style = "bold ${palette.accent.yellow}";
       };
 
       nix_shell = {
         symbol = " ";
         format = "via [$symbol$name]($style) ";
-        style = "bold blue";
+        style = "bold ${palette.accent.blue}";
       };
 
       cmd_duration = {
         min_time = 2000;
         format = "took [$duration]($style) ";
-        style = "bold yellow";
+        style = "bold ${palette.accent.yellow}";
       };
 
       character = {
-        success_symbol = "[❯](bold green)";
-        error_symbol = "[❯](bold red)";
-        vimcmd_symbol = "[❮](bold green)";
+        success_symbol = "[❯](bold ${palette.accent.emerald})";
+        error_symbol = "[❯](bold ${palette.accent.red})";
+        vimcmd_symbol = "[❮](bold ${palette.accent.emerald})";
       };
     };
   };
