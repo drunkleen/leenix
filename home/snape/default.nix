@@ -9,6 +9,7 @@
     ../../modules/home/fzf
 
     ../../modules/home/apps
+    ../../modules/home/ai
 
     ../../modules/home/themes
     ../../modules/home/hyprland
