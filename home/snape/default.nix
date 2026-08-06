@@ -19,10 +19,11 @@
     ../../modules/home/power-actions
   ];
 
-  home.username = vars.username;
-  home.homeDirectory = "/home/${vars.username}";
-
-  home.stateVersion = "26.05";
+  home = {
+    inherit (vars) username;
+    homeDirectory = "/home/${vars.username}";
+    stateVersion = "26.05";
+  };
 
   programs.home-manager.enable = true;
 }

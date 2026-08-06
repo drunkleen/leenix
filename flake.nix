@@ -38,7 +38,7 @@
           vars = import ./hosts/tuf-f15/variables.nix;
         in
         nixpkgs.lib.nixosSystem {
-          system = vars.system;
+          inherit (vars) system;
 
           specialArgs = {
             inherit vars inputs;
@@ -50,14 +50,16 @@
             ./hosts/tuf-f15
 
             {
-              home-manager.useGlobalPkgs = true;
-              home-manager.useUserPackages = true;
+              home-manager = {
+                useGlobalPkgs = true;
+                useUserPackages = true;
 
-              home-manager.extraSpecialArgs = {
-                inherit vars inputs;
+                extraSpecialArgs = {
+                  inherit vars inputs;
+                };
+
+                users.${vars.username} = import ./home/${vars.username};
               };
-
-              home-manager.users.${vars.username} = import ./home/${vars.username};
             }
           ];
         };
