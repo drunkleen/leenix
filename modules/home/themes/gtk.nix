@@ -3,8 +3,7 @@
 {
   gtk = {
     enable = true;
-
-    # colorScheme = "dark";
+    colorScheme = "dark";
 
     font = {
       name = "Noto Sans";
@@ -28,5 +27,10 @@
       gtk-decoration-layout = "menu:";
       gtk-enable-animations = true;
     };
+  };
+
+  dconf.settings."org/gnome/desktop/interface" = {
+    color-scheme = "prefer-dark";
+    gtk-theme = "Adwaita-dark";
   };
 }
