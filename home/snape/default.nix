@@ -12,6 +12,7 @@
 
     ../../modules/home/themes
     ../../modules/home/hyprland
+    ../../modules/home/swayosd
     ../../modules/home/waybar
     ../../modules/home/walker
   ];

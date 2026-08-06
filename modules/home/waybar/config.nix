@@ -38,6 +38,7 @@
 
         format-icons = {
           default = "";
+
           "1" = "1";
           "2" = "2";
           "3" = "3";
@@ -48,9 +49,12 @@
           "8" = "8";
           "9" = "9";
           "10" = "0";
+
           active = "󱓻";
         };
 
+        # مثل Omarchy فقط workspaceهای ۱ تا ۵ همیشه دیده می‌شوند.
+        # workspaceهای بالاتر فقط زمانی ظاهر می‌شوند که وجود داشته باشند.
         persistent-workspaces = {
           "1" = [ ];
           "2" = [ ];
@@ -109,6 +113,7 @@
 
         tooltip-format = "Playing at {volume}%";
         scroll-step = 5;
+
         on-click = "pwvucontrol";
         on-click-right = "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle";
       };
@@ -117,6 +122,7 @@
         interval = 5;
         format = "󰍛";
         tooltip-format = "CPU usage: {usage}%";
+
         on-click = "uwsm app -- kitty -e btop";
         on-click-right = "uwsm app -- kitty";
       };
