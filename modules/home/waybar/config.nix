@@ -9,7 +9,7 @@
       spacing = 0;
 
       modules-left = [
-        "custom/leenium"
+        "custom/leenix"
         "hyprland/workspaces"
       ];
 
@@ -26,9 +26,9 @@
         "battery"
       ];
 
-      "custom/leenium" = {
+      "custom/leenix" = {
         format = "󱄅";
-        tooltip-format = "Leenium Menu";
+        tooltip-format = "Leenix Menu";
         on-click-right = "uwsm app -- kitty";
       };
 

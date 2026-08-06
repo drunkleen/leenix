@@ -1,5 +1,8 @@
 { pkgs, ... }:
 
+let
+  palette = import ../../../lib/leenium.nix;
+in
 {
   imports = [
     ./config.nix
@@ -17,9 +20,10 @@
     };
 
     style = ''
-      @define-color foreground #d8e3e0;
-      @define-color background #0b1113;
-      @define-color critical #e16f73;
+      @define-color foreground ${palette.neutral.foreground};
+      @define-color background ${palette.background.main};
+      @define-color warning ${palette.accent.yellow};
+      @define-color critical ${palette.accent.red};
 
       * {
         background-color: @background;
@@ -67,7 +71,7 @@
       #cpu,
       #battery,
       #wireplumber,
-      #custom-leenium {
+      #custom-leenix {
         min-width: 12px;
         margin: 0 7.5px;
       }
@@ -99,7 +103,7 @@
       }
 
       #battery.warning {
-        color: #d9c76b;
+        color: @warning;
       }
 
       #battery.critical {
