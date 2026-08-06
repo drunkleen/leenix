@@ -22,36 +22,44 @@
     };
   };
 
-  outputs = inputs@{ self, nixpkgs, disko, home-manager, ... }:
-  {
-    nixosConfigurations.tuf-f15 =
-      let
-        vars = import ./hosts/tuf-f15/variables.nix;
-      in
-    nixpkgs.lib.nixosSystem {
-      system = vars.system;
+  outputs =
+    inputs@{
+      self,
+      nixpkgs,
+      disko,
+      home-manager,
+      ...
+    }:
+    {
+      formatter.x86_64-linux = nixpkgs.legacyPackages.x86_64-linux.nixfmt-tree;
 
-      specialArgs = {
-        inherit vars inputs;
-      };
+      nixosConfigurations.tuf-f15 =
+        let
+          vars = import ./hosts/tuf-f15/variables.nix;
+        in
+        nixpkgs.lib.nixosSystem {
+          system = vars.system;
 
-      modules = [
-        disko.nixosModules.disko
-        home-manager.nixosModules.home-manager
-        ./hosts/tuf-f15
-
-        {
-          home-manager.useGlobalPkgs = true;
-          home-manager.useUserPackages = true;
-
-          home-manager.extraSpecialArgs = {
+          specialArgs = {
             inherit vars inputs;
           };
 
-          home-manager.users.${vars.username} =
-            import ./home/${vars.username};
-        }
-      ];
+          modules = [
+            disko.nixosModules.disko
+            home-manager.nixosModules.home-manager
+            ./hosts/tuf-f15
+
+            {
+              home-manager.useGlobalPkgs = true;
+              home-manager.useUserPackages = true;
+
+              home-manager.extraSpecialArgs = {
+                inherit vars inputs;
+              };
+
+              home-manager.users.${vars.username} = import ./home/${vars.username};
+            }
+          ];
+        };
     };
-  };
 }
