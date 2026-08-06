@@ -53,8 +53,8 @@
           active = "󱓻";
         };
 
-        # مثل Omarchy فقط workspaceهای ۱ تا ۵ همیشه دیده می‌شوند.
-        # workspaceهای بالاتر فقط زمانی ظاهر می‌شوند که وجود داشته باشند.
+        # Keep workspaces 1 through 5 visible.
+        # Show higher workspaces only while they exist.
         persistent-workspaces = {
           "1" = [ ];
           "2" = [ ];
