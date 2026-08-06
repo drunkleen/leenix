@@ -8,6 +8,8 @@
     ../../modules/home/terminal
     ../../modules/home/fzf
 
+    ../../modules/home/apps
+
     ../../modules/home/themes
     ../../modules/home/hyprland
     ../../modules/home/waybar
