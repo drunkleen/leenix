@@ -5,6 +5,7 @@
     bind = [
       "$mod, RETURN, exec, uwsm app -- kitty"
       "$mod, B, exec, uwsm app -- firefox"
+      "$mod, SPACE, exec, walker"
 
       "$mod, Q, killactive"
       "$mod SHIFT, E, exit"
