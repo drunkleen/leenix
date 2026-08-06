@@ -1,14 +1,16 @@
 {
   programs.waybar.settings = {
     mainBar = {
+      reload_style_on_change = true;
+
       layer = "top";
       position = "top";
-      height = 34;
-      spacing = 8;
+      height = 26;
+      spacing = 0;
 
       modules-left = [
+        "custom/leenium"
         "hyprland/workspaces"
-        "hyprland/window"
       ];
 
       modules-center = [
@@ -16,66 +18,88 @@
       ];
 
       modules-right = [
-        "tray"
-        "network"
+        "group/tray-expander"
         "bluetooth"
-        "power-profiles-daemon"
+        "network"
         "wireplumber"
+        "cpu"
         "battery"
       ];
 
+      "custom/leenium" = {
+        format = "󱄅";
+        tooltip-format = "Leenium Menu";
+        on-click-right = "uwsm app -- kitty";
+      };
+
       "hyprland/workspaces" = {
-        disable-scroll = true;
-        all-outputs = true;
+        on-click = "activate";
         format = "{icon}";
 
         format-icons = {
-          active = "";
-          default = "";
-          urgent = "";
+          default = "";
+          "1" = "1";
+          "2" = "2";
+          "3" = "3";
+          "4" = "4";
+          "5" = "5";
+          "6" = "6";
+          "7" = "7";
+          "8" = "8";
+          "9" = "9";
+          "10" = "0";
+          active = "󱓻";
         };
-      };
 
-      "hyprland/window" = {
-        format = "{}";
-        max-length = 45;
-        separate-outputs = true;
+        persistent-workspaces = {
+          "1" = [ ];
+          "2" = [ ];
+          "3" = [ ];
+          "4" = [ ];
+          "5" = [ ];
+        };
       };
 
       clock = {
-        format = "  {:%H:%M}";
-        format-alt = "  {:%A, %d %B %Y}";
-        tooltip-format = "<tt><small>{calendar}</small></tt>";
+        format = "{:%A %H:%M}";
+        format-alt = "{:%d %B W%V %Y}";
+        tooltip = false;
       };
 
       network = {
-        format-wifi = "  {essid}";
-        format-ethernet = "󰈀  Connected";
-        format-disconnected = "󰖪  Offline";
-        tooltip-format = "{ifname}\n{ipaddr}/{cidr}\nSignal: {signalStrength}%";
+        format-icons = [
+          "󰤯"
+          "󰤟"
+          "󰤢"
+          "󰤥"
+          "󰤨"
+        ];
+
+        format = "{icon}";
+        format-wifi = "{icon}";
+        format-ethernet = "󰀂";
+        format-disconnected = "󰤮";
+
+        tooltip-format-wifi = "{essid} ({frequency} GHz)";
+        tooltip-format-ethernet = "Connected";
+        tooltip-format-disconnected = "Disconnected";
+
+        interval = 3;
+        spacing = 1;
       };
 
       bluetooth = {
-        format = "  {status}";
-        format-connected = "  {num_connections}";
+        format = "";
+        format-off = "󰂲";
         format-disabled = "󰂲";
-        tooltip-format = "{controller_alias}\n{num_connections} connected";
-      };
-
-      power-profiles-daemon = {
-        format = "{icon}";
-        tooltip-format = "Power profile: {profile}";
-
-        format-icons = {
-          performance = "";
-          balanced = "";
-          power-saver = "";
-        };
+        format-connected = "󰂱";
+        format-no-controller = "";
+        tooltip-format = "Devices connected: {num_connections}";
       };
 
       wireplumber = {
-        format = "{icon}  {volume}%";
-        format-muted = "󰝟  Muted";
+        format = "{icon}";
+        format-muted = "";
 
         format-icons = [
           ""
@@ -83,30 +107,93 @@
           ""
         ];
 
+        tooltip-format = "Playing at {volume}%";
+        scroll-step = 5;
         on-click = "pwvucontrol";
+        on-click-right = "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle";
+      };
+
+      cpu = {
+        interval = 5;
+        format = "󰍛";
+        tooltip-format = "CPU usage: {usage}%";
+        on-click = "uwsm app -- kitty -e btop";
+        on-click-right = "uwsm app -- kitty";
       };
 
       battery = {
-        states = {
-          warning = 30;
-          critical = 15;
+        format = "{capacity}% {icon}";
+        format-discharging = "{icon}";
+        format-charging = "{icon}";
+        format-plugged = "";
+        format-full = "󰂅";
+
+        format-icons = {
+          charging = [
+            "󰢜"
+            "󰂆"
+            "󰂇"
+            "󰂈"
+            "󰢝"
+            "󰂉"
+            "󰢞"
+            "󰂊"
+            "󰂋"
+            "󰂅"
+          ];
+
+          default = [
+            "󰁺"
+            "󰁻"
+            "󰁼"
+            "󰁽"
+            "󰁾"
+            "󰁿"
+            "󰂀"
+            "󰂁"
+            "󰂂"
+            "󰁹"
+          ];
         };
 
-        format = "{icon}  {capacity}%";
-        format-charging = "󰂄  {capacity}%";
-        format-plugged = "  {capacity}%";
+        tooltip-format-discharging = "{power:>1.0f}W↓ {capacity}%";
+        tooltip-format-charging = "{power:>1.0f}W↑ {capacity}%";
 
-        format-icons = [
-          ""
-          ""
-          ""
-          ""
-          ""
+        interval = 5;
+
+        states = {
+          warning = 20;
+          critical = 10;
+        };
+      };
+
+      "group/tray-expander" = {
+        orientation = "inherit";
+
+        drawer = {
+          transition-duration = 600;
+          children-class = "tray-group-item";
+        };
+
+        modules = [
+          "custom/expand-icon"
+          "tray"
         ];
       };
 
+      "custom/expand-icon" = {
+        format = "";
+        tooltip = false;
+
+        on-scroll-up = "";
+        on-scroll-down = "";
+        on-scroll-left = "";
+        on-scroll-right = "";
+      };
+
       tray = {
-        spacing = 10;
+        icon-size = 12;
+        spacing = 17;
       };
     };
   };
