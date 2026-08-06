@@ -39,4 +39,6 @@ in
     packages = [ leeniumKvantumTheme ];
     sessionVariables.KVANTUM_THEME = "Leenium";
   };
+
+  systemd.user.sessionVariables.KVANTUM_THEME = "Leenium";
 }
