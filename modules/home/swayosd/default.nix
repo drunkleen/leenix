@@ -1,6 +1,8 @@
 { pkgs, vars, ... }:
 
 let
+  palette = import ../../../lib/leenium.nix;
+
   scripts = import ../../../scripts/default.nix {
     inherit pkgs;
     touchpadDevice = vars.hardware.touchpad.device;
@@ -10,11 +12,11 @@ in
   services.swayosd.enable = true;
 
   xdg.configFile."swayosd/style.css".text = ''
-    @define-color background-color #11191c;
-    @define-color border-color #223033;
-    @define-color foreground #d8e3e0;
-    @define-color progress-start #33b8a8;
-    @define-color progress-end #59d6c5;
+    @define-color background-color ${palette.background.panel};
+    @define-color border-color ${palette.neutral.border};
+    @define-color foreground ${palette.neutral.foreground};
+    @define-color progress-start ${palette.accent.teal};
+    @define-color progress-end ${palette.accent.cyan};
 
     window {
       background: transparent;
