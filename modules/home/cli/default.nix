@@ -4,6 +4,7 @@
   imports = [
     ./bat.nix
     ./lazygit.nix
+    ./tealdeer.nix
     ./yazi.nix
   ];
 
@@ -17,10 +18,8 @@
     jq
     p7zip
     ripgrep
-    tealdeer
     tree
     unzip
-    yazi
     yq-go
     zip
   ];
