@@ -49,6 +49,8 @@
           deadnix --fail --exclude hosts/tuf-f15/hardware-configuration.nix .
           touch $out
         '';
+
+        tuf-f15 = self.nixosConfigurations.tuf-f15.config.system.build.toplevel;
       };
 
       nixosConfigurations.tuf-f15 =
