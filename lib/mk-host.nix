@@ -23,16 +23,7 @@ nixpkgs.lib.nixosSystem {
     ../hosts/${hostName}
 
     {
-      home-manager = {
-        useGlobalPkgs = true;
-        useUserPackages = true;
-
-        extraSpecialArgs = {
-          inherit vars inputs;
-        };
-
-        users.${vars.username} = import ../home/${vars.username};
-      };
+      home-manager = import ./mk-home.nix { inherit inputs; } { inherit vars; };
     }
   ];
 }
