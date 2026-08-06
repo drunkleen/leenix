@@ -5,7 +5,7 @@
   ...
 }:
 
-lib.mkIf vars.hardware.nvidia.enable {
+lib.mkIf (lib.attrByPath [ "hardware" "nvidia" "enable" ] false vars) {
   nixpkgs.config.allowUnfreePredicate =
     pkg:
     builtins.elem (lib.getName pkg) [
