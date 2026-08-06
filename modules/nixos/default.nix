@@ -4,7 +4,7 @@ _:
   imports = [
     ../../profiles/core.nix
     ./boot
-    ./desktop
+    ../../profiles/desktop.nix
     ./hardware
     ./networking
     ./security
