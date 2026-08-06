@@ -11,6 +11,9 @@
 
     themes."leenium.hyprland" = {
       style = builtins.readFile ./theme/style.css;
+      layouts = {
+        layout = builtins.readFile ./theme/layout.xml;
+      };
     };
 
     config = {
