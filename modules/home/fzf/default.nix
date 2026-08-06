@@ -1,5 +1,6 @@
 {
   imports = [
+    ./colors.nix
     ./keybindings.nix
     ./preview.nix
   ];

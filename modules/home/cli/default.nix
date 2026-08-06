@@ -1,8 +1,11 @@
 { pkgs, ... }:
 
 {
+  imports = [
+    ./bat.nix
+  ];
+
   home.packages = with pkgs; [
-    bat
     btop
     dust
     duf
@@ -20,7 +23,6 @@
     yq-go
     zip
   ];
-
 
   programs.zoxide = {
     enable = true;
