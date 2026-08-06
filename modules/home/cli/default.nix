@@ -4,6 +4,7 @@
   imports = [
     ./bat.nix
     ./lazygit.nix
+    ./yazi.nix
   ];
 
   home.packages = with pkgs; [
