@@ -3,6 +3,7 @@
 {
   imports = [
     ./bat.nix
+    ./lazygit.nix
   ];
 
   home.packages = with pkgs; [
@@ -13,7 +14,6 @@
     fd
     fzf
     jq
-    lazygit
     p7zip
     ripgrep
     tealdeer
