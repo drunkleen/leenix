@@ -7,210 +7,257 @@
     systemd = {
       enable = true;
       targets = [
-        "graphical-session.target"
+	"graphical-session.target"
       ];
     };
 
     settings = {
       mainBar = {
-        layer = "top";
-        position = "top";
-        height = 34;
-        spacing = 8;
+	layer = "top";
+	position = "top";
+	height = 34;
+	spacing = 8;
 
-        modules-left = [
-          "hyprland/workspaces"
-          "hyprland/window"
-        ];
+	modules-left = [
+	  "hyprland/workspaces"
+	    "hyprland/window"
+	];
 
-        modules-center = [
-          "clock"
-        ];
+	modules-center = [
+	  "clock"
+	];
 
-        modules-right = [
-          "tray"
-          "network"
-          "bluetooth"
-          "power-profiles-daemon"
-          "wireplumber"
-          "battery"
-        ];
+	modules-right = [
+	  "tray"
+	    "network"
+	    "bluetooth"
+	    "power-profiles-daemon"
+	    "wireplumber"
+	    "battery"
+	];
 
-        "hyprland/workspaces" = {
-          disable-scroll = true;
-          all-outputs = true;
-          format = "{icon}";
+	"hyprland/workspaces" = {
+	  disable-scroll = true;
+	  all-outputs = true;
+	  format = "{icon}";
 
-          format-icons = {
-            active = "";
-            default = "";
-            urgent = "";
-          };
-        };
+	  format-icons = {
+	    active = "";
+	    default = "";
+	    urgent = "";
+	  };
+	};
 
-        "hyprland/window" = {
-          format = "{}";
-          max-length = 45;
-          separate-outputs = true;
-        };
+	"hyprland/window" = {
+	  format = "{}";
+	  max-length = 45;
+	  separate-outputs = true;
+	};
 
-        clock = {
-          format = "  {:%H:%M}";
-          format-alt = "  {:%A, %d %B %Y}";
-          tooltip-format = "<tt><small>{calendar}</small></tt>";
-        };
+	clock = {
+	  format = "  {:%H:%M}";
+	  format-alt = "  {:%A, %d %B %Y}";
+	  tooltip-format = "<tt><small>{calendar}</small></tt>";
+	};
 
-        network = {
-          format-wifi = "  {essid}";
-          format-ethernet = "󰈀  Connected";
-          format-disconnected = "󰖪  Offline";
-          tooltip-format = "{ifname}\n{ipaddr}/{cidr}\nSignal: {signalStrength}%";
-        };
+	network = {
+	  format-wifi = "  {essid}";
+	  format-ethernet = "󰈀  Connected";
+	  format-disconnected = "󰖪  Offline";
+	  tooltip-format = "{ifname}\n{ipaddr}/{cidr}\nSignal: {signalStrength}%";
+	};
 
-        bluetooth = {
-          format = "  {status}";
-          format-connected = "  {num_connections}";
-          format-disabled = "󰂲";
-          tooltip-format = "{controller_alias}\n{num_connections} connected";
-        };
+	bluetooth = {
+	  format = "  {status}";
+	  format-connected = "  {num_connections}";
+	  format-disabled = "󰂲";
+	  tooltip-format = "{controller_alias}\n{num_connections} connected";
+	};
 
-        power-profiles-daemon = {
-          format = "{icon}";
-          tooltip-format = "Power profile: {profile}";
+	power-profiles-daemon = {
+	  format = "{icon}";
+	  tooltip-format = "Power profile: {profile}";
 
-          format-icons = {
-            performance = "";
-            balanced = "";
-            power-saver = "";
-          };
-        };
+	  format-icons = {
+	    performance = "";
+	    balanced = "";
+	    power-saver = "";
+	  };
+	};
 
-        wireplumber = {
-          format = "{icon}  {volume}%";
-          format-muted = "󰝟  Muted";
+	wireplumber = {
+	  format = "{icon}  {volume}%";
+	  format-muted = "󰝟  Muted";
 
-          format-icons = [
-            ""
-            ""
-            ""
-          ];
+	  format-icons = [
+	    ""
+	      ""
+	      ""
+	  ];
 
-          on-click = "pwvucontrol";
-        };
+	  on-click = "pwvucontrol";
+	};
 
-        battery = {
-          states = {
-            warning = 30;
-            critical = 15;
-          };
+	battery = {
+	  states = {
+	    warning = 30;
+	    critical = 15;
+	  };
 
-          format = "{icon}  {capacity}%";
-          format-charging = "󰂄  {capacity}%";
-          format-plugged = "  {capacity}%";
+	  format = "{icon}  {capacity}%";
+	  format-charging = "󰂄  {capacity}%";
+	  format-plugged = "  {capacity}%";
 
-          format-icons = [
-            ""
-            ""
-            ""
-            ""
-            ""
-          ];
-        };
+	  format-icons = [
+	    ""
+	      ""
+	      ""
+	      ""
+	      ""
+	  ];
+	};
 
-        tray = {
-          spacing = 10;
-        };
+	tray = {
+	  spacing = 10;
+	};
       };
     };
 
     style = ''
-      * {
-        border: none;
-        border-radius: 0;
-        font-family: "JetBrainsMono Nerd Font";
-        font-size: 13px;
-        min-height: 0;
-      }
+      @define-color foreground #d8e3e0;
+    @define-color background #0b1113;
+    @define-color surface #182326;
+    @define-color surface-alt #223034;
+    @define-color muted #4a5f62;
+    @define-color selection #365156;
+    @define-color accent #33b8a8;
+    @define-color accent-soft #59d6c5;
+    @define-color green #4dba7a;
+    @define-color yellow #d9c76b;
+    @define-color red #e16f73;
+    @define-color blue #5e9bff;
 
-      window#waybar {
-        background: rgba(17, 18, 32, 0.92);
-        color: #cdd6f4;
-      }
+    * {
+border: none;
+	border-radius: 0;
+	font-family: "JetBrainsMono Nerd Font";
+	font-size: 13px;
+	min-height: 0;
+    }
 
-      #workspaces {
-        margin: 5px 0 5px 8px;
-        padding: 0 6px;
-        background: rgba(30, 30, 46, 0.92);
-        border-radius: 10px;
-      }
+    window#waybar {
+background: alpha(@background, 0.96);
+color: @foreground;
+    }
 
-      #workspaces button {
-        padding: 0 7px;
-        color: #6c7086;
-        background: transparent;
-      }
+    tooltip {
+background: @background;
+color: @foreground;
+border: 1px solid @selection;
+    }
 
-      #workspaces button.active {
-        color: #a6e3a1;
-      }
+    tooltip label {
+color: @foreground;
+    }
 
-      #workspaces button.urgent {
-        color: #f38ba8;
-      }
+#workspaces {
+margin: 4px 0 4px 8px;
+padding: 0 4px;
+background: @surface;
+}
 
-      #window {
-        margin-left: 8px;
-        color: #bac2de;
-      }
+#workspaces button {
+padding: 0 7px;
+color: @muted;
+background: transparent;
+transition: all 150ms ease;
+}
 
-      #clock,
-      #network,
-      #bluetooth,
-      #power-profiles-daemon,
-      #wireplumber,
-      #battery,
-      #tray {
-        margin: 5px 4px;
-        padding: 0 10px;
-        background: rgba(30, 30, 46, 0.92);
-        border-radius: 10px;
-      }
+#workspaces button:hover {
+color: @foreground;
+background: @surface-alt;
+}
 
-      #clock {
-        color: #cba6f7;
-      }
+#workspaces button.active {
+color: @accent;
+}
 
-      #network {
-        color: #f9e2af;
-      }
+#workspaces button.urgent {
+color: @red;
+}
 
-      #bluetooth {
-        color: #89b4fa;
-      }
+#window {
+  margin-left: 10px;
+color: @foreground;
+}
 
-      #power-profiles-daemon {
-        color: #fab387;
-      }
+#clock,
+#network,
+#bluetooth,
+#power-profiles-daemon,
+#wireplumber,
+#battery,
+#tray {
+margin: 4px 3px;
+padding: 0 9px;
+background: @surface;
+color: @foreground;
+transition: all 150ms ease;
+}
 
-      #wireplumber {
-        color: #94e2d5;
-      }
+#clock:hover,
+#network:hover,
+#bluetooth:hover,
+#power-profiles-daemon:hover,
+#wireplumber:hover,
+#battery:hover,
+#tray:hover {
+background: @surface-alt;
+}
 
-      #battery {
-        color: #a6e3a1;
-      }
+#clock {
+color: @accent-soft;
+}
 
-      #battery.warning {
-        color: #f9e2af;
-      }
+#network {
+color: @yellow;
+}
 
-      #battery.critical {
-        color: #f38ba8;
-      }
-    '';
-  };
+#network.disconnected {
+color: @red;
+}
 
-  home.packages = with pkgs; [
-    pwvucontrol
-  ];
+#bluetooth {
+color: @blue;
+}
+
+#power-profiles-daemon {
+color: @accent;
+}
+
+#wireplumber {
+color: @accent-soft;
+}
+
+#wireplumber.muted {
+color: @muted;
+}
+
+#battery {
+color: @green;
+}
+
+#battery.warning {
+color: @yellow;
+}
+
+#battery.critical {
+color: @red;
+}
+'';
+};
+
+home.packages = with pkgs; [
+  pwvucontrol
+];
 }
