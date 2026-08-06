@@ -30,8 +30,26 @@
       home-manager,
       ...
     }:
+    let
+      system = "x86_64-linux";
+      pkgs = nixpkgs.legacyPackages.${system};
+    in
     {
-      formatter.x86_64-linux = nixpkgs.legacyPackages.x86_64-linux.nixfmt-tree;
+      formatter.${system} = pkgs.nixfmt-tree;
+
+      checks.${system} = {
+        statix = pkgs.runCommand "statix-check" { nativeBuildInputs = [ pkgs.statix ]; } ''
+          cd ${self}
+          statix check --ignore 'hosts/tuf-f15/hardware-configuration.nix' .
+          touch $out
+        '';
+
+        deadnix = pkgs.runCommand "deadnix-check" { nativeBuildInputs = [ pkgs.deadnix ]; } ''
+          cd ${self}
+          deadnix --fail --exclude hosts/tuf-f15/hardware-configuration.nix .
+          touch $out
+        '';
+      };
 
       nixosConfigurations.tuf-f15 =
         let
