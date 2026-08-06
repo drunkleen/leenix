@@ -5,7 +5,7 @@ _:
     ../../profiles/core.nix
     ./boot
     ../../profiles/desktop.nix
-    ./hardware
+    ../../profiles/laptop.nix
     ./networking
     ./security
     ./services
