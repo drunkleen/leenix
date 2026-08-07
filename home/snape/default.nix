@@ -18,6 +18,7 @@
     ../../modules/home/waybar
     ../../modules/home/walker
     ../../modules/home/power-actions
+    ../../modules/home/tools
   ];
 
   home = {

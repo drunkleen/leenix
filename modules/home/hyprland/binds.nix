@@ -5,7 +5,9 @@
     bind = [
       # Applications
       "$mod, RETURN, exec, uwsm app -- kitty"
+      "$mod SHIFT, RETURN, exec, uwsm app -- firefox"
       "$mod, B, exec, uwsm app -- firefox"
+      "$mod SHIFT, F, exec, uwsm app -- kitty -e yazi"
       "$mod, SPACE, exec, walker"
 
       # Window management
@@ -30,6 +32,7 @@
       "$mod, 7, workspace, 7"
       "$mod, 8, workspace, 8"
       "$mod, 9, workspace, 9"
+      "$mod, 0, workspace, 10"
 
       # Move windows to workspaces
       "$mod SHIFT, 1, movetoworkspace, 1"
@@ -41,6 +44,16 @@
       "$mod SHIFT, 7, movetoworkspace, 7"
       "$mod SHIFT, 8, movetoworkspace, 8"
       "$mod SHIFT, 9, movetoworkspace, 9"
+      "$mod SHIFT, 0, movetoworkspace, 10"
+
+      # Hardware panels (temporary fallback tools until custom panels land)
+      "$mod CTRL, A, exec, pwvucontrol"
+      "$mod CTRL, B, exec, blueman-manager"
+      "$mod CTRL, W, exec, nm-connection-editor"
+      "$mod CTRL, D, exec, hyprctl monitors"
+
+      # Lock the session
+      "$mod CTRL, L, exec, loginctl lock-session"
     ];
 
     # Repeat while the key is held
@@ -49,9 +62,17 @@
       ", XF86AudioRaiseVolume, exec, swayosd-client --output-volume raise"
       ", XF86AudioLowerVolume, exec, swayosd-client --output-volume lower"
 
+      # Precise volume
+      "ALT, XF86AudioRaiseVolume, exec, swayosd-client --output-volume +1"
+      "ALT, XF86AudioLowerVolume, exec, swayosd-client --output-volume -1"
+
       # Display brightness
       ", XF86MonBrightnessUp, exec, swayosd-client --brightness raise"
       ", XF86MonBrightnessDown, exec, swayosd-client --brightness lower"
+
+      # Precise brightness
+      "ALT, XF86MonBrightnessUp, exec, swayosd-client --brightness +1"
+      "ALT, XF86MonBrightnessDown, exec, swayosd-client --brightness -1"
     ];
 
     # Works while the session is locked
