@@ -1,4 +1,4 @@
-{ inputs }:
+{ inputs, self }:
 { vars }:
 
 {
@@ -6,7 +6,7 @@
   useUserPackages = true;
 
   extraSpecialArgs = {
-    inherit vars inputs;
+    inherit vars inputs self;
   };
 
   users.${vars.username} = import ../home/${vars.username};

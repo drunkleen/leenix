@@ -1,4 +1,4 @@
-{ inputs }:
+{ inputs, self }:
 { hostName }:
 
 let
@@ -15,7 +15,7 @@ nixpkgs.lib.nixosSystem {
   inherit (vars) system;
 
   specialArgs = {
-    inherit vars inputs;
+    inherit vars inputs self;
   };
 
   modules = [
@@ -25,7 +25,7 @@ nixpkgs.lib.nixosSystem {
     ../hosts/${hostName}
 
     {
-      home-manager = import ./mk-home.nix { inherit inputs; } { inherit vars; };
+      home-manager = import ./mk-home.nix { inherit inputs self; } { inherit vars; };
     }
   ];
 }

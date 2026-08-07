@@ -36,7 +36,7 @@
     let
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
-      mkHost = import ./lib/mk-host.nix { inherit inputs; };
+      mkHost = import ./lib/mk-host.nix { inherit inputs self; };
     in
     {
       formatter.${system} = pkgs.nixfmt-tree;
@@ -75,7 +75,10 @@
         leenix-shell = self.packages.${system}.leenix-shell;
       };
 
-      packages.${system}.leenix-shell = pkgs.callPackage ./packages/leenix-shell { };
+      packages.${system} = {
+        leenix-shell = pkgs.callPackage ./packages/leenix-shell { };
+        leenium-wallpapers = pkgs.callPackage ./packages/leenium-wallpapers { };
+      };
 
       nixosConfigurations.tuf-f15 = mkHost { hostName = "tuf-f15"; };
     };
