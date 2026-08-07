@@ -51,6 +51,9 @@ stdenvNoCC.mkDerivation {
     makeWrapper ${lib.getExe quickshell} "$out/bin/leenix-shell" \
       --add-flags "--no-duplicate -p $out/share/leenix-shell"
 
+    makeWrapper ${lib.getExe quickshell} "$out/bin/leenix-panel" \
+      --add-flags "--path $out/share/leenix-shell ipc call shell"
+
     runHook postInstall
   '';
 

@@ -1,5 +1,6 @@
 import Quickshell
 import Quickshell.Hyprland
+import Quickshell.Io
 import QtQuick
 import QtQuick.Layouts
 
@@ -39,6 +40,51 @@ ShellRoot {
       Tray {}
 
       Clock {}
+    }
+  }
+
+  Panel {
+    id: powerPanel
+    reference: bar
+    placeRight: true
+    open: false
+
+    content: [
+      PanelButton {
+        text: "Lock"
+        command: "loginctl lock-session"
+        onActivated: powerPanel.drop()
+      },
+      PanelButton {
+        text: "Suspend"
+        command: "systemctl suspend"
+        onActivated: powerPanel.drop()
+      },
+      PanelButton {
+        text: "Reboot"
+        command: "systemctl reboot"
+        onActivated: powerPanel.drop()
+      },
+      PanelButton {
+        text: "Shut Down"
+        command: "systemctl poweroff"
+        onActivated: powerPanel.drop()
+      }
+    ]
+  }
+
+  IpcHandler {
+    target: "shell"
+
+    function ping(): string { return "ok" }
+    function toggle(panel: string): void {
+      if (panel === "power") powerPanel.flip()
+    }
+    function open(panel: string): void {
+      if (panel === "power") powerPanel.popup()
+    }
+    function close(panel: string): void {
+      if (panel === "power") powerPanel.drop()
     }
   }
 }

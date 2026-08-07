@@ -52,6 +52,9 @@
       "$mod CTRL, W, exec, nm-connection-editor"
       "$mod CTRL, D, exec, hyprctl monitors"
 
+      # Leenix power panel (first native IPC panel)
+      "$mod CTRL, P, exec, leenix-panel toggle power"
+
       # Lock the session
       "$mod CTRL, L, exec, loginctl lock-session"
     ];
