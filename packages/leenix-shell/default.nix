@@ -22,4 +22,6 @@ stdenvNoCC.mkDerivation {
 
     runHook postInstall
   '';
+
+  meta.mainProgram = "leenix-shell";
 }

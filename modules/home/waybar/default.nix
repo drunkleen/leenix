@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ config, pkgs, ... }:
 
 let
   palette = import ../../../lib/leenium.nix;
@@ -15,7 +15,7 @@ in
       enable = true;
 
       targets = [
-        "graphical-session.target"
+        config.leenix.fallbackSession.target
       ];
     };
 

@@ -1,4 +1,10 @@
-{ pkgs, vars, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  vars,
+  ...
+}:
 
 let
   palette = import ../../../lib/leenium.nix;
@@ -10,6 +16,14 @@ let
 in
 {
   services.swayosd.enable = true;
+
+  systemd.user.services.swayosd = {
+    Unit = {
+      After = lib.mkForce [ config.leenix.fallbackSession.target ];
+      PartOf = lib.mkForce [ config.leenix.fallbackSession.target ];
+    };
+    Install.WantedBy = lib.mkForce [ config.leenix.fallbackSession.target ];
+  };
 
   xdg.configFile."swayosd/style.css".text = ''
     @define-color background-color ${palette.background.panel};

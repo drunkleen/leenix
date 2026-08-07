@@ -1,4 +1,9 @@
-{ inputs, ... }:
+{
+  config,
+  inputs,
+  lib,
+  ...
+}:
 
 let
   palette = import ../../../lib/leenium.nix;
@@ -96,5 +101,16 @@ in
         ];
       };
     };
+  };
+
+  systemd.user.services.walker = {
+    Unit = {
+      After = lib.mkForce [
+        config.leenix.fallbackSession.target
+        "elephant.service"
+      ];
+      PartOf = lib.mkForce [ config.leenix.fallbackSession.target ];
+    };
+    Install.WantedBy = lib.mkForce [ config.leenix.fallbackSession.target ];
   };
 }

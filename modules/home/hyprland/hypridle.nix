@@ -1,3 +1,5 @@
+{ config, lib, ... }:
+
 {
   services.hypridle = {
     enable = true;
@@ -30,5 +32,13 @@
         # }
       ];
     };
+  };
+
+  systemd.user.services.hypridle = {
+    Unit = {
+      After = lib.mkForce [ config.leenix.fallbackSession.target ];
+      PartOf = lib.mkForce [ config.leenix.fallbackSession.target ];
+    };
+    Install.WantedBy = lib.mkForce [ config.leenix.fallbackSession.target ];
   };
 }
