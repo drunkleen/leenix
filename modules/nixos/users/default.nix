@@ -19,6 +19,8 @@
         description = vars.fullName;
         hashedPasswordFile = config.age.secrets.user-password.path;
 
+        openssh.authorizedKeys.keys = vars.sshAuthorizedKeys;
+
         extraGroups = [
           "networkmanager"
           "wheel"

@@ -23,8 +23,14 @@
     enable = true;
 
     settings = {
-      PasswordAuthentication = true;
+      PasswordAuthentication = false;
+      KbdInteractiveAuthentication = false;
       PermitRootLogin = "no";
+      PermitEmptyPasswords = false;
+      X11Forwarding = false;
+      PrintMotd = false;
+
+      AuthenticationMethods = "publickey";
     };
   };
 

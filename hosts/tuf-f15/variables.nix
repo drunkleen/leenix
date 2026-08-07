@@ -5,6 +5,10 @@
   username = "snape";
   fullName = "Snape";
 
+  sshAuthorizedKeys = [
+    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIH/aDWq4qLWzSFn+Zqt6FBIN+mFAR9hMG2dRHkweLxAO snape@tuf-f15"
+  ];
+
   git = {
     name = "DrunkLeen";
     email = "snape@drunkleen.com";
