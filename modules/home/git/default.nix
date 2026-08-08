@@ -1,8 +1,8 @@
-{ ... }:
+{ variables, ... }:
 
 {
   home.file.".config/git/allowed_signers".text = ''
-    snape@drunkleen.com ${builtins.readFile ../../../keys/github.pub}
+    ${variables.git.email} ${builtins.readFile ../../../keys/github.pub}
   '';
 
   programs.git = {
@@ -10,8 +10,8 @@
 
     settings = {
       user = {
-        name = "DrunkLeen";
-        email = "snape@drunkleen.com";
+        name = variables.git.name;
+        email = variables.git.email;
         signingKey = "~/.ssh/github.pub";
       };
 
@@ -28,7 +28,7 @@
 
       tag.gpgSign = true;
 
-      init.defaultBranch = "master";
+      init.defaultBranch = variables.git.branch;
 
       pull.rebase = true;
       push.autoSetupRemote = true;
@@ -47,13 +47,6 @@
       rerere = {
         enabled = true;
         autoUpdate = true;
-      };
-
-      alias = {
-        co = "checkout";
-        br = "branch";
-        ci = "commit";
-        st = "status";
       };
     };
   };

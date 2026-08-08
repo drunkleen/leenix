@@ -12,28 +12,29 @@
 
   outputs =
     { nixpkgs, home-manager, ... }:
-    let
-      system = "x86_64-linux";
-      pkgs = nixpkgs.legacyPackages.${system};
+  let
+    variables = import ./system/variables.nix;
 
-      systemConfig = import ./system/default.nix;
-      variables = import ./system/variables.nix;
+    system = variables.system;
+    pkgs = nixpkgs.legacyPackages.${system};
 
-      boot = import ./system/boot {
-        inherit pkgs systemConfig variables;
-      };
+    systemConfig = import ./system/default.nix;
 
-      security = import ./system/security {
-        inherit pkgs systemConfig variables;
-      };
+    boot = import ./system/boot {
+      inherit pkgs systemConfig variables;
+    };
+
+    security = import ./system/security {
+      inherit pkgs systemConfig variables;
+    };
     in
     {
-      homeConfigurations."snape@hogwarts" =
+      homeConfigurations."${variables.user.username}@${variables.host.hostname}" =
         home-manager.lib.homeManagerConfiguration {
           inherit pkgs;
 
           modules = [
-            ./home/snape/default.nix
+            ./home/default.nix
           ];
         };
 

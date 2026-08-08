@@ -1,4 +1,10 @@
 {
+  system = "x86_64-linux";
+
+  host = {
+    hostname = "hogwarts";
+  };
+
   user = {
     username = "snape";
     homeDirectory = "/home/snape";
