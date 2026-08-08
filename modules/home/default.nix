@@ -5,6 +5,7 @@
     ./cli
     ./git
     ./nvim
+    ./shell
     ./ssh
   ];
 }
