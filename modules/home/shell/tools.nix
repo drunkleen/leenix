@@ -5,14 +5,15 @@
     zsh
     starship
     bat
-    eza
-    yazi
-    fzf
+    bc
     curl
-    jq
+    eza
+    fzf
     iproute2
-    xdg-utils
+    jq
     nautilus
+    xdg-utils
+    yazi
   ];
 
   programs.zoxide = {

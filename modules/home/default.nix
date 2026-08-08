@@ -4,6 +4,7 @@
   imports = [
     ./cli
     ./git
+    ./hyprland
     ./nvim
     ./shell
     ./ssh
