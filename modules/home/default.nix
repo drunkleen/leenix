@@ -3,5 +3,7 @@
 {
   imports = [
     ./cli
+    ./git
+    ./ssh
   ];
 }
