@@ -16,7 +16,11 @@
     variables = import ./system/variables.nix;
 
     system = variables.system;
-    pkgs = nixpkgs.legacyPackages.${system};
+
+    pkgs = import nixpkgs {
+      inherit system;
+      config.allowUnfree = true;
+    };
 
     systemConfig = import ./system/default.nix;
 
