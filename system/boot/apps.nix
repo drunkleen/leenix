@@ -1,7 +1,9 @@
-{ pkgs, systemConfig }:
+{ pkgs, systemConfig, variables }:
 
 let
-  boot = import ./config.nix;
+  boot = import ./config.nix {
+    inherit variables;
+  };
 
   hooks = pkgs.lib.concatStringsSep " " boot.mkinitcpio.hooks;
   files = pkgs.lib.concatStringsSep " " boot.mkinitcpio.files;

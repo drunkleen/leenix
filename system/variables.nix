@@ -22,4 +22,24 @@
     userVerification = false;
     pinVerification = true;
   };
+
+  boot = {
+    luks = {
+      device = "/dev/nvme0n1p2";
+      uuid = "8da1c3c9-5ee6-4961-b935-4a3d76a6b0f0";
+      mapperName = "root";
+    };
+
+    fido2 = {
+      device = "auto";
+    };
+
+    root = {
+      zswap = false;
+      flags = "subvol=@";
+      readWrite = true;
+      fsType = "btrfs";
+    };
+  };
+
 }
