@@ -17,13 +17,14 @@
       pkgs = nixpkgs.legacyPackages.${system};
 
       systemConfig = import ./system/default.nix;
+      variables = import ./system/variables.nix;
 
       boot = import ./system/boot {
-        inherit pkgs systemConfig;
+        inherit pkgs systemConfig variables;
       };
 
       security = import ./system/security {
-        inherit pkgs systemConfig;
+        inherit pkgs systemConfig variables;
       };
     in
     {

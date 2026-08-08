@@ -1,5 +1,7 @@
+{ variables }:
+
 {
-  authFile = "/home/snape/.config/Yubico/u2f_keys";
+  authFile = variables.yubikey.authFile;
 
   userPresence = true;
   userVerification = false;

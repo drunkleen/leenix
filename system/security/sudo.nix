@@ -1,5 +1,5 @@
-{ yubikey }:
+{ variables }:
 
 {
-  u2f = yubikey;
+  u2f = variables.yubikey;
 }

@@ -1,9 +1,9 @@
-{ yubikey }:
+{ variables }:
 
 {
   pam = {
     hyprlock = {
-      u2f = yubikey;
+      u2f = variables.yubikey;
     };
   };
 }

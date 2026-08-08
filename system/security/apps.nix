@@ -1,4 +1,4 @@
-{ pkgs, systemConfig, sudo, hyprlock }:
+{ pkgs, systemConfig, variables, sudo, hyprlock }:
 
 let
   sudoAuthFile =
