@@ -167,7 +167,7 @@ system/
 * [x] Rebuild the UKI with `limine-update`.
 * [x] Verify FIDO2 unlock manually.
 * [x] Keep password fallback available.
-* [ ] Verify FIDO2 unlock after a real cold reboot.
+* [x] Verify FIDO2 unlock after a real cold reboot.
 
 ## Sudo / PAM U2F
 
