@@ -2,17 +2,22 @@
 
 {
   programs.zsh.shellAliases = {
-    cat = "bat";
+    c = "clear";
+    cls = "clear";
 
-    ls = "eza --icons=auto";
-    ll = "eza --icons=auto -lah";
-    la = "eza --icons=auto -A";
-    l = "eza --icons=auto -CF";
+    lz = "ls";
+    ls = "eza -a --icons";
+    l = "eza -lh --icons=auto";
+    ll = "eza -al --icons";
+    ld = "eza -lhD --icons=auto";
+    lt = "eza -a --tree --level=1 --icons";
 
     ".." = "cd ..";
     "..." = "cd ../..";
-    "...." = "cd ../../..";
+    ".3" = "cd ../../..";
+    ".4" = "cd ../../../..";
+    ".5" = "cd ../../../../..";
 
-    c = "clear";
+    mkdir = "mkdir -p";
   };
 }

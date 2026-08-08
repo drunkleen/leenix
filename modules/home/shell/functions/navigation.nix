@@ -2,12 +2,21 @@
 
 {
   programs.zsh.initContent = ''
-    mkcd() {
-      mkdir -p "$1" && cd "$1"
+    open() {
+      if ! command -v xdg-open >/dev/null 2>&1; then
+        echo "Missing command: xdg-open" >&2
+        return 1
+      fi
+
+      xdg-open "$@" >/dev/null 2>&1 &
     }
 
-    croot() {
-      cd "$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+    opendir() {
+      if command -v nautilus >/dev/null 2>&1; then
+        nautilus "''${1:-.}" >/dev/null 2>&1 &
+      else
+        open "''${1:-.}"
+      fi
     }
   '';
 }
