@@ -6,11 +6,11 @@
     cls = "clear";
 
     lz = "ls";
-    ls = "eza -a --icons";
+    ls = "eza -a --icons=auto";
     l = "eza -lh --icons=auto";
-    ll = "eza -al --icons";
+    ll = "eza -al --icons=auto";
     ld = "eza -lhD --icons=auto";
-    lt = "eza -a --tree --level=1 --icons";
+    lt = "eza -a --tree --level=1 --icons=auto";
 
     ".." = "cd ..";
     "..." = "cd ../..";
