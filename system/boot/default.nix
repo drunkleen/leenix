@@ -1,4 +1,4 @@
-{ pkgs, systemConfig, variables }:
+{ pkgs, systemConfig}:
 
 import ./apps.nix {
   inherit pkgs systemConfig;

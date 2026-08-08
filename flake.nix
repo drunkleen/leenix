@@ -21,7 +21,7 @@
     systemConfig = import ./system/default.nix;
 
     boot = import ./system/boot {
-      inherit pkgs systemConfig variables;
+      inherit pkgs systemConfig;
     };
 
     security = import ./system/security {
