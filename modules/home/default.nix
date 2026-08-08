@@ -1,5 +1,7 @@
+{ ... }:
+
 {
   imports = [
-    ./hyprlock.nix
+    ./cli
   ];
 }
