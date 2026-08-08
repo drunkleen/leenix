@@ -11,6 +11,6 @@
     ne = "nix eval";
     ns = "nix shell";
 
-    hms = "home-manager switch --flake .#\"${USER}@$(hostname)\"";
+    hms = "home-manager switch --flake .#\"$USER@$(hostname)\"";
   };
 }
