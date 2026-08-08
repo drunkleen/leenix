@@ -1,6 +1,10 @@
 { ... }:
 
 {
+  home.file.".config/git/allowed_signers".text = ''
+    snape@drunkleen.com ${builtins.readFile ../../../keys/github.pub}
+  '';
+
   programs.git = {
     enable = true;
 
@@ -8,7 +12,21 @@
       user = {
         name = "DrunkLeen";
         email = "snape@drunkleen.com";
+        signingKey = "~/.ssh/github.pub";
       };
+
+      gpg = {
+        format = "ssh";
+
+        ssh.allowedSignersFile = "~/.config/git/allowed_signers";
+      };
+
+      commit = {
+        verbose = true;
+        gpgSign = true;
+      };
+
+      tag.gpgSign = true;
 
       init.defaultBranch = "master";
 
@@ -21,7 +39,6 @@
         mnemonicPrefix = true;
       };
 
-      commit.verbose = true;
       column.ui = "auto";
 
       branch.sort = "-committerdate";
