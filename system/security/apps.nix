@@ -1,9 +1,6 @@
-{ pkgs, systemConfig }:
+{ pkgs, systemConfig, sudo, hyprlock }:
 
 let
-  sudo = import ./sudo.nix;
-  hyprlock = import ./hyprlock.nix;
-
   sudoAuthFile =
     sudo.u2f.authFile;
 
@@ -15,6 +12,12 @@ let
 
   sudoUserVerification =
     if sudo.u2f.userVerification then
+      "1"
+    else
+      "0";
+
+  sudoPinVerification =
+    if sudo.u2f.pinVerification then
       "1"
     else
       "0";
@@ -34,10 +37,16 @@ let
     else
       "0";
 
+  hyprlockPinVerification =
+    if hyprlock.pam.hyprlock.u2f.pinVerification then
+      "1"
+    else
+      "0";
+
   proposedSudoPam = ''
     #%PAM-1.0
 
-    auth sufficient pam_u2f.so authfile=${sudoAuthFile} cue userpresence=${sudoUserPresence} userverification=${sudoUserVerification}
+    auth sufficient pam_u2f.so authfile=${sudoAuthFile} cue userpresence=${sudoUserPresence} userverification=${sudoUserVerification} pinverification=${sudoPinVerification}
     auth include system-auth
 
     account include system-auth
@@ -49,7 +58,7 @@ let
   proposedHyprlockPam = ''
     #%PAM-1.0
 
-    auth sufficient pam_u2f.so authfile=${hyprlockAuthFile} cue userpresence=${hyprlockUserPresence} userverification=${hyprlockUserVerification}
+    auth sufficient pam_u2f.so authfile=${hyprlockAuthFile} cue userpresence=${hyprlockUserPresence} userverification=${hyprlockUserVerification} pinverification=${hyprlockPinVerification}
     auth include system-auth
 
     account include system-auth

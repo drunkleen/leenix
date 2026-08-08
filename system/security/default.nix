@@ -1,16 +1,23 @@
 { pkgs, systemConfig }:
 
 let
+  yubikey = import ./yubikey.nix;
+
+  sudo = import ./sudo.nix {
+    inherit yubikey;
+  };
+
   hyprlock = import ./hyprlock.nix {
-    inherit systemConfig;
+    inherit yubikey;
   };
 
   apps = import ./apps.nix {
     inherit pkgs systemConfig;
+    inherit sudo hyprlock;
   };
 in
 {
-  inherit (apps) packages apps;
+  inherit sudo hyprlock;
 
-  pam = hyprlock.pam;
+  inherit (apps) packages apps;
 }
