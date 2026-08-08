@@ -1,0 +1,6 @@
+{
+  packages = [
+    "libfido2"
+    "pam-u2f"
+  ];
+}

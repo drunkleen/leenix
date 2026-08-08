@@ -142,64 +142,472 @@ environment architecture is stable.
 
 # Milestone 1 — Identity, Git, SSH & YubiKey
 
-Goal: declaratively restore developer identity and secure access without
-storing private secrets in Git.
+Goal: declaratively manage Git and SSH identity, use the YubiKey as the
+hardware-backed root of authentication, and design the remaining system-level
+YubiKey integrations for Omarchy.
+
+---
 
 ## Git
 
-- [ ] Audit the current Git configuration.
-- [ ] Manage Git through Home Manager.
-- [ ] Configure username and email.
-- [ ] Configure default branch behavior.
-- [ ] Configure aliases.
-- [ ] Configure global ignore rules.
-- [ ] Decide whether to use `delta`.
-- [ ] Configure commit signing.
-- [ ] Configure GitHub-specific behavior if needed.
+### Audit
 
-## SSH
+- [x] Audit existing global Git configuration.
+- [x] Audit system Git configuration.
+- [x] Audit repository-local Git configuration.
+- [x] Identify the system-provided Git binary.
+- [x] Preserve existing Git behavior during migration.
 
-- [ ] Audit the current SSH setup.
-- [ ] Manage SSH configuration declaratively.
-- [ ] Define GitHub SSH configuration.
-- [ ] Define frequently used SSH hosts.
-- [ ] Define identity selection rules.
-- [ ] Configure SSH agent behavior.
-- [ ] Verify permissions.
+### Home Manager
 
-## YubiKey
+- [x] Create `modules/home/git/default.nix`.
+- [x] Import the Git module into the Home Manager module tree.
+- [x] Manage Git through Home Manager.
+- [x] Configure Git identity.
+- [x] Configure aliases.
+- [x] Configure default branch.
+- [x] Configure pull rebase behavior.
+- [x] Configure automatic upstream setup on push.
+- [x] Configure histogram diff algorithm.
+- [x] Configure moved-line diff behavior.
+- [x] Configure mnemonic prefixes.
+- [x] Configure verbose commits.
+- [x] Configure branch sorting.
+- [x] Configure tag sorting.
+- [x] Configure rerere.
+- [x] Verify generated global Git configuration.
 
-- [ ] Inventory current YubiKey functionality.
-- [ ] Inventory existing YubiKeys.
-- [ ] Decide which YubiKey responsibilities are system-level.
-- [ ] Decide which YubiKey responsibilities are user-level.
-- [ ] Configure FIDO2-backed SSH identities.
-- [ ] Configure Git signing through YubiKey.
-- [ ] Decide whether GPG functionality is required.
-- [ ] Configure agent integration if required.
-- [ ] Verify authentication after a fresh login.
-- [ ] Verify authentication after reboot.
-- [ ] Document recovery/fallback procedures.
+Current identity:
+
+    Name:  DrunkLeen
+    Email: snape@drunkleen.com
+
+---
+
+## Nix-managed SSH / YubiKey Tooling
+
+- [x] Manage OpenSSH through Nix.
+- [x] Manage `libfido2` through Nix.
+- [x] Manage `usbutils` through Nix.
+- [x] Manage `yubikey-manager` through Nix.
+- [x] Verify `ssh` comes from the Nix profile.
+- [x] Verify `ssh-keygen` comes from the Nix profile.
+- [x] Verify `ykman` comes from the Nix profile.
+- [x] Verify `lsusb` comes from the Nix profile.
+
+Current binaries include:
+
+    ~/.nix-profile/bin/ssh
+    ~/.nix-profile/bin/ssh-keygen
+    ~/.nix-profile/bin/ykman
+    ~/.nix-profile/bin/lsusb
+
+---
+
+## YubiKey Inventory
+
+Detected hardware:
+
+    YubiKey 5C Nano FIPS
+    Firmware: 5.4.3
+    Interfaces: OTP + FIDO + CCID
+
+- [x] Verify YubiKey is visible over USB.
+- [x] Verify YubiKey is visible to `ykman`.
+- [x] Verify FIDO functionality.
+- [ ] Configure PC/SC / CCID support.
+- [ ] Audit PIV functionality if needed.
+- [ ] Audit OpenPGP functionality if needed.
+
+PC/SC / CCID is intentionally postponed until a feature actually requires it.
+
+---
+
+## FIDO2 SSH Identity
+
+- [x] Verify OpenSSH security-key support.
+- [x] Generate an ED25519-SK key using the YubiKey.
+- [x] Create the key as a resident FIDO credential.
+- [x] Protect key usage with the authenticator PIN.
+- [x] Require physical user presence.
+- [x] Store the local SSH key handle outside Git.
+- [x] Store the public key safely in the Leenix repository.
+
+Local SSH identity handle:
+
+    ~/.ssh/github
+
+Public key tracked by Leenix:
+
+    keys/github.pub
+
+Important:
+
+The private cryptographic key material remains protected by the YubiKey.
+The local SSH file must never be committed to Git.
+
+---
+
+## SSH Configuration
+
+- [x] Create `modules/home/ssh/default.nix`.
+- [x] Manage `~/.ssh/config` through Home Manager.
+- [x] Use the current Home Manager `programs.ssh.settings` interface.
+- [x] Disable Home Manager's implicit SSH default configuration.
+- [x] Configure GitHub SSH access.
+- [x] Use the YubiKey-backed identity for GitHub.
+- [x] Enable `IdentitiesOnly` for GitHub.
+- [x] Disable automatic agent insertion.
+- [x] Disable SSH agent forwarding by default.
+- [x] Verify generated SSH configuration.
+- [x] Verify GitHub SSH authentication.
+
+GitHub authentication result:
+
+    YubiKey + PIN/passphrase + physical presence
+        ↓
+    SSH authentication
+        ↓
+    GitHub authentication successful
+
+---
+
+## SSH Agent Policy
+
+- [x] Audit `SSH_AUTH_SOCK`.
+- [x] Audit running `ssh-agent`.
+- [x] Audit running `gpg-agent`.
+- [x] Confirm no SSH/GPG agent is currently required.
+- [x] Keep `AddKeysToAgent = no`.
+- [x] Keep `ForwardAgent = no`.
+- [x] Prefer direct YubiKey-backed authentication for now.
+
+Current policy:
+
+    No persistent SSH agent.
+    No GPG agent dependency.
+    YubiKey remains the authentication source of truth.
+
+This can be revisited if a future workflow genuinely benefits from an agent.
+
+---
+
+## known_hosts Policy
+
+- [x] Audit existing `~/.ssh/known_hosts`.
+- [x] Confirm current entries are GitHub host keys.
+- [x] Keep `known_hosts` as runtime SSH state.
+- [x] Do not make Home Manager own the entire `known_hosts` file.
+
+Policy:
+
+    ~/.ssh/config       -> Home Manager / declarative
+    ~/.ssh/known_hosts  -> SSH runtime state
+    ~/.ssh/github       -> local YubiKey credential handle
+    keys/github.pub     -> Leenix / Git
+    private key         -> YubiKey hardware
+
+This avoids unnecessary Leenix rebuilds when remote host keys legitimately
+change.
+
+---
+
+## Git Commit Signing with YubiKey
+
+Use SSH signatures instead of introducing a separate GPG signing stack.
+
+- [x] Configure Git SSH signing.
+- [x] Use the YubiKey-backed ED25519-SK identity.
+- [x] Enable commit signing by default.
+- [x] Enable tag signing by default.
+- [x] Add the public signing key to Leenix.
+- [x] Create a declarative `allowed_signers` file.
+- [x] Configure `gpg.ssh.allowedSignersFile`.
+- [x] Verify signatures locally.
+- [x] Register the SSH public key with GitHub as a signing key.
+- [x] Verify signed commits are recognized by GitHub.
+- [x] Verify GitHub displays commits as `Verified`.
+
+Local verification result:
+
+    Good "git" signature for snape@drunkleen.com
+    with ED25519-SK key
+
+Signing architecture:
+
+    Git commit
+        ↓
+    SSH signing
+        ↓
+    YubiKey ED25519-SK
+        ↓
+    physical user presence
+        ↓
+    signed commit
+        ↓
+    local verification
+        ↓
+    GitHub Verified
+
+---
+
+## GitHub SSH Authentication
+
+- [x] Register the YubiKey-backed SSH public key with GitHub.
+- [x] Authenticate to GitHub using the YubiKey.
+- [x] Verify physical user presence is required.
+- [x] Push the `omarchy-rebuild` branch over SSH.
+- [x] Configure branch upstream successfully.
+
+---
+
+# System-level YubiKey Integration
+
+These requirements are part of Leenix even though they cannot necessarily be
+implemented purely through standalone Home Manager.
+
+The goal remains declarative management wherever practical.
+
+---
+
+## LUKS Disk Unlock with YubiKey
+
+Goal:
+
+Use the YubiKey to unlock the encrypted Omarchy system drive during boot.
+
+Desired flow:
+
+    Boot
+      ↓
+    LUKS encrypted system drive
+      ↓
+    YubiKey authentication
+      ↓
+    physical presence / configured authentication policy
+      ↓
+    disk unlock
+      ↓
+    continue boot
+
+Tasks:
+
+- [ ] Audit the current Omarchy LUKS setup.
+- [ ] Identify encrypted block devices.
+- [ ] Identify the current LUKS version and keyslots.
+- [ ] Determine the current initramfs implementation.
+- [ ] Determine whether systemd-based FIDO2 LUKS enrollment fits the system.
+- [ ] Design YubiKey enrollment without removing the recovery passphrase.
+- [ ] Keep at least one independent recovery method.
+- [ ] Enroll the YubiKey safely.
+- [ ] Configure boot-time discovery.
+- [ ] Rebuild the required Omarchy initramfs/system configuration.
+- [ ] Test reboot.
+- [ ] Test boot with YubiKey.
+- [ ] Test boot without YubiKey using the recovery method.
+- [ ] Document recovery procedure.
+
+Safety requirement:
+
+**Never remove the existing LUKS recovery/passphrase slot until the YubiKey
+path has been repeatedly verified.**
+
+---
+
+## sudo Authentication with YubiKey
+
+Goal:
+
+Allow privileged commands to authenticate using the YubiKey instead of typing
+the normal Linux account password.
+
+Desired flow:
+
+    sudo <command>
+        ↓
+    YubiKey authentication
+        ↓
+    physical touch
+        ↓
+    PAM success
+        ↓
+    privileged command
+
+Tasks:
+
+- [ ] Audit Omarchy's current PAM configuration.
+- [ ] Audit `/etc/pam.d/sudo`.
+- [ ] Decide the correct YubiKey PAM/FIDO mechanism.
+- [ ] Determine which required packages/services are system-level.
+- [ ] Define how Leenix manages the declarative source configuration.
+- [ ] Configure YubiKey authentication for sudo.
+- [ ] Require physical user presence.
+- [ ] Preserve a safe fallback/recovery path during initial testing.
+- [ ] Test sudo in an existing root-capable session.
+- [ ] Test sudo in a fresh terminal.
+- [ ] Test failure behavior without the YubiKey.
+- [ ] Document recovery procedure.
+
+Safety requirement:
+
+Do not modify PAM authentication without keeping an existing privileged/root
+session available during testing.
+
+---
+
+## Hyprlock Authentication with YubiKey
+
+Goal:
+
+Use YubiKey-backed authentication when unlocking the graphical session.
+
+Desired interaction:
+
+    Hyprlock
+        ↓
+    enter YubiKey credential/PIN
+        ↓
+    touch YubiKey
+        ↓
+    authentication succeeds
+        ↓
+    session unlocks
+
+Tasks:
+
+- [ ] Audit the current Hyprlock configuration.
+- [ ] Audit the PAM service used by Hyprlock.
+- [ ] Identify Omarchy-specific Hyprlock/PAM behavior.
+- [ ] Determine the appropriate YubiKey authentication mechanism.
+- [ ] Determine whether the desired PIN + touch flow is supported directly.
+- [ ] Configure the PAM stack safely.
+- [ ] Preserve password fallback during initial testing.
+- [ ] Verify wrong PIN fails.
+- [ ] Verify missing YubiKey fails according to policy.
+- [ ] Verify physical touch is required.
+- [ ] Verify correct PIN + touch unlocks the session.
+- [ ] Test after logout/login.
+- [ ] Test after reboot.
+- [ ] Document emergency recovery.
+
+---
+
+## System Integration Architecture
+
+Standalone Home Manager must not pretend to own system facilities that belong
+to Omarchy/Arch.
+
+For each system-level integration:
+
+- [ ] Identify the actual system owner.
+- [ ] Keep source configuration in Leenix where practical.
+- [ ] Generate configuration with Nix where practical.
+- [ ] Apply system changes through an explicit Leenix bootstrap/integration step.
+- [ ] Avoid uncontrolled mutation of `/etc`.
+- [ ] Make system integration repeatable.
+- [ ] Make system integration auditable.
+- [ ] Make destructive/security-sensitive operations explicit.
+- [ ] Provide recovery instructions.
+
+Expected ownership model:
+
+    Omarchy / Arch
+        ├── boot
+        ├── initramfs
+        ├── LUKS plumbing
+        ├── PAM
+        └── system services
+
+    Nix / Home Manager
+        ├── user-space tooling
+        ├── Git
+        ├── SSH configuration
+        ├── public identity material
+        └── reproducible user configuration
+
+    Leenix system integration
+        ├── declarative source configuration
+        ├── validation
+        ├── bootstrap/apply operations
+        └── recovery documentation
+
+---
 
 ## Secrets Architecture
 
-- [ ] Decide whether encrypted secret files are actually needed.
-- [ ] Evaluate `agenix`.
-- [ ] Evaluate `sops-nix` if necessary.
-- [ ] Prefer hardware-backed secrets where possible.
-- [ ] Define what may exist in Git.
-- [ ] Define what must remain encrypted.
+Current decisions:
+
+- [x] Never commit private SSH key material.
+- [x] Prefer hardware-backed key material.
+- [x] Public SSH keys may be stored in Git.
+- [x] Use the YubiKey for SSH authentication.
+- [x] Use the YubiKey for Git signing.
+- [ ] Determine whether encrypted repository secrets are actually required.
+- [ ] Evaluate `agenix` only if a real use case appears.
+- [ ] Evaluate `sops-nix` only if a real use case appears.
 - [ ] Define machine-specific secrets.
 - [ ] Define user-specific secrets.
-- [ ] Ensure no plaintext private SSH key exists in Git.
+- [ ] Define disaster-recovery material.
+- [ ] Define YubiKey loss/replacement procedure.
 
-## Verification
+Do not introduce a secrets framework until there is an actual secret that
+needs repository-backed encrypted storage.
 
-- [ ] Git works.
-- [ ] GitHub SSH authentication works.
-- [ ] YubiKey SSH authentication works.
-- [ ] Commit signing works.
-- [ ] Home Manager rebuild does not destroy SSH state.
+---
+
+## Recovery Planning
+
+The YubiKey is becoming an important authentication root, so recovery must be
+designed before it becomes mandatory for system access.
+
+- [ ] Decide whether to provision a second backup YubiKey.
+- [ ] Define YubiKey loss procedure.
+- [ ] Define YubiKey replacement procedure.
+- [ ] Preserve LUKS recovery credentials.
+- [ ] Preserve a safe sudo/PAM recovery path.
+- [ ] Document how to recover resident SSH credentials.
+- [ ] Document GitHub key replacement.
+- [ ] Document signing-key replacement.
+- [ ] Test recovery procedures before relying exclusively on hardware-backed
+      authentication.
+
+---
+
+## Milestone 1 Verification
+
+Completed:
+
+- [x] Nix-managed OpenSSH works.
+- [x] Nix-managed YubiKey tooling works.
+- [x] YubiKey FIDO2 functionality works.
+- [x] Resident ED25519-SK identity works.
+- [x] SSH configuration is declarative.
+- [x] Git configuration is declarative.
+- [x] GitHub SSH authentication works.
+- [x] Git commit signing works.
+- [x] Local signature verification works.
+- [x] GitHub recognizes signed commits as Verified.
+- [x] Git push over YubiKey-backed SSH works.
+- [x] SSH agent policy is defined.
+- [x] known_hosts ownership policy is defined.
+
+Remaining:
+
+- [ ] LUKS YubiKey integration.
+- [ ] sudo YubiKey authentication.
+- [ ] Hyprlock YubiKey authentication.
+- [ ] Recovery architecture.
+- [ ] Final Milestone 1 verification.
+- [ ] Commit completed Milestone 1 configuration.
+
+### Milestone 1 Status
+
+**IN PROGRESS**
+
+The portable Git/SSH/YubiKey foundation is working.
+
+Next phase: system-level YubiKey integration for **LUKS, sudo, and Hyprlock**,
+with recovery paths designed before enforcement.
 
 ---
 
