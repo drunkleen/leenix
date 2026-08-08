@@ -33,6 +33,10 @@
         home-manager.lib.homeManagerConfiguration {
           inherit pkgs;
 
+          extraSpecialArgs = {
+            inherit variables;
+          };
+
           modules = [
             ./home/default.nix
           ];
