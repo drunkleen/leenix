@@ -18,6 +18,8 @@
       bindd = SUPER SHIFT, N, Editor, exec, omarchy-launch-editor
       bindd = SUPER SHIFT, D, Docker, exec, omarchy-launch-tui lazydocker
       bindd = SUPER SHIFT, S, Signal, exec, omarchy-launch-or-focus ^signal$ "uwsm-app -- signal-desktop"
+ 
+      unbind = super, slash
       bindd = SUPER, SLASH, Bitwarden, exec, uwsm-app -- bitwarden
 
       # If your web app url contains #, type it as ## to prevent hyprland treating it as a comment
@@ -42,6 +44,7 @@
       # Overwrite existing bindings, like putting Omarchy Menu on Super + Space
 
       # unbind = SUPER, SPACE
+
 
       # bindd = SUPER, SPACE, Omarchy menu, exec, omarchy-menu
 

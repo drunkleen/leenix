@@ -9,18 +9,17 @@
 
       # Use defaults Omarchy defaults (but don't edit these directly!)
 
-      source = ~/.local/share/omarchy/default/hypr/autostart.conf
-      source = ~/.local/share/omarchy/default/hypr/bindings/media.conf
-      source = ~/.local/share/omarchy/default/hypr/bindings/clipboard.conf
-      source = ~/.local/share/omarchy/default/hypr/bindings/tiling-v2.conf
-      source = ~/.local/share/omarchy/default/hypr/bindings/utilities.conf
       source = ~/.local/share/omarchy/default/hypr/envs.conf
       source = ~/.local/share/omarchy/default/hypr/looknfeel.conf
       source = ~/.local/share/omarchy/default/hypr/input.conf
-      source = ~/.local/share/omarchy/default/hypr/windows.conf
       source = ~/.config/omarchy/current/theme/hyprland.conf
 
       # Change your own setup in these files (and overwrite any settings from defaults!)
+
+      source = ~/.config/hypr/bindings/media.conf
+      source = ~/.config/hypr/bindings/clipboard.conf
+      source = ~/.config/hypr/bindings/tiling-v2.conf
+      source = ~/.config/hypr/bindings/utilities.conf
 
       source = ~/.config/hypr/monitors.conf
       source = ~/.config/hypr/input.conf
@@ -28,6 +27,8 @@
       source = ~/.config/hypr/looknfeel.conf
       source = ~/.config/hypr/autostart.conf
 
+      source = ~/.config/hypr/windows.conf
+      
       # Toggle config flags dynamically
 
       source = ~/.local/state/omarchy/toggles/hypr/*.conf
@@ -37,4 +38,4 @@
       # windowrule = workspace 5, match:class qemu
     '';
   };
-}
+
