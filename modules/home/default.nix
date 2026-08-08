@@ -8,4 +8,8 @@
     ./shell
     ./ssh
   ];
+
+  targets.genericLinux = {
+    enable = true;
+  };
 }

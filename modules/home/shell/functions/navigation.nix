@@ -18,5 +18,15 @@
         open "''${1:-.}"
       fi
     }
+
+    cd() {
+      if (( $# == 0 )); then
+        builtin cd "$HOME"
+          elif [[ "$1" == -* || "$1" == */* || -d "$1" ]]; then
+          builtin cd "$@"
+      else
+        z "$@"
+      fi
+    }
   '';
 }
