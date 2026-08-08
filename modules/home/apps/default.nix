@@ -2,10 +2,11 @@
 
 {
   home.packages = with pkgs; [
-    steam
+    bitwarden-desktop
     discord
-    spotify
     signal-desktop
+    spotify
+    steam
     thunderbird
   ];
 }

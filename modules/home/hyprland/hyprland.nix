@@ -38,4 +38,4 @@
       # windowrule = workspace 5, match:class qemu
     '';
   };
-
+}
