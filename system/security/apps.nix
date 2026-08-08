@@ -2,6 +2,7 @@
 
 let
   sudo = import ./sudo.nix;
+  hyprlock = import ./hyprlock.nix;
 
   sudoAuthFile =
     sudo.u2f.authFile;
@@ -18,10 +19,37 @@ let
     else
       "0";
 
+  hyprlockAuthFile =
+    hyprlock.pam.hyprlock.u2f.authFile;
+
+  hyprlockUserPresence =
+    if hyprlock.pam.hyprlock.u2f.userPresence then
+      "1"
+    else
+      "0";
+
+  hyprlockUserVerification =
+    if hyprlock.pam.hyprlock.u2f.userVerification then
+      "1"
+    else
+      "0";
+
   proposedSudoPam = ''
     #%PAM-1.0
 
     auth sufficient pam_u2f.so authfile=${sudoAuthFile} cue userpresence=${sudoUserPresence} userverification=${sudoUserVerification}
+    auth include system-auth
+
+    account include system-auth
+
+    session include system-auth
+    session optional pam_systemd.so class=none
+  '';
+
+  proposedHyprlockPam = ''
+    #%PAM-1.0
+
+    auth sufficient pam_u2f.so authfile=${hyprlockAuthFile} cue userpresence=${hyprlockUserPresence} userverification=${hyprlockUserVerification}
     auth include system-auth
 
     account include system-auth
@@ -44,8 +72,18 @@ let
       echo
       echo "== Proposed sudo PAM configuration =="
       cat <<'EOF'
-${proposedSudoPam}
-EOF
+    ${proposedSudoPam}
+    EOF
+
+      echo
+      echo "== Current Hyprlock PAM configuration =="
+      cat /etc/pam.d/hyprlock
+
+      echo
+      echo "== Proposed Hyprlock PAM configuration =="
+      cat <<'EOF'
+    ${proposedHyprlockPam}
+    EOF
 
       echo
       echo "== U2F auth file =="
@@ -82,12 +120,21 @@ EOF
 
       sudo_pam="/etc/pam.d/sudo"
       sudo_backup="/etc/pam.d/sudo.leenix-backup"
+
+      hyprlock_pam="/etc/pam.d/hyprlock"
+      hyprlock_backup="/etc/pam.d/hyprlock.leenix-backup"
+
       auth_file='${sudoAuthFile}'
 
       echo "== Validating PAM integration =="
 
       [[ -f "$sudo_pam" ]] || {
         echo "Missing PAM service: $sudo_pam" >&2
+        exit 1
+      }
+
+      [[ -f "$hyprlock_pam" ]] || {
+        echo "Missing PAM service: $hyprlock_pam" >&2
         exit 1
       }
 
@@ -110,7 +157,7 @@ EOF
       echo "Validation passed."
 
       echo
-      echo "== Creating backup =="
+      echo "== Creating backups =="
 
       if [[ ! -f "$sudo_backup" ]]; then
         cp -a "$sudo_pam" "$sudo_backup"
@@ -118,24 +165,44 @@ EOF
         echo "Existing backup preserved: $sudo_backup"
       fi
 
+      if [[ ! -f "$hyprlock_backup" ]]; then
+        cp -a "$hyprlock_pam" "$hyprlock_backup"
+      else
+        echo "Existing backup preserved: $hyprlock_backup"
+      fi
+
       echo
       echo "== Writing sudo PAM configuration =="
 
       cat > "$sudo_pam" <<'EOF'
-${proposedSudoPam}
-EOF
+    ${proposedSudoPam}
+    EOF
 
       chmod 644 "$sudo_pam"
+
+      echo
+      echo "== Writing Hyprlock PAM configuration =="
+
+      cat > "$hyprlock_pam" <<'EOF'
+    ${proposedHyprlockPam}
+    EOF
+
+      chmod 644 "$hyprlock_pam"
 
       echo
       echo "== Installed sudo PAM configuration =="
       cat "$sudo_pam"
 
       echo
+      echo "== Installed Hyprlock PAM configuration =="
+      cat "$hyprlock_pam"
+
+      echo
       echo "PAM configuration updated."
       echo
       echo "Keep an existing root shell open."
       echo "Test sudo from a separate terminal before closing it."
+      echo "Do not lock the current graphical session until Hyprlock has been tested."
     '';
   };
 
@@ -157,8 +224,16 @@ EOF
       sudo_pam="/etc/pam.d/sudo"
       sudo_backup="/etc/pam.d/sudo.leenix-backup"
 
+      hyprlock_pam="/etc/pam.d/hyprlock"
+      hyprlock_backup="/etc/pam.d/hyprlock.leenix-backup"
+
       [[ -f "$sudo_backup" ]] || {
         echo "Missing backup: $sudo_backup" >&2
+        exit 1
+      }
+
+      [[ -f "$hyprlock_backup" ]] || {
+        echo "Missing backup: $hyprlock_backup" >&2
         exit 1
       }
 
@@ -167,11 +242,20 @@ EOF
       cp -a "$sudo_backup" "$sudo_pam"
 
       echo
-      echo "== Restored configuration =="
+      echo "== Restoring Hyprlock PAM configuration =="
+
+      cp -a "$hyprlock_backup" "$hyprlock_pam"
+
+      echo
+      echo "== Restored sudo configuration =="
       cat "$sudo_pam"
 
       echo
-      echo "sudo PAM configuration restored."
+      echo "== Restored Hyprlock configuration =="
+      cat "$hyprlock_pam"
+
+      echo
+      echo "sudo and Hyprlock PAM configurations restored."
     '';
   };
 in
