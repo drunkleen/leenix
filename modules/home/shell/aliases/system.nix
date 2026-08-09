@@ -2,7 +2,6 @@
 
 {
   programs.zsh.shellAliases = {
-    cls = "clear";
     ports = "ss -tulpn";
     psg = "ps aux | grep -i";
     dfh = "df -h";
@@ -12,5 +11,6 @@
     cp = "cp -iv";
     mv = "mv -iv";
     rm = "rm -i";
+    vim = "nvim";
   };
 }
