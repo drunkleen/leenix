@@ -1,0 +1,33 @@
+{ pkgs, ... }:
+
+{
+  home.packages = [
+    (pkgs.writeShellApplication {
+      name = "leenix-install-chromium-google-account";
+
+      runtimeInputs = with pkgs; [
+        gnugrep
+        coreutils
+      ];
+
+      text = ''
+        #!/bin/bash
+
+        # leenix:summary=Allow Chromium to sign in to Google accounts by adding the required OAuth credentials
+
+        if [[ -f ~/.config/chromium-flags.conf ]]; then
+          echo "Installing Chromium Google account support..."
+          CONF=~/.config/chromium-flags.conf
+
+          grep -qxF -- "--oauth2-client-id=77185425430.apps.googleusercontent.com" "$CONF" ||
+            echo "--oauth2-client-id=77185425430.apps.googleusercontent.com" >>"$CONF"
+
+          grep -qxF -- "--oauth2-client-secret=OTJgUOQcT7lO7GsGZq2G4IlT" "$CONF" ||
+            echo "--oauth2-client-secret=OTJgUOQcT7lO7GsGZq2G4IlT" >>"$CONF"
+
+          echo "Now you can login to your Google Account in Chromium."
+        fi
+      '';
+    })
+  ];
+}

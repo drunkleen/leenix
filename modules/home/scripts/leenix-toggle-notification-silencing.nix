@@ -1,0 +1,32 @@
+{ pkgs, ... }:
+
+{
+  home.packages = [
+    (pkgs.writeShellApplication {
+      name = "leenix-toggle-notification-silencing";
+
+      runtimeInputs = with pkgs; [
+        mako
+        gnugrep
+        libnotify
+        procps
+      ];
+
+      text = ''
+        #!/bin/bash
+
+        # leenix:summary=Toggle notification do-not-disturb mode
+
+        makoctl mode -t do-not-disturb
+
+        if makoctl mode | grep -q 'do-not-disturb'; then
+          notify-send -u low "󰂛    Silenced notifications"
+        else
+          notify-send -u low "󰂚    Enabled notifications"
+        fi
+
+        pkill -RTMIN+10 waybar
+      '';
+    })
+  ];
+}

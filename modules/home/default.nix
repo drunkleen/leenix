@@ -7,6 +7,7 @@
     ./git
     ./hyprland
     ./nvim
+    ./scripts
     ./shell
     ./ssh
   ];

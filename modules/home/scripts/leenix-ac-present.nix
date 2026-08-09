@@ -1,0 +1,21 @@
+{ pkgs, ... }:
+
+{
+  home.packages = [
+    (pkgs.writeShellApplication {
+      name = "leenix-ac-present";
+
+      text = ''
+        #!/bin/bash
+
+        # leenix:summary=Returns true if AC power is connected.
+
+        for ac in /sys/class/power_supply/AC* /sys/class/power_supply/ADP*; do
+          [[ -r $ac/online && $(cat "$ac/online") == "1" ]] && exit 0
+        done
+
+        exit 1
+      '';
+    })
+  ];
+}

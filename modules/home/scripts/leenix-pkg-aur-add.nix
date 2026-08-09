@@ -1,0 +1,38 @@
+{ pkgs, ... }:
+
+{
+  home.packages = [
+    (pkgs.writeShellApplication {
+      name = "leenix-pkg-aur-add";
+
+      runtimeInputs = with pkgs; [
+        yay
+        pacman
+      ];
+
+      text = ''
+        #!/bin/bash
+
+        # leenix:summary=Add the named packages to the system from the AUR if they're missing. Returns false if it couldn't be done.
+
+        # leenix:args=<packages...>
+
+        if leenix-pkg-missing "$@"; then
+          yay -S --noconfirm --needed "$@" || exit 1
+        fi
+
+        for pkg in "$@"; do
+
+          # Secondary check to handle states where pacman doesn't actually register an error
+
+          if ! pacman -Q "$pkg" &>/dev/null; then
+            echo -e "\033[31mError: Package '$pkg' did not install\033[0m" >&2
+            exit 1
+          fi
+        done
+
+        exit 0
+      '';
+    })
+  ];
+}

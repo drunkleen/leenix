@@ -1,0 +1,62 @@
+{ pkgs, ... }:
+
+{
+  home.packages = [
+    (pkgs.writeShellApplication {
+      name = "leenix-update-restart";
+      excludeShellChecks = [ "SC2001" "SC2053" ];
+
+      runtimeInputs = with pkgs; [
+        coreutils
+        gnugrep
+        gnused
+        pacman
+        procps
+      ];
+
+      text = ''
+        #!/bin/bash
+
+        # leenix:summary=Prompt for required reboot or service restarts after updates
+
+        echo
+
+        running_kernel=$(uname -r)
+        kernel_updated=true
+
+        for kernel in /usr/lib/modules/*/vmlinuz; do
+          if [[ -f $kernel ]] && pacman -Qo "$kernel" &>/dev/null; then
+            installed_kernel=$(basename "$(dirname "$kernel")")
+
+            if [[ $installed_kernel == $running_kernel ]]; then
+              kernel_updated=false
+              break
+            fi
+          fi
+        done
+
+        if [[ $kernel_updated == "true" ]]; then
+          gum confirm "Linux kernel has been updated. Reboot?" && leenix-system-reboot
+        elif [[ -f $HOME/.local/state/leenix/reboot-required ]]; then
+          gum confirm "Updates require reboot. Ready?" && leenix-system-reboot
+        fi
+
+        running_hyprland=$(readlink /proc/$(pgrep -x Hyprland)/exe 2>/dev/null)
+
+        if [[ $running_hyprland == *"(deleted)"* ]]; then
+          gum confirm "Hyprland has been updated. Reboot?" && leenix-system-reboot
+        fi
+
+        for file in "$HOME"/.local/state/leenix/restart-*-required; do
+          if [[ -f $file ]]; then
+            filename=$(basename "$file")
+            service=$(echo "$filename" | sed 's/restart-\(.*\)-required/\1/')
+            echo "Restarting $service"
+            leenix-state clear "$filename"
+            leenix-restart-"$service"
+          fi
+        done
+      '';
+    })
+  ];
+}

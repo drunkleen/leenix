@@ -1,0 +1,55 @@
+{ pkgs, ... }:
+
+{
+  home.packages = [
+    (pkgs.writeShellApplication {
+      name = "leenix-toggle-touchscreen";
+
+      runtimeInputs = with pkgs; [
+        coreutils
+      ];
+
+      text = ''
+        #!/bin/bash
+
+        # leenix:summary=Enable, disable, or toggle the touch functionality of the screen
+
+        # leenix:args=[on|off|toggle]
+
+        STATE_CONF="$HOME/.local/state/leenix/toggles/hypr/touchscreen-disabled.conf"
+
+        device="$(leenix-hw-touchscreen)"
+
+        if [[ -z $device ]]; then
+          echo "No touchscreen device found" >&2
+          exit 1
+        fi
+
+        enable() {
+          hyprctl keyword "device[$device]:enabled" true >/dev/null
+          rm -f "$STATE_CONF"
+          leenix-swayosd-client --custom-icon device-support-touch-symbolic --custom-message "Touchscreen enabled"
+        }
+
+        disable() {
+          hyprctl keyword "device[$device]:enabled" false >/dev/null
+          mkdir -p "$(dirname "$STATE_CONF")"
+          printf 'device {\n    name = %s\n    enabled = false\n}\n' "$device" > "$STATE_CONF"
+          leenix-swayosd-client --custom-icon touch-disabled-symbolic --custom-message "Touchscreen disabled"
+        }
+
+        case "''${1:-toggle}" in
+          on) enable ;;
+          off) disable ;;
+          toggle)
+            if [[ -f $STATE_CONF ]]; then
+              enable
+            else
+              disable
+            fi
+            ;;
+        esac
+      '';
+    })
+  ];
+}

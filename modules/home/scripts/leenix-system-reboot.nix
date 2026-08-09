@@ -1,0 +1,36 @@
+{ pkgs, ... }:
+
+{
+  home.packages = [
+    (pkgs.writeShellApplication {
+      name = "leenix-system-reboot";
+
+      runtimeInputs = with pkgs; [
+        bash
+        coreutils
+        systemd
+      ];
+
+      text = ''
+        #!/bin/bash
+
+        # leenix:summary=Reboot after closing application windows
+
+        # leenix:examples=leenix reboot | leenix system reboot
+
+        # leenix:aliases=leenix reboot
+
+        leenix-state clear re*-required
+
+        # Schedule the reboot to happen after closing windows (detached from terminal)
+
+        nohup bash -c "sleep 2 && systemctl reboot --no-wall" >/dev/null 2>&1 &
+
+        # Now close all windows
+
+        leenix-hyprland-window-close-all
+        sleep 1 # Allow apps like Chrome to shutdown correctly
+      '';
+    })
+  ];
+}

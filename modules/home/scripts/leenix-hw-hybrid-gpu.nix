@@ -1,0 +1,26 @@
+{ pkgs, ... }:
+
+{
+  home.packages = [
+    (pkgs.writeShellApplication {
+      name = "leenix-hw-hybrid-gpu";
+
+      runtimeInputs = with pkgs; [
+        pciutils
+        gnugrep
+      ];
+
+      text = ''
+        #!/bin/bash
+
+        # leenix:summary=Detect whether the system has an active hybrid GPU configuration
+
+        if command -v supergfxctl &>/dev/null; then
+          supergfxctl -s 2>/dev/null | grep -qw Hybrid
+        else
+          (($(lspci | grep -cE 'VGA|3D|Display') >= 2))
+        fi
+      '';
+    })
+  ];
+}

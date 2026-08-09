@@ -1,0 +1,26 @@
+{ pkgs, ... }:
+
+{
+  home.packages = [
+    (pkgs.writeShellApplication {
+      name = "leenix-restart-pipewire";
+
+      runtimeInputs = with pkgs; [
+        systemd
+      ];
+
+      text = ''
+        #!/bin/bash
+
+        # leenix:summary=Restart the PipeWire audio service to fix audio issues or apply new configuration.
+
+        echo -e "Restarting PipeWire audio services...\n"
+        systemctl --user restart wireplumber.service pipewire.service
+
+        if systemctl --user --quiet is-active pipewire-pulse.service; then
+          systemctl --user restart pipewire-pulse.service
+        fi
+      '';
+    })
+  ];
+}

@@ -1,0 +1,28 @@
+{ pkgs, ... }:
+
+{
+  home.packages = [
+    (pkgs.writeShellApplication {
+      name = "leenix-remove-gaming-geforce-now";
+
+      runtimeInputs = with pkgs; [
+        flatpak
+      ];
+
+      text = ''
+        #!/bin/bash
+
+        # leenix:summary=Remove the GeForce NOW Flatpak app and its data.
+
+        set -e
+
+        if command -v flatpak >/dev/null && flatpak info com.nvidia.geforcenow &>/dev/null; then
+          flatpak uninstall -y --delete-data com.nvidia.geforcenow
+        fi
+
+        echo ""
+        echo "GeForce NOW removed."
+      '';
+    })
+  ];
+}

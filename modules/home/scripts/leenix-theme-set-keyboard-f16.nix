@@ -1,0 +1,45 @@
+{ pkgs, ... }:
+
+{
+  home.packages = [
+    (pkgs.writeShellApplication {
+      name = "leenix-theme-set-keyboard-f16";
+      excludeShellChecks = [ "SC2046" ];
+
+      runtimeInputs = with pkgs; [
+        coreutils
+        python3
+      ];
+
+      text = ''
+        #!/bin/bash
+
+        # leenix:summary=Apply the current theme keyboard color to Framework Laptop 16 keyboards
+
+        # leenix:hidden=true
+
+        FRAMEWORK16_THEME=~/.config/leenix/current/theme/keyboard.rgb
+
+        if leenix-cmd-present qmk_hid && [[ -f $FRAMEWORK16_THEME ]]; then
+          hex=$(cat "$FRAMEWORK16_THEME")
+          hex="''${hex##}"
+
+          # Convert hex to QMK HSV (0-255 scale) using Python's colorsys
+
+          read -r h s <<< $(python3 -c "
+        import colorsys
+        r, g, b = int('$hex'[:2],16)/255, int('$hex'[2:4],16)/255, int('$hex'[4:6],16)/255
+        h, s, v = colorsys.rgb_to_hsv(r, g, b)
+        print(int(h * 255), int(s * 255))
+        ")
+
+          qmk_hid via --rgb-effect 1 2>/dev/null
+          qmk_hid via --rgb-hue "$h" 2>/dev/null
+          qmk_hid via --rgb-saturation "$s" 2>/dev/null
+          qmk_hid via --rgb-brightness 100 2>/dev/null
+          qmk_hid via --save 2>/dev/null
+        fi
+      '';
+    })
+  ];
+}
