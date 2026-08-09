@@ -11,7 +11,7 @@
   };
 
   mkinitcpio = {
-    configFile = "/etc/mkinitcpio.conf.d/omarchy_hooks.conf";
+    configFile = "/etc/mkinitcpio.conf.d/leenix_hooks.conf";
 
     hooks = [
       "base"
