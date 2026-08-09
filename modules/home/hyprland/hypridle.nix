@@ -1,29 +1,30 @@
-{ ... }:
+{ pkgs, ... }:
 
 {
-  home.file.".config/hypr/hypridle.conf" = {
-    force = true;
+  services.hypridle = {
+    enable = true;
+    package = pkgs.hypridle;
 
-    text = ''
-      general {
-          lock_cmd = omarchy-system-lock
-          before_sleep_cmd = OMARCHY_LOCK_ONLY=true omarchy-system-lock
-          after_sleep_cmd = sleep 1 && omarchy-system-wake
-          inhibit_sleep = 3
-      }
+    settings = {
+      general = {
+        lock_cmd = "leenix-system-lock";
+        before_sleep_cmd = "LEENIX_LOCK_ONLY=true leenix-system-lock";
+        after_sleep_cmd = "sleep 1 && leenix-system-wake";
+        inhibit_sleep = 3;
+      };
 
-      # Start screensaver after 2.5 minutes
-      listener {
-          timeout = 150
-          on-timeout = pidof hyprlock || omarchy-launch-screensaver
-      }
+      listener = [
+        {
+          timeout = 150;
+          on-timeout = "pidof hyprlock || leenix-launch-screensaver";
+        }
 
-      # Lock system after 5 minutes (screensaver resets idle timer, so have to just do half + 2s margin)
-      listener {
-          timeout = 152
-          on-timeout = omarchy-system-lock
-          on-resume = omarchy-system-wake
-      }
-    '';
+        {
+          timeout = 152;
+          on-timeout = "leenix-system-lock";
+          on-resume = "leenix-system-wake";
+        }
+      ];
+    };
   };
 }

@@ -1,41 +1,25 @@
 { ... }:
 
 {
-  home.file.".config/hypr/hyprland.conf" = {
-    force = true;
+  wayland.windowManager.hyprland = {
+    enable = true;
+    systemd.enable = false;
+    configType = "lua";
 
-    text = ''
-      # Learn how to configure Hyprland: https://wiki.hypr.land/Configuring/
+    settings = {
+      misc = {
+        allow_session_lock_restore = true;
+      };
+    };
 
-      # Use defaults Omarchy defaults (but don't edit these directly!)
+    extraConfig = ''
+      # Leenix defaults
+      # source = ~/.local/share/leenix/default/hypr/input.conf
+      # source = ~/.config/leenix/current/theme/hyprland.conf
 
-      source = ~/.local/share/omarchy/default/hypr/envs.conf
-      source = ~/.local/share/omarchy/default/hypr/looknfeel.conf
-      source = ~/.local/share/omarchy/default/hypr/input.conf
-      source = ~/.config/omarchy/current/theme/hyprland.conf
+      # Leenix toggles
+      # source = ~/.local/state/leenix/toggles/hypr/*.conf
 
-      # Change your own setup in these files (and overwrite any settings from defaults!)
-
-      source = ~/.config/hypr/bindings/media.conf
-      source = ~/.config/hypr/bindings/clipboard.conf
-      source = ~/.config/hypr/bindings/tiling-v2.conf
-      source = ~/.config/hypr/bindings/utilities.conf
-
-      source = ~/.config/hypr/monitors.conf
-      source = ~/.config/hypr/input.conf
-      source = ~/.config/hypr/bindings.conf
-      source = ~/.config/hypr/looknfeel.conf
-      source = ~/.config/hypr/autostart.conf
-
-      source = ~/.config/hypr/windows.conf
-      
-      # Toggle config flags dynamically
-
-      source = ~/.local/state/omarchy/toggles/hypr/*.conf
-
-      # Add any other personal Hyprland configuration below
-
-      # windowrule = workspace 5, match:class qemu
     '';
   };
 }

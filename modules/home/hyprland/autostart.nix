@@ -1,30 +1,23 @@
 { ... }:
 
 {
-  home.file.".config/hypr/autostart.conf" = {
-    force = true;
-
-    text = ''
-      exec-once = uwsm-app -- hypridle
-      exec-once = uwsm-app -- mako
-      exec-once = ! omarchy-toggle-enabled waybar-off && uwsm-app -- waybar
-      exec-once = uwsm-app -- fcitx5 --disable notificationitem
-      exec-once = uwsm-app -- swaybg -i ~/.config/omarchy/current/background -m fill
-      exec-once = /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
-      exec-once = omarchy-first-run
-      exec-once = omarchy-powerprofiles-init
-      exec-once = uwsm-app -- omarchy-hyprland-monitor-watch
+  wayland.windowManager.hyprland.settings = {
+    "exec-once" = [
+      "uwsm-app -- mako"
+      "! leenix-toggle-enabled waybar-off && uwsm-app -- waybar"
+      "uwsm-app -- fcitx5 --disable notificationitem"
+      "uwsm-app -- swaybg -i ~/.config/leenix/current/background -m fill"
+      "/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1"
+      "leenix-first-run"
+      "leenix-powerprofiles-init"
+      "uwsm-app -- leenix-hyprland-monitor-watch"
 
       # Slow app launch fix -- set systemd vars
-      exec-once = systemctl --user import-environment $(env | cut -d'=' -f 1)
-      exec-once = dbus-update-activation-environment --systemd --all
+      "systemctl --user import-environment $(env | cut -d'=' -f 1)"
+      "dbus-update-activation-environment --systemd --all"
 
       # Run post-boot hooks after startup config has loaded
-      exec-once = sleep 2 && omarchy-hook post-boot
-
-      # Extra autostart processes
-
-      # exec-once = uwsm-app -- my-service
-    '';
+      "sleep 2 && leenix-hook post-boot"
+    ];
   };
 }

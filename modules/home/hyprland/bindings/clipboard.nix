@@ -1,16 +1,12 @@
 { ... }:
 
 {
-  home.file.".config/hypr/bindings/clipboard.conf" = {
-    force = true;
-
-    text = ''
-# Copy / Paste
-bindd = SUPER, C, Universal copy, sendshortcut, CTRL, Insert, activewindow
-bindd = SUPER, V, Universal paste, sendshortcut, SHIFT, Insert, activewindow
-bindd = SUPER, X, Universal cut, sendshortcut, CTRL, X, activewindow
-bindd = SUPER CTRL, V, Clipboard manager, exec, omarchy-launch-walker -m clipboard
-    '';
+  wayland.windowManager.hyprland.settings = {
+    bindd = [
+      "SUPER, C, Universal copy, sendshortcut, CTRL, Insert, activewindow"
+      "SUPER, V, Universal paste, sendshortcut, SHIFT, Insert, activewindow"
+      "SUPER, X, Universal cut, sendshortcut, CTRL, X, activewindow"
+      "SUPER CTRL, V, Clipboard manager, exec, leenix-launch-walker -m clipboard"
+    ];
   };
 }
-
