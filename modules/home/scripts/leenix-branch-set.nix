@@ -12,6 +12,7 @@
 
       text = ''
         #!/bin/bash
+        LEENIX_PATH=''${LEENIX_PATH:-$HOME/.local/share/leenix}
 
         # leenix:summary=Set the branch for Leenix's git repository.
 

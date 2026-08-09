@@ -21,7 +21,7 @@
         migration_file="$HOME/.local/share/leenix/migrations/$(git log -1 --format=%cd --date=unix).sh"
         touch $migration_file
 
-        if [[ $1 != "--no-edit" ]]; then
+        if [[ "''${1:-}" != "--no-edit" ]]; then
           nvim $migration_file
         fi
 

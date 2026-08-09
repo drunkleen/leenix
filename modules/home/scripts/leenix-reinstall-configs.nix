@@ -13,6 +13,7 @@
 
       text = ''
         #!/bin/bash
+        LEENIX_PATH=''${LEENIX_PATH:-$HOME/.local/share/leenix}
 
         # leenix:summary=Reset all Leenix user configs to the defaults
 

@@ -33,7 +33,7 @@
 
         trap 'echo ""; echo -e "\033[0;31mSomething went wrong during the update!\n\nPlease review the output above carefully, correct the error, and retry the update.\n\nIf you need assistance, get help from the community at https://leenix.org/discord\033[0m"' ERR
 
-        if [[ $1 == "-y" ]] || leenix-update-confirm; then
+        if [[ "''${1:-}" == "-y" ]] || leenix-update-confirm; then
           leenix-snapshot create || (($? == 127))
           leenix-update-git
           leenix-update-perform

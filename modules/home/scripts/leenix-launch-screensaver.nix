@@ -15,6 +15,7 @@
 
       text = ''
         #!/bin/bash
+        LEENIX_PATH=''${LEENIX_PATH:-$HOME/.local/share/leenix}
 
         # leenix:summary=Launch the Leenix screensaver in the default terminal on the system with the correct font configuration.
 
@@ -28,7 +29,7 @@
 
         # Allow screensaver to be turned off but also force started
 
-        if leenix-toggle-enabled screensaver-off && [[ $1 != "force" ]]; then
+        if leenix-toggle-enabled screensaver-off && [[ "''${1:-}" != "force" ]]; then
           exit 1
         fi
 

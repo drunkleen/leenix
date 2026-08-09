@@ -26,7 +26,7 @@
 
         # leenix:requires-sudo=true
 
-        if [[ -z $1 ]]; then
+        if [[ -z ''${1:-} ]]; then
           echo "Usage: leenix-install-dev-env <ruby|node|bun|deno|go|laravel|symfony|php|python|elixir|phoenix|rust|java|zig|ocaml|dotnet|clojure|scala>" >&2
           exit 1
         fi

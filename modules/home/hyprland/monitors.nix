@@ -2,9 +2,9 @@
 
 {
   wayland.windowManager.hyprland.settings = {
-    env = [
-      "GDK_SCALE,2"
-    ];
+    # env = [
+    #   "GDK_SCALE,2"
+    # ];
 
     monitor = [
       {

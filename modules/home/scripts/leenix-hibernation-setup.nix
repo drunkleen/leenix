@@ -20,6 +20,7 @@
 
       text = ''
         #!/bin/bash
+        LEENIX_PATH=''${LEENIX_PATH:-$HOME/.local/share/leenix}
 
         # leenix:summary=Set up hibernation with swap and boot resume configuration
 

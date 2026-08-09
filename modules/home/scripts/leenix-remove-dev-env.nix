@@ -19,7 +19,7 @@
 
         # leenix:requires-sudo=true
 
-        if [[ -z $1 ]]; then
+        if [[ -z ''${1:-} ]]; then
           echo "Usage: leenix-remove-dev-env <ruby|node|bun|deno|go|php|laravel|symfony|python|elixir|phoenix|zig|rust|java|dotnet|ocaml|clojure|scala>" >&2
           exit 1
         fi

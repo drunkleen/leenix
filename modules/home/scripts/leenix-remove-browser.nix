@@ -37,7 +37,7 @@
           fi
         }
 
-        case $1 in
+        case ''${1:-} in
           chrome)
             echo "Removing Chrome..."
             set_fallback_default_browser google-chrome.desktop

@@ -17,8 +17,8 @@
 
         # leenix:args= [args...]
 
-        APP_ID="org.leenix.$(basename "$1")"
-        LAUNCH_COMMAND="leenix-launch-tui $@"
+        APP_ID="org.leenix.$(basename "''${1:-}")"
+        LAUNCH_COMMAND="leenix-launch-tui $*"
 
         exec leenix-launch-or-focus "$APP_ID" "$LAUNCH_COMMAND"
       '';

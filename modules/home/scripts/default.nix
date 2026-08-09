@@ -66,6 +66,7 @@
     ./leenix-hw-touchpad.nix
     ./leenix-hw-touchscreen.nix
     ./leenix-hw-vulkan.nix
+    ./leenix-hypr-zoom.nix
     ./leenix-hyprland-monitor-focused.nix
     ./leenix-hyprland-monitor-focused-apple.nix
     ./leenix-hyprland-monitor-internal.nix

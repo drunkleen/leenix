@@ -18,7 +18,7 @@
 
         # leenix:args= [args...]
 
-        exec setsid uwsm-app -- xdg-terminal-exec --app-id=org.leenix.$(basename $1) -e "$1" "''${@:2}"
+        exec setsid uwsm-app -- xdg-terminal-exec --app-id=org.leenix.$(basename "''${1:-}") -e "''${1:-}" "''${@:2}"
       '';
     })
   ];

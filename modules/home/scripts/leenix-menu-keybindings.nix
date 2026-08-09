@@ -67,7 +67,7 @@
               if [[ $code == "201" ]]; then
                 echo "''${line/SUPER SHIFT,code:201/,COPILOT KEY}"
               else
-                symbol=$(lookup_keycode_cached "$code" "$XKB_KEYMAP_CACHE")
+                symbol=$(lookup_keycode_cached "$code")
                 echo "''${line/code:''${code}/$symbol}"
               fi
             elif [[ $line =~ mouse:([0-9]+) ]]; then
@@ -86,7 +86,7 @@
             fi
           done
 
-          if [[ $DEBUG == "1" ]]; then
+          if [[ ''${DEBUG:-0} == "1" ]]; then
             end=$(date +%s.%N)
             # fall back to awk if bc is missing
             if command -v bc >/dev/null 2>&1; then
@@ -266,7 +266,7 @@
             prioritize_entries
         }
 
-        if [[ $1 == "--print" || $1 == "-p" ]]; then
+        if [[ "''${1:-}" == "--print" || "''${1:-}" == "-p" ]]; then
           output_keybindings
         else
           monitor_height=$(hyprctl monitors -j | jq -r '.[] | select(.focused == true) | .height')

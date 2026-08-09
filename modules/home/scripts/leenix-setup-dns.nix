@@ -45,7 +45,7 @@
           done
         }
 
-        if [[ -z $1 ]]; then
+        if [[ -z ''${1:-} ]]; then
           dns=$(gum choose --height 6 --header "Select DNS provider" Cloudflare Google DHCP Custom)
         else
           dns=$1

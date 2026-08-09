@@ -11,6 +11,7 @@
 
       text = ''
         #!/bin/bash
+        LEENIX_PATH=''${LEENIX_PATH:-$HOME/.local/share/leenix}
 
         # leenix:summary=Install a supported browser
 
@@ -37,7 +38,7 @@
           local distribution_dir="$1"
 
           setup_policy_directory "$distribution_dir"
-          sudo cp -f "$LEENIX_PATH/default/firefox/policies.json" "$distribution_dir/policies.json"
+          sudo cp -f "''${LEENIX_PATH:-$HOME/.local/share/leenix}/default/firefox/policies.json" "$distribution_dir/policies.json"
         }
 
         setup_firefox_wayland() {
@@ -45,7 +46,7 @@
           echo "MOZ_ENABLE_WAYLAND=1" > ~/.config/environment.d/leenix-firefox-wayland.conf
         }
 
-        case $1 in
+        case ''${1:-} in
           chrome)
             echo "Installing Chrome..."
             leenix-pkg-aur-add google-chrome || exit 1

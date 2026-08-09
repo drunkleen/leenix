@@ -12,7 +12,7 @@
 
         # leenix:args=
 
-        [[ ! -f "$HOME/.local/state/leenix/toggles/hypr/$1.conf" ]]
+        [[ ! -f "$HOME/.local/state/leenix/toggles/hypr/''${1:-}.conf" ]]
       '';
     })
   ];

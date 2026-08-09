@@ -22,7 +22,7 @@
 
         # leenix:examples=leenix theme install git@github.com:example/leenix-example-theme.git
 
-        if [[ -z $1 ]]; then
+        if [[ -z ''${1:-} ]]; then
           echo -e "\e[32mSee https://manuals.omamix.org/2/the-leenix-manual/90/extra-themes\n\e[0m"
           REPO_URL=$(gum input --placeholder="Git repo URL (https or git@host:org/repo.git)" --header="")
         else

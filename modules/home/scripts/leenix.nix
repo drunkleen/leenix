@@ -21,8 +21,6 @@
       ];
 
       text = ''
-        leenix
-        
         #!/bin/bash
         
         set -o pipefail

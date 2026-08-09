@@ -21,7 +21,7 @@
 
         # leenix:examples=leenix theme remove "Tokyo Night"
 
-        if [[ -z $1 ]]; then
+        if [[ -z ''${1:-} ]]; then
           mapfile -t extra_themes < <(find ~/.config/leenix/themes -mindepth 1 -maxdepth 1 -type d ! -xtype l -printf '%f\n')
 
           if (( ''${#extra_themes[@]} > 0 )); then

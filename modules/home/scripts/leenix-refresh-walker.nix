@@ -13,6 +13,7 @@
 
       text = ''
         #!/bin/bash
+        LEENIX_PATH=''${LEENIX_PATH:-$HOME/.local/share/leenix}
 
         # leenix:summary=Overwrite the user configs for the Walker application launcher (which also powers the Leenix Menu) and restart the services.
 

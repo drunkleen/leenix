@@ -44,7 +44,7 @@
         print best
         }')
 
-        if [[ "$1" == "--reverse" ]]; then
+        if [[ "''${1:-}" == "--reverse" ]]; then
           NEW_IDX=$(( (CURRENT_IDX - 1 + ''${#SCALES[@]}) % ''${#SCALES[@]} ))
         else
           NEW_IDX=$(( (CURRENT_IDX + 1) % ''${#SCALES[@]} ))

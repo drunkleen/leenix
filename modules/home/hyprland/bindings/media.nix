@@ -1,30 +1,140 @@
-{ ... }:
+{ lib, ... }:
 
+let
+  repeatingLockedBinds = [
+    {
+      keys = "XF86AudioRaiseVolume";
+      description = "Volume up";
+      command = "leenix-swayosd-client --output-volume raise";
+    }
+    {
+      keys = "XF86AudioLowerVolume";
+      description = "Volume down";
+      command = "leenix-swayosd-client --output-volume lower";
+    }
+    {
+      keys = "XF86AudioMute";
+      description = "Mute";
+      command = "leenix-swayosd-client --output-volume mute-toggle";
+    }
+    {
+      keys = "XF86AudioMicMute";
+      description = "Mute microphone";
+      command = "leenix-audio-input-mute";
+    }
+    {
+      keys = "XF86MonBrightnessUp";
+      description = "Brightness up";
+      command = "leenix-brightness-display +5%";
+    }
+    {
+      keys = "XF86MonBrightnessDown";
+      description = "Brightness down";
+      command = "leenix-brightness-display 5%-";
+    }
+    {
+      keys = "SHIFT + XF86MonBrightnessUp";
+      description = "Brightness maximum";
+      command = "leenix-brightness-display 100%";
+    }
+    {
+      keys = "SHIFT + XF86MonBrightnessDown";
+      description = "Brightness minimum";
+      command = "leenix-brightness-display 1%";
+    }
+    {
+      keys = "XF86KbdBrightnessUp";
+      description = "Keyboard brightness up";
+      command = "leenix-brightness-keyboard up";
+    }
+    {
+      keys = "XF86KbdBrightnessDown";
+      description = "Keyboard brightness down";
+      command = "leenix-brightness-keyboard down";
+    }
+  ];
+
+  lockedBinds = [
+    {
+      keys = "XF86KbdLightOnOff";
+      description = "Keyboard backlight cycle";
+      command = "leenix-brightness-keyboard cycle";
+    }
+    {
+      keys = "XF86TouchpadToggle";
+      description = "Toggle touchpad";
+      command = "leenix-toggle-touchpad";
+    }
+    {
+      keys = "XF86TouchpadOn";
+      description = "Enable touchpad";
+      command = "leenix-toggle-touchpad on";
+    }
+    {
+      keys = "XF86TouchpadOff";
+      description = "Disable touchpad";
+      command = "leenix-toggle-touchpad off";
+    }
+    {
+      keys = "XF86AudioNext";
+      description = "Next track";
+      command = "leenix-swayosd-client --playerctl next";
+    }
+    {
+      keys = "XF86AudioPause";
+      description = "Pause";
+      command = "leenix-swayosd-client --playerctl play-pause";
+    }
+    {
+      keys = "XF86AudioPlay";
+      description = "Play";
+      command = "leenix-swayosd-client --playerctl play-pause";
+    }
+    {
+      keys = "XF86AudioPrev";
+      description = "Previous track";
+      command = "leenix-swayosd-client --playerctl previous";
+    }
+    {
+      keys = "SUPER + XF86AudioMute";
+      description = "Switch audio output";
+      command = "leenix-audio-output-switch";
+    }
+  ];
+
+  repeatingLockedLines =
+    lib.concatMapStringsSep "\n"
+      (bind: ''
+        hl.bind(
+          ${builtins.toJSON bind.keys},
+          hl.dsp.exec_cmd(${builtins.toJSON bind.command}),
+          {
+            repeating = true,
+            locked = true,
+            description = ${builtins.toJSON bind.description}
+          }
+        )
+      '')
+      repeatingLockedBinds;
+
+  lockedLines =
+    lib.concatMapStringsSep "\n"
+      (bind: ''
+        hl.bind(
+          ${builtins.toJSON bind.keys},
+          hl.dsp.exec_cmd(${builtins.toJSON bind.command}),
+          {
+            locked = true,
+            description = ${builtins.toJSON bind.description}
+          }
+        )
+      '')
+      lockedBinds;
+in
 {
-  wayland.windowManager.hyprland.settings = {
-    bindeld = [
-      ",XF86AudioRaiseVolume, Volume up, exec, leenix-swayosd-client --output-volume raise"
-      ",XF86AudioLowerVolume, Volume down, exec, leenix-swayosd-client --output-volume lower"
-      ",XF86AudioMute, Mute, exec, leenix-swayosd-client --output-volume mute-toggle"
-      ",XF86AudioMicMute, Mute microphone, exec, leenix-audio-input-mute"
-      ",XF86MonBrightnessUp, Brightness up, exec, leenix-brightness-display +5%"
-      ",XF86MonBrightnessDown, Brightness down, exec, leenix-brightness-display 5%-"
-      "SHIFT, XF86MonBrightnessUp, Brightness maximum, exec, leenix-brightness-display 100%"
-      "SHIFT, XF86MonBrightnessDown, Brightness minimum, exec, leenix-brightness-display 1%"
-      ",XF86KbdBrightnessUp, Keyboard brightness up, exec, leenix-brightness-keyboard up"
-      ",XF86KbdBrightnessDown, Keyboard brightness down, exec, leenix-brightness-keyboard down"
-    ];
+  wayland.windowManager.hyprland.extraConfig = ''
+    ${repeatingLockedLines}
 
-    bindld = [
-      ",XF86KbdLightOnOff, Keyboard backlight cycle, exec, leenix-brightness-keyboard cycle"
-      ",XF86TouchpadToggle, Toggle touchpad, exec, leenix-toggle-touchpad"
-      ",XF86TouchpadOn, Enable touchpad, exec, leenix-toggle-touchpad on"
-      ",XF86TouchpadOff, Disable touchpad, exec, leenix-toggle-touchpad off"
-      ",XF86AudioNext, Next track, exec, leenix-swayosd-client --playerctl next"
-      ",XF86AudioPause, Pause, exec, leenix-swayosd-client --playerctl play-pause"
-      ",XF86AudioPlay, Play, exec, leenix-swayosd-client --playerctl play-pause"
-      ",XF86AudioPrev, Previous track, exec, leenix-swayosd-client --playerctl previous"
-      "SUPER, XF86AudioMute, Switch audio output, exec, leenix-audio-output-switch"
-    ];
-  };
+    ${lockedLines}
+  '';
 }

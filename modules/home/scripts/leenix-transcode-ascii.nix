@@ -60,7 +60,7 @@
               ;;
             -w | --width)
               shift
-              if [[ -z $1 ]]; then
+              if [[ -z ''${1:-} ]]; then
                 echo "Missing value for --width" >&2
                 exit 1
               fi
@@ -71,7 +71,7 @@
               ;;
             -H | --height)
               shift
-              if [[ -z $1 ]]; then
+              if [[ -z ''${1:-} ]]; then
                 echo "Missing value for --height" >&2
                 exit 1
               fi
@@ -82,7 +82,7 @@
               ;;
             -m | --mode)
               shift
-              if [[ -z $1 ]]; then
+              if [[ -z ''${1:-} ]]; then
                 echo "Missing value for --mode" >&2
                 exit 1
               fi
@@ -99,7 +99,7 @@
               ;;
             -t | --threshold)
               shift
-              if [[ -z $1 ]]; then
+              if [[ -z ''${1:-} ]]; then
                 echo "Missing value for --threshold" >&2
                 exit 1
               fi

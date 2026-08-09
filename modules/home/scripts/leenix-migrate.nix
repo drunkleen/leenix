@@ -14,6 +14,7 @@
 
       text = ''
         #!/bin/bash
+        LEENIX_PATH=''${LEENIX_PATH:-$HOME/.local/share/leenix}
 
         # leenix:summary=Run all pending migrations to bring the system in line with the installed version.
 

@@ -11,7 +11,6 @@
     ./input.nix
     ./looknfeel.nix
     ./monitors.nix
-    ./scripts.nix
     ./windows.nix
 
     ./bindings/general.nix

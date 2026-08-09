@@ -1,38 +1,142 @@
-{ ... }:
+{ lib, ... }:
 
+let
+  describedBinds = [
+    {
+      keys = "SUPER + RETURN";
+      description = "Terminal";
+      command = ''uwsm-app -- xdg-terminal-exec --dir="$(leenix-cmd-terminal-cwd)"'';
+    }
+    {
+      keys = "SUPER + SHIFT + RETURN";
+      description = "Tmux";
+      command = ''uwsm-app -- xdg-terminal-exec --dir="$(leenix-cmd-terminal-cwd)" bash -c "tmux attach || tmux new -s Work"'';
+    }
+    {
+      keys = "SUPER + E";
+      description = "File manager";
+      command = "uwsm-app -- nautilus --new-window";
+    }
+    {
+      keys = "SUPER + B";
+      description = "Browser";
+      command = "leenix-launch-browser";
+    }
+    {
+      keys = "SUPER + SHIFT + B";
+      description = "Browser (private)";
+      command = "leenix-launch-browser --private";
+    }
+    {
+      keys = "SUPER + M";
+      description = "Music";
+      command = "leenix-launch-or-focus spotify";
+    }
+    {
+      keys = "SUPER + ALT + M";
+      description = "Music TUI";
+      command = "leenix-launch-or-focus-tui cliamp";
+    }
+    {
+      keys = "SUPER + SHIFT + N";
+      description = "Editor";
+      command = "leenix-launch-editor";
+    }
+    {
+      keys = "SUPER + SHIFT + D";
+      description = "Docker";
+      command = "leenix-launch-tui lazydocker";
+    }
+    {
+      keys = "SUPER + SHIFT + S";
+      description = "Signal";
+      command = ''leenix-launch-or-focus ^signal$ "uwsm-app -- signal-desktop"'';
+    }
+    {
+      keys = "SUPER + SLASH";
+      description = "Bitwarden";
+      command = "uwsm-app -- bitwarden";
+    }
+
+    {
+      keys = "SUPER + SHIFT + A";
+      description = "ChatGPT";
+      command = ''leenix-launch-webapp "https://chatgpt.com"'';
+    }
+    {
+      keys = "SUPER + SHIFT + E";
+      description = "Email";
+      command = ''leenix-launch-webapp "https://mail.google.com"'';
+    }
+    {
+      keys = "SUPER + SHIFT + Y";
+      description = "YouTube";
+      command = ''leenix-launch-webapp "https://youtube.com/"'';
+    }
+    {
+      keys = "SUPER + SHIFT + X";
+      description = "X";
+      command = ''leenix-launch-webapp "https://x.com/"'';
+    }
+    {
+      keys = "SUPER + SHIFT + ALT + X";
+      description = "X Post";
+      command = ''leenix-launch-webapp "https://x.com/compose/post"'';
+    }
+
+    {
+      keys = "SUPER + Z";
+      description = "Zoom";
+      command = "~/.local/bin/hypr-zoom toggle";
+    }
+  ];
+
+  binds = [
+    {
+      keys = "SUPER + EQUAL";
+      command = "leenix-hypr-zoom in";
+    }
+    {
+      keys = "SUPER + KP_ADD";
+      command = "leenix-hypr-zoom in";
+    }
+    {
+      keys = "SUPER + MINUS";
+      command = "leenix-hypr-zoom out";
+    }
+    {
+      keys = "SUPER + KP_SUBTRACT";
+      command = "leenix-hypr-zoom out";
+    }
+  ];
+
+  describedBindLines =
+    lib.concatMapStringsSep "\n"
+      (bind: ''
+        hl.bind(
+          ${builtins.toJSON bind.keys},
+          hl.dsp.exec_cmd(${builtins.toJSON bind.command}),
+          { description = ${builtins.toJSON bind.description} }
+        )
+      '')
+      describedBinds;
+
+  bindLines =
+    lib.concatMapStringsSep "\n"
+      (bind: ''
+        hl.bind(
+          ${builtins.toJSON bind.keys},
+          hl.dsp.exec_cmd(${builtins.toJSON bind.command})
+        )
+      '')
+      binds;
+in
 {
-  wayland.windowManager.hyprland.settings = {
-    bindd = [
-      "SUPER, RETURN, Terminal, exec, uwsm-app -- xdg-terminal-exec --dir=\"$(leenix-cmd-terminal-cwd)\""
-      "SUPER SHIFT, RETURN, Tmux, exec, uwsm-app -- xdg-terminal-exec --dir=\"$(leenix-cmd-terminal-cwd)\" bash -c \"tmux attach || tmux new -s Work\""
-      "SUPER, E, File manager, exec, uwsm-app -- nautilus --new-window"
-      "SUPER, B, Browser, exec, leenix-launch-browser"
-      "SUPER SHIFT, B, Browser (private), exec, leenix-launch-browser --private"
-      "SUPER, M, Music, exec, leenix-launch-or-focus spotify"
-      "SUPER ALT, M, Music TUI, exec, leenix-launch-or-focus-tui cliamp"
-      "SUPER SHIFT, N, Editor, exec, leenix-launch-editor"
-      "SUPER SHIFT, D, Docker, exec, leenix-launch-tui lazydocker"
-      "SUPER SHIFT, S, Signal, exec, leenix-launch-or-focus ^signal$ \"uwsm-app -- signal-desktop\""
-      "SUPER, SLASH, Bitwarden, exec, uwsm-app -- bitwarden"
+  wayland.windowManager.hyprland.extraConfig = ''
+    ${describedBindLines}
 
-      "SUPER SHIFT, A, ChatGPT, exec, leenix-launch-webapp \"https://chatgpt.com\""
-      "SUPER SHIFT, E, Email, exec, leenix-launch-webapp \"https://mail.google.com\""
-      "SUPER SHIFT, Y, YouTube, exec, leenix-launch-webapp \"https://youtube.com/\""
-      "SUPER SHIFT, X, X, exec, leenix-launch-webapp \"https://x.com/\""
-      "SUPER SHIFT ALT, X, X Post, exec, leenix-launch-webapp \"https://x.com/compose/post\""
+    ${bindLines}
 
-      "SUPER, Z, Zoom, exec, ~/.local/bin/hypr-zoom toggle"
-    ];
-
-    bind = [
-      "SUPER, EQUAL, exec, ~/.local/bin/hypr-zoom in"
-      "SUPER, KP_ADD, exec, ~/.local/bin/hypr-zoom in"
-      "SUPER, MINUS, exec, ~/.local/bin/hypr-zoom out"
-      "SUPER, KP_SUBTRACT, exec, ~/.local/bin/hypr-zoom out"
-    ];
-
-    unbind = [
-      "SUPER, SLASH"
-    ];
-  };
+    hl.unbind("SUPER + SLASH")
+  '';
 }

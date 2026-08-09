@@ -23,9 +23,8 @@
       ];
 
       text = ''
-        leenix-windows-vm
-        
         #!/bin/bash
+        LEENIX_PATH=''${LEENIX_PATH:-$HOME/.local/share/leenix}
         
         # leenix:summary=Install, launch, stop, inspect, or remove the Windows VM
         # leenix:args=<install|remove|launch|stop|status> [options]
@@ -295,7 +294,7 @@
         
         launch_windows() {
           KEEP_ALIVE=false
-          if [[ $1 = "--keep-alive" ]] || [[ $1 = "-k" ]]; then
+          if [[ "''${1:-}" = "--keep-alive" ]] || [[ "''${1:-}" = "-k" ]]; then
             KEEP_ALIVE=true
           fi
         
@@ -452,7 +451,7 @@
         }
         
         # Main command dispatcher
-        case "$1" in
+        case "''${1:-}" in
           install)
             install_windows
             ;;
@@ -460,7 +459,7 @@
             remove_windows
             ;;
           launch|start)
-            launch_windows "$2"
+            launch_windows "''${2:-}"
             ;;
           stop|down)
             stop_windows

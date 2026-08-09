@@ -22,8 +22,8 @@
         STATE_DIR="$HOME/.local/state/leenix"
         mkdir -p "$STATE_DIR"
 
-        COMMAND="$1"
-        STATE_NAME="$2"
+        COMMAND=''${1:-}
+        STATE_NAME=''${2:-}
 
         if [[ -z $COMMAND ]]; then
           echo "Usage: leenix-state <set|clear> <state-name>"

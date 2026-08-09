@@ -1,171 +1,441 @@
-{ ... }:
+{ lib, ... }:
 
+let
+  # Convert Nix values to valid Lua table values.
+  # We generate the new Hyprland 0.55+ API ourselves instead of letting
+  # Home Manager translate the old Hyprlang windowrule syntax.
+  toLua =
+    value:
+    if builtins.isBool value then
+      if value then "true" else "false"
+    else if builtins.isInt value || builtins.isFloat value then
+      builtins.toString value
+    else if builtins.isString value then
+      builtins.toJSON value
+    else if builtins.isList value then
+      "{ ${lib.concatMapStringsSep ", " toLua value} }"
+    else if builtins.isAttrs value then
+      "{ ${
+        lib.concatStringsSep ", " (
+          lib.mapAttrsToList (
+            name: innerValue:
+            "${name} = ${toLua innerValue}"
+          ) value
+        )
+      } }"
+    else
+      throw "Unsupported value while generating Hyprland Lua";
+
+  windowRules = [
+    # Suppress maximize events
+    {
+      match.class = ".*";
+      suppress_event = "maximize";
+    }
+
+    # Tag all windows for default opacity
+    {
+      match.class = ".*";
+      tag = "+default-opacity";
+    }
+
+    # Fix some dragging issues with XWayland
+    {
+      match = {
+        class = "^$";
+        title = "^$";
+        xwayland = true;
+        float = true;
+        fullscreen = false;
+        pin = false;
+      };
+
+      no_focus = true;
+    }
+
+    # Bitwarden
+    {
+      match.class = "^([b|B]itwarden)$";
+      no_screen_share = true;
+    }
+    {
+      match.class = "^([b|B]itwarden)$";
+      tag = "+floating-window";
+    }
+
+    {
+      match.class = "chrome-nngceckbapebfimnlniiiahkandclblb-Default";
+      no_screen_share = true;
+    }
+    {
+      match.class = "chrome-nngceckbapebfimnlniiiahkandclblb-Default";
+      tag = "+floating-window";
+    }
+
+    {
+      match.class = "firefox-nngceckbapebfimnlniiiahkandclblb-Default";
+      no_screen_share = true;
+    }
+    {
+      match.class = "firefox-nngceckbapebfimnlniiiahkandclblb-Default";
+      tag = "+floating-window";
+    }
+
+    # Browser types
+    {
+      match.class = "((google-)?[cC]hrom(e|ium)|[bB]rave-browser|[mM]icrosoft-edge|Vivaldi-stable|helium)";
+      tag = "+chromium-based-browser";
+    }
+    {
+      match.class = "([fF]irefox|zen|librewolf)";
+      tag = "+firefox-based-browser";
+    }
+    {
+      match.tag = "chromium-based-browser";
+      tag = "-default-opacity";
+    }
+    {
+      match.tag = "firefox-based-browser";
+      tag = "-default-opacity";
+    }
+
+    # Video apps: remove chromium browser tag so they don't get opacity applied
+    {
+      match.class = "(chrome-youtube.com__-Default|chrome-app.zoom.us__wc_home-Default)";
+      tag = "-chromium-based-browser";
+    }
+    {
+      match.class = "(chrome-youtube.com__-Default|chrome-app.zoom.us__wc_home-Default)";
+      tag = "-default-opacity";
+    }
+
+    # Force chromium-based browsers into a tile to deal with --app bug
+    {
+      match.tag = "chromium-based-browser";
+      tile = true;
+    }
+
+    # Only a subtle opacity change, but not for video sites
+    {
+      match.tag = "chromium-based-browser";
+      opacity = "1.0 0.985";
+    }
+    {
+      match.tag = "firefox-based-browser";
+      opacity = "1.0 0.985";
+    }
+
+    # Hide the screen-sharing notification bar
+    {
+      match.title = ".*is sharing.*";
+      workspace = "special silent";
+    }
+
+    # GeForce NOW
+    {
+      match.class = "GeForceNOW";
+      idle_inhibit = "fullscreen";
+    }
+
+    # JetBrains focus
+    {
+      match.class = "^(jetbrains-.*)$";
+      no_follow_mouse = true;
+    }
+
+    # Float LocalSend and fzf file picker
+    {
+      match.class = "(Share|localsend)";
+      float = true;
+    }
+    {
+      match.class = "(Share|localsend)";
+      center = true;
+    }
+    {
+      match.class = "localsend";
+      size = [
+        1100
+        700
+      ];
+    }
+
+    # Moonlight
+    {
+      match.class = "com.moonlight_stream.Moonlight";
+      fullscreen = true;
+      idle_inhibit = "fullscreen";
+    }
+
+    # Picture-in-picture overlays
+    {
+      match.title = "(Picture.?in.?[Pp]icture)";
+      tag = "+pip";
+    }
+    {
+      match.tag = "pip";
+      tag = "-default-opacity";
+    }
+    {
+      match.tag = "pip";
+      float = true;
+    }
+    {
+      match.tag = "pip";
+      pin = true;
+    }
+    {
+      match.tag = "pip";
+      size = [
+        600
+        338
+      ];
+    }
+    {
+      match.tag = "pip";
+      keep_aspect_ratio = true;
+    }
+    {
+      match.tag = "pip";
+      border_size = 0;
+    }
+    {
+      match.tag = "pip";
+      opacity = "1 1";
+    }
+    {
+      match.tag = "pip";
+      move = [
+        "(monitor_w-window_w-40)"
+        "(monitor_h*0.04)"
+      ];
+    }
+
+    # QEMU
+    {
+      match.class = "qemu";
+      tag = "-default-opacity";
+    }
+    {
+      match.class = "qemu";
+      opacity = "1 1";
+    }
+
+    # RetroArch
+    {
+      match.class = "com.libretro.RetroArch";
+      fullscreen = true;
+    }
+    {
+      match.class = "com.libretro.RetroArch";
+      tag = "-default-opacity";
+    }
+    {
+      match.class = "com.libretro.RetroArch";
+      opacity = "1 1";
+    }
+    {
+      match.class = "com.libretro.RetroArch";
+      idle_inhibit = "fullscreen";
+    }
+
+    # Float Steam
+    {
+      match.class = "steam";
+      float = true;
+    }
+    {
+      match = {
+        class = "steam";
+        title = "Steam";
+      };
+      center = true;
+    }
+    {
+      match.class = "steam.*";
+      tag = "-default-opacity";
+    }
+    {
+      match.class = "steam.*";
+      opacity = "1 1";
+    }
+    {
+      match = {
+        class = "steam";
+        title = "Steam";
+      };
+      size = [
+        1100
+        700
+      ];
+    }
+    {
+      match = {
+        class = "steam";
+        title = "Friends List";
+      };
+      size = [
+        460
+        800
+      ];
+    }
+    {
+      match.class = "steam";
+      idle_inhibit = "fullscreen";
+    }
+
+    # Floating windows
+    {
+      match.tag = "floating-window";
+      float = true;
+    }
+    {
+      match.tag = "floating-window";
+      center = true;
+    }
+    {
+      match.tag = "floating-window";
+      size = [
+        875
+        600
+      ];
+    }
+
+    {
+      match.class = "(org.leenix.bluetui|org.leenix.impala|org.leenix.wiremix|org.leenix.btop|org.leenix.terminal|org.leenix.bash|org.codeberg.dnkl.foot|org.gnome.NautilusPreviewer|org.gnome.Evince|com.gabm.satty|Leenix|About|TUI.float|imv|mpv)";
+      tag = "+floating-window";
+    }
+
+    {
+      match = {
+        class = "(xdg-desktop-portal-gtk|sublime_text|DesktopEditors|org.gnome.Nautilus)";
+        title = "^(Open.*Files?|Open [F|f]older.*|Save.*Files?|Save.*As|Save|All Files|.*wants to [open|save].*|[C|c]hoose.*)";
+      };
+
+      tag = "+floating-window";
+    }
+
+    {
+      match.class = "org.gnome.Calculator";
+      float = true;
+    }
+
+    # Fullscreen screensaver
+    {
+      match.class = "org.leenix.screensaver";
+      fullscreen = true;
+    }
+    {
+      match.class = "org.leenix.screensaver";
+      float = true;
+    }
+    {
+      match.class = "org.leenix.screensaver";
+      animation = "slide";
+    }
+
+    # No transparency on media windows
+    {
+      match.class = "^(zoom|vlc|mpv|org.kde.kdenlive|com.obsproject.Studio|com.github.PintaProject.Pinta|imv|org.gnome.NautilusPreviewer)$";
+      tag = "-default-opacity";
+    }
+    {
+      match.class = "^(zoom|vlc|mpv|org.kde.kdenlive|com.obsproject.Studio|com.github.PintaProject.Pinta|imv|org.gnome.NautilusPreviewer)$";
+      opacity = "1 1";
+    }
+
+    # Popped window rounding
+    {
+      match.tag = "pop";
+      rounding = 8;
+    }
+
+    # Prevent idle while open
+    {
+      match.tag = "noidle";
+      idle_inhibit = "always";
+    }
+
+    # Prevent Telegram from stealing focus on new messages
+    {
+      match.class = "org.telegram.desktop";
+      focus_on_activate = false;
+    }
+
+    # Define terminal tag to style them uniformly
+    {
+      match.class = "(Alacritty|kitty|com.mitchellh.ghostty|foot)";
+      tag = "+terminal";
+    }
+    {
+      match.tag = "terminal";
+      tag = "-default-opacity";
+    }
+    {
+      match.tag = "terminal";
+      opacity = "0.985 0.96";
+    }
+
+    # Webcam overlay for screen recording
+    {
+      match.title = "WebcamOverlay";
+      float = true;
+    }
+    {
+      match.title = "WebcamOverlay";
+      pin = true;
+    }
+    {
+      match.title = "WebcamOverlay";
+      no_initial_focus = true;
+    }
+    {
+      match.title = "WebcamOverlay";
+      no_dim = true;
+    }
+    {
+      match.title = "WebcamOverlay";
+      move = [
+        "(monitor_w-window_w-40)"
+        "(monitor_h-window_h-40)"
+      ];
+    }
+
+    # Apply default opacity after apps have had a chance to opt out
+    {
+      match.tag = "default-opacity";
+      opacity = "0.985 0.96";
+    }
+  ];
+
+  layerRules = [
+    # Remove 1px border around hyprshot screenshots
+    {
+      match.namespace = "selection";
+      no_anim = true;
+    }
+
+    # Application-specific animation
+    {
+      match.namespace = "walker";
+      no_anim = true;
+    }
+  ];
+
+  windowRuleLua =
+    lib.concatMapStringsSep "\n"
+      (rule: "hl.window_rule(${toLua rule})")
+      windowRules;
+
+  layerRuleLua =
+    lib.concatMapStringsSep "\n"
+      (rule: "hl.layer_rule(${toLua rule})")
+      layerRules;
+in
 {
-  wayland.windowManager.hyprland = {
-    extraConfig = ''
-      # See https://wiki.hypr.land/Configuring/Basics/Window-Rules/ for more
+  wayland.windowManager.hyprland.extraConfig = ''
+    ${windowRuleLua}
 
-      # Hyprland 0.53+ syntax
-
-      windowrule = suppress_event maximize, match:class .*
-
-      # Tag all windows for default opacity (apps can override with -default-opacity tag)
-
-      windowrule = tag +default-opacity, match:class .*
-
-      # Fix some dragging issues with XWayland
-
-      windowrule = no_focus on, match:class ^$, match:title ^$, match:xwayland 1, match:float 1, match:fullscreen 0, match:pin 0
-
-      # Bitwarden
-
-      windowrule = no_screen_share on, match:class ^([b|B]itwarden)$
-      windowrule = tag +floating-window, match:class ^([b|B]itwarden)$
-
-      windowrule = no_screen_share on, match:class chrome-nngceckbapebfimnlniiiahkandclblb-Default
-      windowrule = tag +floating-window, match:class chrome-nngceckbapebfimnlniiiahkandclblb-Default
-
-      windowrule = no_screen_share on, match:class firefox-nngceckbapebfimnlniiiahkandclblb-Default
-      windowrule = tag +floating-window, match:class firefox-nngceckbapebfimnlniiiahkandclblb-Default
-
-      # Browser types
-
-      windowrule = tag +chromium-based-browser, match:class ((google-)?[cC]hrom(e|ium)|[bB]rave-browser|[mM]icrosoft-edge|Vivaldi-stable|helium)
-      windowrule = tag +firefox-based-browser, match:class ([fF]irefox|zen|librewolf)
-      windowrule = tag -default-opacity, match:tag chromium-based-browser
-      windowrule = tag -default-opacity, match:tag firefox-based-browser
-
-      # Video apps: remove chromium browser tag so they don't get opacity applied
-
-      windowrule = tag -chromium-based-browser, match:class (chrome-youtube.com__-Default|chrome-app.zoom.us__wc_home-Default)
-      windowrule = tag -default-opacity, match:class (chrome-youtube.com__-Default|chrome-app.zoom.us__wc_home-Default)
-
-      # Force chromium-based browsers into a tile to deal with --app bug
-
-      windowrule = tile on, match:tag chromium-based-browser
-
-      # Only a subtle opacity change, but not for video sites
-
-      windowrule = opacity 1.0 0.985, match:tag chromium-based-browser
-      windowrule = opacity 1.0 0.985, match:tag firefox-based-browser
-
-      # Hide the screen-sharing notification bar (the "Hide" button on it is broken on Wayland)
-
-      windowrule = workspace special silent, match:title .*is sharing.*
-
-      windowrule {
-        name = geforce
-        match:class = GeForceNOW
-        idle_inhibit = fullscreen
-      }
-
-      # Remove 1px border around hyprshot screenshots
-
-      layerrule = no_anim on, match:namespace selection
-
-      windowrule {
-        name = jetbrains-focus
-        no_follow_mouse = on
-        match:class = ^(jetbrains-.*)$
-      }
-
-      # Float LocalSend and fzf file picker
-
-      windowrule = float on, match:class (Share|localsend)
-      windowrule = center on, match:class (Share|localsend)
-      windowrule = size 1100 700, match:class localsend
-
-      windowrule {
-        name = moonlight
-        match:class = com.moonlight_stream.Moonlight
-        fullscreen = 1
-        idle_inhibit = fullscreen
-      }
-
-      # Picture-in-picture overlays
-
-      windowrule = tag +pip, match:title (Picture.?in.?[Pp]icture)
-      windowrule = tag -default-opacity, match:tag pip
-      windowrule = float on, match:tag pip
-      windowrule = pin on, match:tag pip
-      windowrule = size 600 338, match:tag pip
-      windowrule = keep_aspect_ratio on, match:tag pip
-      windowrule = border_size 0, match:tag pip
-      windowrule = opacity 1 1, match:tag pip
-      windowrule = move (monitor_w-window_w-40) (monitor_h*0.04), match:tag pip
-
-      windowrule = tag -default-opacity, match:class qemu
-      windowrule = opacity 1 1, match:class qemu
-
-      windowrule = fullscreen on, match:class com.libretro.RetroArch
-      windowrule = tag -default-opacity, match:class com.libretro.RetroArch
-      windowrule = opacity 1 1, match:class com.libretro.RetroArch
-      windowrule = idle_inhibit fullscreen, match:class com.libretro.RetroArch
-
-      # Float Steam
-
-      windowrule = float on, match:class steam
-      windowrule = center on, match:class steam, match:title Steam
-      windowrule = tag -default-opacity, match:class steam.*
-      windowrule = opacity 1 1, match:class steam.*
-      windowrule = size 1100 700, match:class steam, match:title Steam
-      windowrule = size 460 800, match:class steam, match:title Friends List
-      windowrule = idle_inhibit fullscreen, match:class steam
-
-      # Floating windows
-
-      windowrule = float on, match:tag floating-window
-      windowrule = center on, match:tag floating-window
-      windowrule = size 875 600, match:tag floating-window
-
-      windowrule = tag +floating-window, match:class (org.leenix.bluetui|org.leenix.impala|org.leenix.wiremix|org.leenix.btop|org.leenix.terminal|org.leenix.bash|org.codeberg.dnkl.foot|org.gnome.NautilusPreviewer|org.gnome.Evince|com.gabm.satty|Leenix|About|TUI.float|imv|mpv)
-      windowrule = tag +floating-window, match:class (xdg-desktop-portal-gtk|sublime_text|DesktopEditors|org.gnome.Nautilus), match:title ^(Open.*Files?|Open [F|f]older.*|Save.*Files?|Save.*As|Save|All Files|.*wants to [open|save].*|[C|c]hoose.*)
-      windowrule = float on, match:class org.gnome.Calculator
-
-      # Fullscreen screensaver
-
-      windowrule = fullscreen on, match:class org.leenix.screensaver
-      windowrule = float on, match:class org.leenix.screensaver
-      windowrule = animation slide, match:class org.leenix.screensaver
-
-      # No transparency on media windows
-
-      windowrule = tag -default-opacity, match:class ^(zoom|vlc|mpv|org.kde.kdenlive|com.obsproject.Studio|com.github.PintaProject.Pinta|imv|org.gnome.NautilusPreviewer)$
-      windowrule = opacity 1 1, match:class ^(zoom|vlc|mpv|org.kde.kdenlive|com.obsproject.Studio|com.github.PintaProject.Pinta|imv|org.gnome.NautilusPreviewer)$
-
-      # Popped window rounding
-
-      windowrule = rounding 8, match:tag pop
-
-      # Prevent idle while open
-
-      windowrule = idle_inhibit always, match:tag noidle
-
-      # Prevent Telegram from stealing focus on new messages
-
-      windowrule = focus_on_activate off, match:class org.telegram.desktop
-
-      # Define terminal tag to style them uniformly
-
-      windowrule = tag +terminal, match:class (Alacritty|kitty|com.mitchellh.ghostty|foot)
-      windowrule = tag -default-opacity, match:tag terminal
-      windowrule = opacity 0.985 0.96, match:tag terminal
-
-      # Application-specific animation
-
-      layerrule = no_anim on, match:namespace walker
-
-      # Webcam overlay for screen recording
-
-      windowrule = float on, match:title WebcamOverlay
-      windowrule = pin on, match:title WebcamOverlay
-      windowrule = no_initial_focus on, match:title WebcamOverlay
-      windowrule = no_dim on, match:title WebcamOverlay
-      windowrule = move (monitor_w-window_w-40) (monitor_h-window_h-40), match:title WebcamOverlay
-
-      # Apply default opacity after apps have had a chance to opt out
-
-      windowrule = opacity 0.985 0.96, match:tag default-opacity
-    '';
-  };
+    ${layerRuleLua}
+  '';
 }

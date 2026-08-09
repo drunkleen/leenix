@@ -22,7 +22,7 @@
 
         set -e
 
-        COMMAND="$1"
+        COMMAND=''${1:-}
         LEENIX_PATH=''${LEENIX_PATH:-$HOME/.local/share/leenix}
 
         if [[ -z $COMMAND ]]; then

@@ -12,6 +12,7 @@
 
       text = ''
         #!/bin/bash
+        LEENIX_PATH=''${LEENIX_PATH:-$HOME/.local/share/leenix}
 
         # leenix:summary=Overwrite the package configuration for /etc/pacman with the Leenix default of using its dedicated mirrors and repositories, then update all packages.
 

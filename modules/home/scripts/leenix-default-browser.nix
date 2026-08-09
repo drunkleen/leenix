@@ -33,7 +33,7 @@
           exit 0
         fi
 
-        case "$1" in
+        case "''${1:-}" in
           chromium) desktop_id="chromium.desktop"; name="Chromium"; glyph="" ;;
           chrome) desktop_id="google-chrome.desktop"; name="Chrome"; glyph="󰊯" ;;
           brave) desktop_id="brave-browser.desktop"; name="Brave"; glyph="󰖟" ;;

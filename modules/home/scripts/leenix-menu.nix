@@ -24,8 +24,6 @@
       ];
 
       text = ''
-        leenix-menu
-        
         #!/bin/bash
         
         # leenix:summary=Launch the Leenix Menu or takes a parameter to jump straight to a submenu.
@@ -55,8 +53,8 @@
         menu() {
           local prompt="$1"
           local options="$2"
-          local extra="$3"
-          local preselect="$4"
+          local extra=''${3:-}
+          local preselect=''${4:-}
         
           read -r -a args <<<"$extra"
         
@@ -911,7 +909,7 @@
         
         toggle_existing_menu
         
-        if [[ -n $1 ]]; then
+        if [[ -n ''${1:-} ]]; then
           BACK_TO_EXIT=true
           go_to_menu "$1"
         else

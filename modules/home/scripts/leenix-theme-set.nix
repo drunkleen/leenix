@@ -13,6 +13,7 @@
 
       text = ''
         #!/bin/bash
+        LEENIX_PATH=''${LEENIX_PATH:-$HOME/.local/share/leenix}
 
         # leenix:summary=Apply an Leenix theme
 
@@ -20,7 +21,7 @@
 
         # leenix:examples=leenix theme list | leenix theme set "Tokyo Night"
 
-        if [[ -z $1 ]]; then
+        if [[ -z ''${1:-} ]]; then
           echo "Usage: leenix-theme-set "
           exit 1
         fi

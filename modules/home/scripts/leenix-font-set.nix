@@ -23,7 +23,7 @@
 
         # leenix:examples=leenix font list | leenix font set "CaskaydiaMono Nerd Font"
 
-        font_name="$1"
+        font_name=''${1:-}
 
         if [[ -n $font_name ]]; then
           if fc-list | grep -iq "$font_name"; then

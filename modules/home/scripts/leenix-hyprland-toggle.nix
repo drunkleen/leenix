@@ -14,6 +14,7 @@
 
       text = ''
         #!/bin/bash
+        LEENIX_PATH=''${LEENIX_PATH:-$HOME/.local/share/leenix}
 
         # leenix:summary=Toggle permanent Hyprland flags by copying them into a directory that's sourced entirely.
 

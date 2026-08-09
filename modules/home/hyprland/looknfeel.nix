@@ -1,7 +1,29 @@
-{ ... }:
+{ lib, ... }:
 
-{
-  wayland.windowManager.hyprland.settings = {
+let
+  toLua =
+    value:
+    if builtins.isBool value then
+      if value then "true" else "false"
+    else if builtins.isInt value || builtins.isFloat value then
+      builtins.toString value
+    else if builtins.isString value then
+      builtins.toJSON value
+    else if builtins.isList value then
+      "{ ${lib.concatMapStringsSep ", " toLua value} }"
+    else if builtins.isAttrs value then
+      "{ ${
+        lib.concatStringsSep ", " (
+          lib.mapAttrsToList (
+            name: innerValue:
+            "${name} = ${toLua innerValue}"
+          ) value
+        )
+      } }"
+    else
+      throw "Unsupported value while generating Hyprland Lua";
+
+  config = {
     general = {
       gaps_in = 5;
       gaps_out = 10;
@@ -10,13 +32,13 @@
       col = {
         active_border = {
           colors = [
-            "rgba(33ccffee)"
-            "rgba(00ff99ee)"
+            "rgba(33b8a8ee)"
+            "rgba(59d6c5ee)"
           ];
           angle = 45;
         };
 
-        inactive_border = "rgba(595959aa)";
+        inactive_border = "rgba(223033aa)";
       };
 
       resize_on_border = false;
@@ -31,7 +53,7 @@
         enabled = true;
         range = 2;
         render_power = 3;
-        color = "rgba(1a1a1aee)";
+        color = "rgba(020405dd)";
       };
 
       blur = {
@@ -48,23 +70,23 @@
       col = {
         border_active = {
           colors = [
-            "rgba(33ccffee)"
-            "rgba(00ff99ee)"
+            "rgba(33b8a8ee)"
+            "rgba(59d6c5ee)"
           ];
           angle = 45;
         };
 
-        border_inactive = "rgba(595959aa)";
+        border_inactive = "rgba(223033aa)";
 
         border_locked_active = {
           colors = [
-            "rgba(33ccffee)"
-            "rgba(00ff99ee)"
+            "rgba(4dba7aee)"
+            "rgba(5ccbbbee)"
           ];
           angle = 45;
         };
 
-        border_locked_inactive = "rgba(595959aa)";
+        border_locked_inactive = "rgba(223033aa)";
       };
 
       groupbar = {
@@ -80,12 +102,12 @@
         gaps_in = 5;
         gaps_out = 0;
 
-        text_color = "rgb(ffffff)";
-        text_color_inactive = "rgba(ffffff90)";
+        text_color = "rgb(d8e3e0)";
+        text_color_inactive = "rgba(718688cc)";
 
         col = {
-          active = "rgba(00000040)";
-          inactive = "rgba(00000020)";
+          active = "rgba(11191ccc)";
+          inactive = "rgba(0b1113aa)";
         };
 
         gradients = true;
@@ -128,127 +150,184 @@
     binds = {
       hide_special_on_workspace_change = true;
     };
-
-    # Bézier curves
-    bezier = [
-      "easeOutQuint, 0.23, 1, 0.32, 1"
-      "easeInOutCubic, 0.65, 0.05, 0.36, 1"
-      "linear, 0, 0, 1, 1"
-      "almostLinear, 0.5, 0.5, 0.75, 1"
-      "quick, 0.15, 0, 0.1, 1"
-    ];
-
-    # Animations
-    animation = [
-    {
-      leaf = "global";
-      enabled = true;
-      speed = 10;
-      curve = "default";
-    }
-
-    {
-      leaf = "border";
-      enabled = true;
-      speed = 5.39;
-      curve = "easeOutQuint";
-    }
-
-    {
-      leaf = "windows";
-      enabled = true;
-      speed = 3.79;
-      curve = "easeOutQuint";
-    }
-
-    {
-      leaf = "windowsIn";
-      enabled = true;
-      speed = 4.1;
-      curve = "easeOutQuint";
-      style = "popin 87%";
-    }
-
-    {
-      leaf = "windowsOut";
-      enabled = true;
-      speed = 1.49;
-      curve = "linear";
-      style = "popin 87%";
-    }
-
-    {
-      leaf = "fadeIn";
-      enabled = true;
-      speed = 1.73;
-      curve = "almostLinear";
-    }
-
-    {
-      leaf = "fadeOut";
-      enabled = true;
-      speed = 1.46;
-      curve = "almostLinear";
-    }
-
-    {
-      leaf = "fade";
-      enabled = true;
-      speed = 3.03;
-      curve = "quick";
-    }
-
-    {
-      leaf = "layers";
-      enabled = true;
-      speed = 3.81;
-      curve = "easeOutQuint";
-    }
-
-    {
-      leaf = "layersIn";
-      enabled = true;
-      speed = 4;
-      curve = "easeOutQuint";
-      style = "fade";
-    }
-
-    {
-      leaf = "layersOut";
-      enabled = true;
-      speed = 1.5;
-      curve = "linear";
-      style = "fade";
-    }
-
-    {
-      leaf = "fadeLayersIn";
-      enabled = true;
-      speed = 1.79;
-      curve = "almostLinear";
-    }
-
-    {
-      leaf = "fadeLayersOut";
-      enabled = true;
-      speed = 1.39;
-      curve = "almostLinear";
-    }
-
-    {
-      leaf = "workspaces";
-      enabled = false;
-      speed = 0;
-      curve = "ease";
-    }
-
-    {
-      leaf = "specialWorkspace";
-      enabled = true;
-      speed = 3;
-      curve = "easeOutQuint";
-      style = "slidevert";
-    }
-    ];
   };
+
+  curves = [
+    {
+      name = "easeOutQuint";
+      points = [
+        [ 0.23 1.0 ]
+        [ 0.32 1.0 ]
+      ];
+    }
+
+    {
+      name = "easeInOutCubic";
+      points = [
+        [ 0.65 0.05 ]
+        [ 0.36 1.0 ]
+      ];
+    }
+
+    {
+      name = "linear";
+      points = [
+        [ 0.0 0.0 ]
+        [ 1.0 1.0 ]
+      ];
+    }
+
+    {
+      name = "almostLinear";
+      points = [
+        [ 0.5 0.5 ]
+        [ 0.75 1.0 ]
+      ];
+    }
+
+    {
+      name = "quick";
+      points = [
+        [ 0.15 0.0 ]
+        [ 0.1 1.0 ]
+      ];
+    }
+  ];
+
+animations = [
+  {
+    leaf = "global";
+    enabled = true;
+    speed = 10;
+    bezier = "default";
+  }
+
+  {
+    leaf = "border";
+    enabled = true;
+    speed = 5.39;
+    bezier = "easeOutQuint";
+  }
+
+  {
+    leaf = "windows";
+    enabled = true;
+    speed = 3.79;
+    bezier = "easeOutQuint";
+  }
+
+  {
+    leaf = "windowsIn";
+    enabled = true;
+    speed = 4.1;
+    bezier = "easeOutQuint";
+    style = "popin 87%";
+  }
+
+  {
+    leaf = "windowsOut";
+    enabled = true;
+    speed = 1.49;
+    bezier = "linear";
+    style = "popin 87%";
+  }
+
+  {
+    leaf = "fadeIn";
+    enabled = true;
+    speed = 1.73;
+    bezier = "almostLinear";
+  }
+
+  {
+    leaf = "fadeOut";
+    enabled = true;
+    speed = 1.46;
+    bezier = "almostLinear";
+  }
+
+  {
+    leaf = "fade";
+    enabled = true;
+    speed = 3.03;
+    bezier = "quick";
+  }
+
+  {
+    leaf = "layers";
+    enabled = true;
+    speed = 3.81;
+    bezier = "easeOutQuint";
+  }
+
+  {
+    leaf = "layersIn";
+    enabled = true;
+    speed = 4;
+    bezier = "easeOutQuint";
+    style = "fade";
+  }
+
+  {
+    leaf = "layersOut";
+    enabled = true;
+    speed = 1.5;
+    bezier = "linear";
+    style = "fade";
+  }
+
+  {
+    leaf = "fadeLayersIn";
+    enabled = true;
+    speed = 1.79;
+    bezier = "almostLinear";
+  }
+
+  {
+    leaf = "fadeLayersOut";
+    enabled = true;
+    speed = 1.39;
+    bezier = "almostLinear";
+  }
+
+  {
+    leaf = "workspaces";
+    enabled = false;
+  }
+
+  {
+    leaf = "specialWorkspace";
+    enabled = true;
+    speed = 3;
+    bezier = "easeOutQuint";
+    style = "slidevert";
+  }
+];
+
+  curveLines =
+    lib.concatMapStringsSep "\n"
+      (
+        curve:
+        ''
+          hl.curve(${builtins.toJSON curve.name}, {
+            type = "bezier",
+            points = ${toLua curve.points}
+          })
+        ''
+      )
+      curves;
+
+  animationLines =
+    lib.concatMapStringsSep "\n"
+      (animation: "hl.animation(${toLua animation})")
+      animations;
+in
+{
+  wayland.windowManager.hyprland.extraConfig = ''
+    hl.config(${toLua config})
+
+    ${curveLines}
+
+    ${animationLines}
+  '';
 }

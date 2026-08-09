@@ -15,6 +15,7 @@
 
       text = ''
         #!/bin/bash
+        LEENIX_PATH=''${LEENIX_PATH:-$HOME/.local/share/leenix}
 
         # leenix:summary=Ensure all default .desktop, web apps, TUIs, and npx wrappers are installed.
 

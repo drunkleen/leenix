@@ -12,6 +12,7 @@
 
       text = ''
         #!/bin/bash
+        LEENIX_PATH=''${LEENIX_PATH:-$HOME/.local/share/leenix}
 
         # leenix:summary=Install one of the approved terminals and set it as the default for Leenix (Super + Return etc).
 

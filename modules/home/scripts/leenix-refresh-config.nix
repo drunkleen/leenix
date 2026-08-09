@@ -17,7 +17,7 @@
 
         # leenix:args=
 
-        config_file=$1
+        config_file=''${1:-}
 
         if [[ -z $config_file ]]; then
           cat <<USAGE

@@ -16,7 +16,7 @@
 
         # leenix:args= [command-name]
 
-        if [[ -z $1 ]]; then
+        if [[ -z ''${1:-} ]]; then
           echo "Usage: leenix-npx-install  [command-name]"
           exit 1
         fi

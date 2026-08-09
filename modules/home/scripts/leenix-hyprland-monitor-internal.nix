@@ -51,7 +51,7 @@
           fi
         }
 
-        case "$1" in
+        case "''${1:-}" in
           on) enable ;;
           off) disable ;;
           toggle) if leenix-hyprland-toggle-enabled "$TOGGLE"; then enable; else disable; fi ;;

@@ -12,6 +12,7 @@
 
       text = ''
         #!/bin/bash
+        LEENIX_PATH=''${LEENIX_PATH:-$HOME/.local/share/leenix}
 
         # leenix:summary=Finish the installation of Leenix with items that can only be done after logging in.
 

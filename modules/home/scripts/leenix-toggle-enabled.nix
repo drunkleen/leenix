@@ -12,7 +12,7 @@
 
         # leenix:args=
 
-        [[ -f "$HOME/.local/state/leenix/toggles/$1" ]]
+        [[ -f "$HOME/.local/state/leenix/toggles/''${1:-}" ]]
       '';
     })
   ];

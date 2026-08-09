@@ -18,7 +18,7 @@
 
         # leenix:examples=leenix swayosd brightness 0 | leenix swayosd brightness 50 | leenix swayosd brightness 100
 
-        percent="$1"
+        percent=''${1:-}
 
         progress="$(awk -v p="$percent" 'BEGIN{printf "%.2f", p/100}')"
         [[ $progress == "0.00" ]] && progress="0.01"

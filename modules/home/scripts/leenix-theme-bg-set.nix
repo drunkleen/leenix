@@ -20,7 +20,7 @@
 
         # leenix:examples=leenix theme bg set ~/Pictures/wallpaper.png
 
-        if [[ -z $1 ]]; then
+        if [[ -z ''${1:-} ]]; then
           echo "Usage: leenix-theme-bg-set " >&2
           exit 1
         fi

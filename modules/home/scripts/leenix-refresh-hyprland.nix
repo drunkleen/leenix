@@ -11,6 +11,7 @@
 
       text = ''
         #!/bin/bash
+        LEENIX_PATH=''${LEENIX_PATH:-$HOME/.local/share/leenix}
 
         # leenix:summary=Overwrite all the user configs in ~/.config/hypr with the Leenix defaults.
 

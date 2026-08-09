@@ -13,6 +13,7 @@
 
       text = ''
         #!/bin/bash
+        LEENIX_PATH=''${LEENIX_PATH:-$HOME/.local/share/leenix}
 
         # leenix:summary=Remove preinstalled Leenix applications (web apps, TUIs, and selected packages).
 
