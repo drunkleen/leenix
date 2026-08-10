@@ -132,6 +132,7 @@
     ./leenix-toggle-suspend.nix
     ./leenix-toggle-touchpad.nix
     ./leenix-toggle-touchscreen.nix
+    ./leenix-tz-select.nix
     ./leenix-transcode.nix
     ./leenix-transcode-ascii.nix
     ./leenix-tui-install.nix
@@ -142,6 +143,7 @@
     ./leenix-voxtype-config.nix
     ./leenix-voxtype-model.nix
     ./leenix-voxtype-status.nix
+    ./leenix-weather-data.nix
     ./leenix-weather-icon.nix
     ./leenix-weather-status.nix
     ./leenix-webapp-handler-hey.nix

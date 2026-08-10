@@ -492,7 +492,7 @@
           *Hyprsunset*) open_in_editor ~/.config/hypr/hyprsunset.conf && leenix-restart-hyprsunset ;;
           *Swayosd*) open_in_editor ~/.config/swayosd/config.toml && leenix-restart-swayosd ;;
           *Walker*) open_in_editor ~/.config/walker/config.toml && leenix-restart-walker ;;
-          *Waybar*) open_in_editor ~/.config/waybar/config.jsonc && leenix-restart-waybar ;;
+          *Waybar*) open_in_editor ~/.config/waybar/config && leenix-restart-waybar ;;
           *XCompose*) open_in_editor ~/.XCompose && leenix-restart-xcompose ;;
           *) show_setup_menu ;;
           esac

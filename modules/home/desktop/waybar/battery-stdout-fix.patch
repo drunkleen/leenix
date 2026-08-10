@@ -1,0 +1,13 @@
+diff --git a/src/modules/battery.cpp b/src/modules/battery.cpp
+index c706eb3cd2..8bf4a431c4 100644
+--- a/src/modules/battery.cpp
++++ b/src/modules/battery.cpp
+@@ -686,7 +686,7 @@ auto waybar::modules::Battery::update() -> void {
+     status = getAdapterStatus(capacity);
+   }
+   auto status_pretty = status;
+-  puts(status.c_str());
++
+   // Transform to lowercase  and replace space with dash
+   std::ranges::transform(status.begin(), status.end(), status.begin(),
+                          [](char ch) { return ch == ' ' ? '-' : std::tolower(ch); });

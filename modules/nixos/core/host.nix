@@ -30,6 +30,11 @@
       options = variables.keyboard.options;
     };
 
+    cursor = {
+      theme = variables.cursor.theme;
+      size = variables.cursor.size;
+    };
+
     boot = {
       plymouth.enable = variables.boot.plymouth.enable;
     };

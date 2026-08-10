@@ -140,10 +140,6 @@ let
     [ "GUM_LOG_SEPARATOR_FOREGROUND" "#4a5f62" ]
     [ "GUM_LOG_SEPARATOR_BACKGROUND" "#0b1113" ]
 
-    # Cursor
-    [ "XCURSOR_SIZE" "24" ]
-    [ "HYPRCURSOR_SIZE" "24" ]
-
     # Wayland
     [ "GDK_BACKEND" "wayland,x11,*" ]
     [ "QT_QPA_PLATFORM" "wayland;xcb" ]

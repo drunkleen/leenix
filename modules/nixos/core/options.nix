@@ -88,6 +88,18 @@ in
       };
     };
 
+    cursor = {
+      theme = mkOption {
+        type = types.str;
+        description = "Cursor theme name.";
+      };
+
+      size = mkOption {
+        type = types.int;
+        description = "Cursor size in pixels.";
+      };
+    };
+
     boot = {
       plymouth.enable = mkEnableOption "Plymouth boot splash screen";
     };

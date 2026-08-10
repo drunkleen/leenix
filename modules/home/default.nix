@@ -4,6 +4,7 @@
   imports = [
     ./apps
     ./cli
+    ./desktop
     ./git
     ./hyprland
     ./nvim
@@ -11,5 +12,6 @@
     ./scripts
     ./shell
     ./ssh
+    ./ui
   ];
 }

@@ -6,8 +6,7 @@
       name = "leenix-weather-status";
 
       runtimeInputs = with pkgs; [
-        curl
-        coreutils
+        jq
       ];
 
       text = ''
@@ -15,21 +14,36 @@
 
         # leenix:summary=Returns a formatted weather status string with temperature and wind speed.
 
-        weather=$(curl -fsS --max-time 4 \
-          "https://wttr.in?format=%l|%t|%w" 2>/dev/null | tr -d '\n')
-
-        if [[ -z $weather ]]; then
-          echo "Weather unavailable"
-          exit 1
+        if [[ ''${1:-} == "-" ]]; then
+          data=$(cat)
+        else
+          data=$(leenix-weather-data 2>/dev/null) || { echo "Weather unavailable"; exit 1; }
         fi
 
-        IFS='|' read -r place temperature wind <<< "$weather"
+        icon=$(printf '%s' "''$data" | leenix-weather-icon - 2>/dev/null) || { echo "Weather unavailable"; exit 1; }
 
+        place=$(printf '%s' "''$data" | jq -r '.nearest_area[0].areaName[0].value')
         place=''${place%%,*}
         place=''${place^}
-        temperature=''${temperature#+}
 
-        echo "$(leenix-weather-icon)    $place  ·  Temp $temperature  ·  Wind $wind"
+        temperature=$(printf '%s' "''$data" | jq -r '.current_condition[0].temp_C')
+
+        dir=$(printf '%s' "''$data" | jq -r '.current_condition[0].winddir16Point')
+        speed=$(printf '%s' "''$data" | jq -r '.current_condition[0].windspeedKmph')
+
+        case "''$dir" in
+          N) arrow="↓" ;;
+          NNE|NE) arrow="↙" ;;
+          ENE|E) arrow="←" ;;
+          ESE|SE) arrow="↖" ;;
+          SSE|S) arrow="↑" ;;
+          SSW|SW) arrow="↗" ;;
+          WSW|W) arrow="→" ;;
+          WNW|NW|NNW) arrow="↘" ;;
+          *) arrow="" ;;
+        esac
+
+        echo "''$icon    ''$place  ·  Temp ''$temperature°C  ·  Wind ''$arrow''${speed}km/h"
       '';
     })
   ];
