@@ -1,5 +1,5 @@
 {
-  description = "Leenix";
+  description = "LEENIX - Modular declarative NixOS framework";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -8,50 +8,30 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    disko = {
+      url = "github:nix-community/disko";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
-    { nixpkgs, home-manager, ... }:
-  let
-    variables = import ./system/variables.nix;
+    inputs@{
+      nixpkgs,
+      ...
+    }:
 
-    system = variables.system;
-
-    pkgs = import nixpkgs {
-      inherit system;
-      config.allowUnfree = true;
-    };
-
-    systemConfig = import ./system/default.nix;
-
-    boot = import ./system/boot {
-      inherit pkgs systemConfig variables;
-    };
-
-    security = import ./system/security {
-      inherit pkgs systemConfig variables;
-    };
+    let
+      leenixLib = import ./lib {
+        inherit (nixpkgs) lib;
+      };
     in
     {
-      homeConfigurations."${variables.user.username}@${variables.host.hostname}" =
-        home-manager.lib.homeManagerConfiguration {
-          inherit pkgs;
-
-          extraSpecialArgs = {
-            inherit variables;
-          };
-
-          modules = [
-            ./home/default.nix
-          ];
+      nixosConfigurations = {
+        tuf-f15 = leenixLib.mkHost {
+          inherit nixpkgs inputs;
+          hostPath = ./hosts/tuf-f15;
         };
-
-      packages.${system} =
-        boot.packages
-        // security.packages;
-
-      apps.${system} =
-        boot.apps
-        // security.apps;
+      };
     };
 }
