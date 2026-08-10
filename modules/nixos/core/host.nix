@@ -70,6 +70,8 @@
       autologin.enable = variables.desktop.autologin.enable;
 
       uwsm.enable = variables.desktop.uwsm.enable;
+
+      fileManager = variables.desktop.fileManager;
     };
 
     hardware = {

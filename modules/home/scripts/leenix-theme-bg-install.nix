@@ -7,7 +7,6 @@
 
       runtimeInputs = with pkgs; [
         coreutils
-        nautilus
       ];
 
       text = ''
@@ -19,7 +18,7 @@
         THEME_USER_BACKGROUNDS="$HOME/.config/leenix/backgrounds/$CURRENT_THEME_NAME"
 
         mkdir -p "$THEME_USER_BACKGROUNDS"
-        nautilus "$THEME_USER_BACKGROUNDS"
+        leenix-launch-file-manager "$THEME_USER_BACKGROUNDS"
       '';
     })
   ];

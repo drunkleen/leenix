@@ -15,7 +15,7 @@ let
     {
       keys = "SUPER + E";
       description = "File manager";
-      command = "uwsm-app -- nautilus --new-window";
+      command = "leenix-launch-file-manager";
     }
     {
       keys = "SUPER + B";

@@ -162,6 +162,16 @@ in
       autologin.enable = mkEnableOption "automatic login on tty1";
 
       uwsm.enable = mkEnableOption "UWSM-managed Wayland session";
+
+      fileManager = mkOption {
+        type = types.enum [
+          "dolphin"
+          "nautilus"
+        ];
+
+        default = "dolphin";
+        description = "Desktop file manager.";
+      };
     };
 
     hardware = {

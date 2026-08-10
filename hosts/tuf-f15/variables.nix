@@ -95,6 +95,8 @@
     hyprlock = true;
     hypridle = true;
     hyprsunset = true;
+
+    fileManager = "dolphin";
   };
 
   boot = {

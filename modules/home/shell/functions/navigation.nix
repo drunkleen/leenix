@@ -12,11 +12,7 @@
     }
 
     opendir() {
-      if command -v nautilus >/dev/null 2>&1; then
-        nautilus "''${1:-.}" >/dev/null 2>&1 &
-      else
-        open "''${1:-.}"
-      fi
+      leenix-launch-file-manager "''${1:-.}" >/dev/null 2>&1 &
     }
 
     cd() {

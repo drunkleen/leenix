@@ -1,4 +1,5 @@
 {
+  config,
   variables,
   ...
 }:
@@ -25,6 +26,8 @@
 
     extraSpecialArgs = {
       inherit variables;
+
+      fileManager = config.leenix.desktop.fileManager;
     };
 
     users.${variables.user.username} = import ../../home;

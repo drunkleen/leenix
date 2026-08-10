@@ -11,7 +11,6 @@
     fzf
     iproute2
     jq
-    nautilus
     xdg-utils
     yazi
   ];
