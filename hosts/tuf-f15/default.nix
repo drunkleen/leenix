@@ -13,6 +13,7 @@
     ../../profiles/laptop.nix
 
     ../../modules/nixos/boot/systemd-boot.nix
+    ../../modules/nixos/boot/plymouth.nix
     ../../modules/nixos/disk/default.nix
 
     ./hardware-configuration.nix

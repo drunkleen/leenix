@@ -27,6 +27,8 @@
       };
     in
     {
+      formatter.x86_64-linux = nixpkgs.legacyPackages.x86_64-linux.nixfmt;
+
       nixosConfigurations = {
         tuf-f15 = leenixLib.mkHost {
           inherit nixpkgs inputs;

@@ -88,6 +88,10 @@ in
       };
     };
 
+    boot = {
+      plymouth.enable = mkEnableOption "Plymouth boot splash screen";
+    };
+
     profiles = {
       base.enable = mkEnableOption "base profile";
       desktop.enable = mkEnableOption "desktop profile";
@@ -142,6 +146,10 @@ in
       hyprlock.enable = mkEnableOption "Hyprlock";
       hypridle.enable = mkEnableOption "Hypridle";
       hyprsunset.enable = mkEnableOption "Hyprsunset";
+
+      autologin.enable = mkEnableOption "automatic login on tty1";
+
+      uwsm.enable = mkEnableOption "UWSM-managed Wayland session";
     };
 
     hardware = {

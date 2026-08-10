@@ -1,13 +1,20 @@
-{ ... }:
+{
+  lib,
+  pkgs,
+  variables,
+  ...
+}:
 
 {
+  home.packages = with pkgs; [
+    gnome-calculator
+    voxtype
+  ];
+
   imports = [
     ./autostart.nix
     ./env.nix
-    ./hypridle.nix
     ./hyprland.nix
-    ./hyprlock.nix
-    ./hyprsunset.nix
     ./input.nix
     ./looknfeel.nix
     ./monitors.nix
@@ -18,5 +25,9 @@
     ./bindings/media.nix
     ./bindings/tiling.nix
     ./bindings/utilities.nix
-  ];
+  ]
+  ++ lib.optional variables.desktop.hypridle ./hypridle.nix
+  ++ lib.optional variables.desktop.hyprlock ./hyprlock.nix
+  ++ lib.optional variables.desktop.hyprsunset ./hyprsunset.nix
+  ++ lib.optional (variables.desktop.environment == "hyprland") ./login.nix;
 }

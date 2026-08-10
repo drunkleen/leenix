@@ -16,8 +16,6 @@ let
 in
 {
   config = lib.mkIf cfg.enable {
-    programs.hyprland.enable = true;
-
     environment.systemPackages = [
       browserPackage
       editorPackage

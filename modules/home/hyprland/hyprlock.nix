@@ -1,20 +1,8 @@
-{ pkgs, ... }:
+{ ... }:
 
 {
   programs.hyprlock = {
     enable = true;
-
-    package = pkgs.writeShellApplication {
-      name = "hyprlock";
-      runtimeInputs = [ pkgs.hyprlock ];
-      text = ''
-        exec env LD_LIBRARY_PATH=/usr/lib hyprlock "$@"
-        '';
-    };
-
-    # Use Leenix/Arch's hyprlock so its existing PAM/YubiKey
-    # integration remains untouched.
-    # package = null;
 
     settings = {
       "$color" = "rgba(11,17,19,1.0)";

@@ -7,12 +7,9 @@
     ./git
     ./hyprland
     ./nvim
+    ./programs
     ./scripts
     ./shell
     ./ssh
   ];
-
-  targets.genericLinux = {
-    enable = true;
-  };
 }

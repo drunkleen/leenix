@@ -1,13 +1,16 @@
-{ lib, ... }:
+{
+  lib,
+  pkgs,
+  variables,
+  ...
+}:
 
 let
   autostart = [
     "uwsm-app -- mako"
-    "! leenix-toggle-enabled waybar-off && uwsm-app -- waybar"
     "uwsm-app -- fcitx5 --disable notificationitem"
     "uwsm-app -- swaybg -i ~/.config/leenix/current/background -m fill"
-    "/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1"
-    "leenix-first-run"
+    "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"
     "leenix-powerprofiles-init"
     "uwsm-app -- leenix-hyprland-monitor-watch"
     # Slow app launch fix -- set systemd vars
@@ -15,13 +18,21 @@ let
     "dbus-update-activation-environment --systemd --all"
     # Run post-boot hooks after startup config has loaded
     "sleep 2 && leenix-hook post-boot"
-  ];
+  ]
+  ++ lib.optional variables.desktop.waybar "! leenix-toggle-enabled waybar-off && uwsm-app -- waybar";
 
-  execlines = lib.concatMapStringsSep "\n"
-    (cmd: "hl.exec_cmd(${builtins.toJSON cmd})")
-    autostart;
+  execlines = lib.concatMapStringsSep "\n" (cmd: "hl.exec_cmd(${builtins.toJSON cmd})") autostart;
 in
 {
+  home.packages =
+    with pkgs;
+    [
+      fcitx5
+      polkit_gnome
+      swaybg
+    ]
+    ++ lib.optional variables.desktop.waybar waybar;
+
   wayland.windowManager.hyprland.extraConfig = ''
     hl.on("hyprland.start", function()
     ${execlines}

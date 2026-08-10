@@ -8,6 +8,9 @@
       runtimeInputs = with pkgs; [
         procps
         util-linux
+        walker
+        elephant
+        uwsm
       ];
 
       text = ''

@@ -30,6 +30,10 @@
       options = variables.keyboard.options;
     };
 
+    boot = {
+      plymouth.enable = variables.boot.plymouth.enable;
+    };
+
     profiles = {
       base.enable = variables.profiles.base;
       desktop.enable = variables.profiles.desktop;
@@ -57,6 +61,10 @@
       hyprlock.enable = variables.desktop.hyprlock;
       hypridle.enable = variables.desktop.hypridle;
       hyprsunset.enable = variables.desktop.hyprsunset;
+
+      autologin.enable = variables.desktop.autologin.enable;
+
+      uwsm.enable = variables.desktop.uwsm.enable;
     };
 
     hardware = {

@@ -15,11 +15,6 @@
 
       listener = [
         {
-          timeout = 150;
-          on-timeout = "pidof hyprlock || leenix-launch-screensaver";
-        }
-
-        {
           timeout = 152;
           on-timeout = "leenix-system-lock";
           on-resume = "leenix-system-wake";

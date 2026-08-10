@@ -1,6 +1,10 @@
 { pkgs, ... }:
 
 {
+  home.packages = [
+    pkgs.xdg-terminal-exec
+  ];
+
   programs.kitty = {
     enable = true;
 

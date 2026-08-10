@@ -30,6 +30,7 @@ in
       isNormalUser = true;
       home = user.homeDirectory;
       extraGroups = user.extraGroups;
+      shell = pkgs.zsh;
     };
 
     security.sudo = {
@@ -44,17 +45,7 @@ in
       vim
     ];
 
-    programs.git = {
-      enable = true;
-      config = {
-        user = {
-          name = config.leenix.git.name;
-          email = config.leenix.git.email;
-        };
-
-        init.defaultBranch = config.leenix.git.branch;
-      };
-    };
+    programs.zsh.enable = true;
 
     nix.settings.experimental-features = [
       "nix-command"

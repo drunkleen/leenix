@@ -77,11 +77,25 @@
   desktop = {
     environment = "hyprland";
 
+    autologin = {
+      enable = true;
+    };
+
+    uwsm = {
+      enable = true;
+    };
+
     hyprland = true;
-    waybar = false;
-    hyprlock = false;
-    hypridle = false;
-    hyprsunset = false;
+    waybar = true;
+    hyprlock = true;
+    hypridle = true;
+    hyprsunset = true;
+  };
+
+  boot = {
+    plymouth = {
+      enable = true;
+    };
   };
 
   hardware = {
