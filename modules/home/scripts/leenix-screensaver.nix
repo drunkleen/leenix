@@ -11,6 +11,7 @@
         jq
         procps
         coreutils
+        terminaltexteffects
       ];
 
       text = ''
