@@ -30,6 +30,9 @@
       fileManager = config.leenix.desktop.fileManager;
       browser = config.leenix.desktop.browser;
       mediaPlayer = config.leenix.desktop.mediaPlayer;
+      imageViewer = config.leenix.desktop.imageViewer;
+      documentViewer = config.leenix.desktop.documentViewer;
+      musicPlayer = config.leenix.desktop.musicPlayer;
       themeMode = config.leenix.theme.mode;
     };
 

@@ -3,6 +3,7 @@
 {
   imports = [
     ./media.nix
+    ./music.nix
   ];
 
   home.packages = with pkgs; [

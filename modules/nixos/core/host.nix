@@ -73,6 +73,9 @@
       fileManager = variables.desktop.fileManager;
       browser = variables.desktop.browser;
       mediaPlayer = variables.desktop.mediaPlayer;
+      imageViewer = variables.desktop.imageViewer;
+      documentViewer = variables.desktop.documentViewer;
+      musicPlayer = variables.desktop.musicPlayer;
     };
 
     theme = {

@@ -98,6 +98,9 @@
     fileManager = "dolphin";
     browser = "firefox";
     mediaPlayer = "mpv";
+    imageViewer = "imv";
+    documentViewer = "zathura";
+    musicPlayer = "cliamp";
   };
 
   theme = {

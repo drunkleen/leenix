@@ -190,6 +190,33 @@ in
         default = "mpv";
         description = "Default local media player (mutually exclusive: only this player is installed).";
       };
+
+      imageViewer = mkOption {
+        type = types.enum [
+          "imv"
+        ];
+
+        default = "imv";
+        description = "Default image viewer (mutually exclusive: only this viewer is installed).";
+      };
+
+      documentViewer = mkOption {
+        type = types.enum [
+          "zathura"
+        ];
+
+        default = "zathura";
+        description = "Default document/PDF viewer (mutually exclusive: only this viewer is installed).";
+      };
+
+      musicPlayer = mkOption {
+        type = types.enum [
+          "cliamp"
+        ];
+
+        default = "cliamp";
+        description = "Terminal music player (supplementary; does not handle MIME types).";
+      };
     };
 
     theme = {
