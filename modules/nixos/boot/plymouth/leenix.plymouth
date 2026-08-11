@@ -1,0 +1,11 @@
+[Plymouth Theme]
+Name=LEENIX
+Description=LEENIX splash screen.
+ModuleName=script
+
+[script]
+ImageDir=@THEME_OUT@/share/plymouth/themes/leenix
+ScriptFile=@THEME_OUT@/share/plymouth/themes/leenix/leenix.script
+ConsoleLogBackgroundColor=0x0b1113
+MonospaceFont=Cantarell 11
+Font=Cantarell 11
