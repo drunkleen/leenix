@@ -6,6 +6,7 @@ assert lib.assertMsg (
 
 {
   imports = [
+    ./fonts.nix
     ./gtk.nix
     ./qt.nix
   ];
