@@ -1,6 +1,10 @@
 { pkgs, ... }:
 
 {
+  imports = [
+    ./media.nix
+  ];
+
   home.packages = with pkgs; [
     _7zz
     btop

@@ -29,6 +29,7 @@
 
       fileManager = config.leenix.desktop.fileManager;
       browser = config.leenix.desktop.browser;
+      mediaPlayer = config.leenix.desktop.mediaPlayer;
       themeMode = config.leenix.theme.mode;
     };
 

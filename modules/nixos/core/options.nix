@@ -181,6 +181,15 @@ in
         default = "firefox";
         description = "Default web browser (mutually exclusive: only this browser is installed).";
       };
+
+      mediaPlayer = mkOption {
+        type = types.enum [
+          "mpv"
+        ];
+
+        default = "mpv";
+        description = "Default local media player (mutually exclusive: only this player is installed).";
+      };
     };
 
     theme = {

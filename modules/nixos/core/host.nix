@@ -72,6 +72,7 @@
 
       fileManager = variables.desktop.fileManager;
       browser = variables.desktop.browser;
+      mediaPlayer = variables.desktop.mediaPlayer;
     };
 
     theme = {

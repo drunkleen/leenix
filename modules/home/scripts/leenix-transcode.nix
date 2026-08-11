@@ -9,7 +9,7 @@
         coreutils
         file
         imagemagick
-        ffmpeg
+        ffmpeg-full
         wl-clipboard
       ];
 

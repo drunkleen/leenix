@@ -97,6 +97,7 @@
 
     fileManager = "dolphin";
     browser = "firefox";
+    mediaPlayer = "mpv";
   };
 
   theme = {

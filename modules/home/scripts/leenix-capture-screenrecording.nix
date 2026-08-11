@@ -14,7 +14,7 @@
         hyprland
         jq
         gawk
-        ffmpeg
+        ffmpeg-full
         procps
         slurp
         hyprpicker
