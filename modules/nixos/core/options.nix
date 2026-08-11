@@ -117,11 +117,6 @@ in
     bootstrap = {
       enable = mkEnableOption "bootstrap desktop environment";
 
-      browser = mkOption {
-        type = types.str;
-        default = "firefox";
-      };
-
       editor = mkOption {
         type = types.str;
         default = "vscode";
@@ -171,6 +166,20 @@ in
 
         default = "dolphin";
         description = "Desktop file manager.";
+      };
+
+      browser = mkOption {
+        type = types.enum [
+          "firefox"
+          "chromium"
+          "google-chrome"
+          "brave"
+          "vivaldi"
+          "librewolf"
+        ];
+
+        default = "firefox";
+        description = "Default web browser (mutually exclusive: only this browser is installed).";
       };
     };
 

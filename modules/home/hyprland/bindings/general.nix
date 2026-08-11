@@ -59,32 +59,6 @@ let
     }
 
     {
-      keys = "SUPER + SHIFT + A";
-      description = "ChatGPT";
-      command = ''leenix-launch-webapp "https://chatgpt.com"'';
-    }
-    {
-      keys = "SUPER + SHIFT + E";
-      description = "Email";
-      command = ''leenix-launch-webapp "https://mail.google.com"'';
-    }
-    {
-      keys = "SUPER + SHIFT + Y";
-      description = "YouTube";
-      command = ''leenix-launch-webapp "https://youtube.com/"'';
-    }
-    {
-      keys = "SUPER + SHIFT + X";
-      description = "X";
-      command = ''leenix-launch-webapp "https://x.com/"'';
-    }
-    {
-      keys = "SUPER + SHIFT + ALT + X";
-      description = "X Post";
-      command = ''leenix-launch-webapp "https://x.com/compose/post"'';
-    }
-
-    {
       keys = "SUPER + Z";
       description = "Zoom";
       command = "~/.local/bin/hypr-zoom toggle";

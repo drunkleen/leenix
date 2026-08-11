@@ -13,7 +13,7 @@
       text = ''
         #!/bin/bash
 
-        # leenix:summary=Install the Tailscale mesh VPN service and a web app for the Tailscale Admin Console.
+        # leenix:summary=Install the Tailscale mesh VPN service.
 
         # leenix:requires-sudo=true
 
@@ -23,11 +23,6 @@
         echo -e "\nStarting Tailscale..."
         sudo systemctl enable --now tailscaled.service
         sudo tailscale up --accept-routes
-
-        leenix-webapp-install \
-          "Tailscale" \
-          "https://login.tailscale.com/admin/machines" \
-          "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/tailscale-light.png"
       '';
     })
   ];

@@ -8,11 +8,12 @@
       text = ''
         #!/bin/bash
 
-        # leenix:summary=Remove the Xbox Cloud Gaming web app.
+        # leenix:summary=Remove legacy Xbox Cloud Gaming web app leftovers.
 
         set -e
 
-        leenix-webapp-remove "Xbox Cloud Gaming"
+        rm -f "$HOME/.local/share/applications/Xbox Cloud Gaming.desktop"
+        rm -f "$HOME/.local/share/applications/icons/Xbox Cloud Gaming.png"
       '';
     })
   ];

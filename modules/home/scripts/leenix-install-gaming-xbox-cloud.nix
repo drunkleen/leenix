@@ -12,17 +12,12 @@
       text = ''
         #!/bin/bash
 
-        # leenix:summary=Install Xbox Cloud Gaming as a web app and launch it.
+        # leenix:summary=Launch Xbox Cloud Gaming in the default browser.
 
         set -e
 
-        echo "Installing Xbox Cloud Gaming..."
-        leenix-webapp-install \
-          "Xbox Cloud Gaming" \
-          "https://www.xbox.com/en-US/play" \
-          "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/xbox.png"
-
-        setsid leenix-launch-webapp "https://www.xbox.com/en-US/play" >/dev/null 2>&1 &
+        echo "Launching Xbox Cloud Gaming..."
+        setsid leenix-launch-browser "https://www.xbox.com/en-US/play" >/dev/null 2>&1 &
       '';
     })
   ];

@@ -15,12 +15,11 @@
         #!/bin/bash
         LEENIX_PATH=''${LEENIX_PATH:-$HOME/.local/share/leenix}
 
-        # leenix:summary=Remove preinstalled Leenix applications (web apps, TUIs, and selected packages).
+        # leenix:summary=Remove preinstalled Leenix applications (TUIs and selected packages).
 
-        if gum confirm "Are you sure you want to remove all preinstalled web apps, TUI wrappers, and desktop applications?"; then
+        if gum confirm "Are you sure you want to remove all preinstalled TUI wrappers and desktop applications?"; then
           echo -e "Removing preinstalled Leenix applications...\n"
 
-          leenix-webapp-remove-all
           leenix-tui-remove-all
 
           cp ~/.config/hypr/bindings.conf ~/.config/hypr/bindings.conf.bak

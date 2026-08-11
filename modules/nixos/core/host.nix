@@ -51,7 +51,6 @@
 
     bootstrap = {
       enable = variables.bootstrap.enable;
-      browser = variables.bootstrap.browser;
       editor = variables.bootstrap.editor;
       wifi = variables.bootstrap.wifi;
       bluetooth = variables.bootstrap.bluetooth;
@@ -72,6 +71,7 @@
       uwsm.enable = variables.desktop.uwsm.enable;
 
       fileManager = variables.desktop.fileManager;
+      browser = variables.desktop.browser;
     };
 
     theme = {

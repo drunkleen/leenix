@@ -96,7 +96,6 @@
         GROUP_DESCRIPTIONS[version]="Version and channel information"
         GROUP_DESCRIPTIONS[voxtype]="Voxtype dictation"
         GROUP_DESCRIPTIONS[weather]="Weather status"
-        GROUP_DESCRIPTIONS[webapp]="Web app launchers"
         GROUP_DESCRIPTIONS[wifi]="Wi-Fi helpers"
         GROUP_DESCRIPTIONS[windows]="Windows VM management"
         

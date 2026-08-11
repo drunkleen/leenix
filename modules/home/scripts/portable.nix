@@ -20,7 +20,6 @@
     ./leenix-cmd-missing.nix
     ./leenix-cmd-present.nix
     ./leenix-cmd-terminal-cwd.nix
-    ./leenix-default-browser.nix
     ./leenix-default-terminal.nix
     ./leenix-dev-add-migration.nix
     ./leenix-dev-benchmark.nix
@@ -146,9 +145,6 @@
     ./leenix-weather-data.nix
     ./leenix-weather-icon.nix
     ./leenix-weather-status.nix
-    ./leenix-webapp-handler-hey.nix
-    ./leenix-webapp-handler-zoom.nix
-    ./leenix-webapp-install.nix
     ./leenix-wifi-powersave.nix
   ];
 }

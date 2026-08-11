@@ -8,7 +8,6 @@
 let
   cfg = config.leenix.bootstrap;
 
-  browserPackage = pkgs.${cfg.browser};
   editorPackage = pkgs.${cfg.editor};
   wifiPackage = pkgs.${cfg.wifi};
   bluetoothPackage = pkgs.${cfg.bluetooth};
@@ -17,7 +16,6 @@ in
 {
   config = lib.mkIf cfg.enable {
     environment.systemPackages = [
-      browserPackage
       editorPackage
       wifiPackage
       bluetoothPackage

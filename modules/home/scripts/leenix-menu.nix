@@ -109,11 +109,11 @@
         show_learn_menu() {
           case $(menu "Learn" "  Keybindings\n  Leenix\n  Hyprland\n󰣇  Arch\n  Neovim\n󱆃  Bash") in
           *Keybindings*) leenix-menu-keybindings ;;
-          *Leenix*) leenix-launch-webapp "https://learn.omacom.io/2/the-leenix-manual" ;;
-          *Hyprland*) leenix-launch-webapp "https://wiki.hypr.land/" ;;
-          *Arch*) leenix-launch-webapp "https://wiki.archlinux.org/title/Main_page" ;;
-          *Bash*) leenix-launch-webapp "https://devhints.io/bash" ;;
-          *Neovim*) leenix-launch-webapp "https://www.lazyvim.org/keymaps" ;;
+          *Leenix*) leenix-launch-browser "https://learn.omacom.io/2/the-leenix-manual" ;;
+          *Hyprland*) leenix-launch-browser "https://wiki.hypr.land/" ;;
+          *Arch*) leenix-launch-browser "https://wiki.archlinux.org/title/Main_page" ;;
+          *Bash*) leenix-launch-browser "https://devhints.io/bash" ;;
+          *Neovim*) leenix-launch-browser "https://www.lazyvim.org/keymaps" ;;
           *) show_main_menu ;;
           esac
         }
@@ -379,48 +379,10 @@
         }
         
         show_setup_default_menu() {
-          case $(menu "Default" "  Browser\n  Terminal\n  Editor") in
-          *Browser*) show_setup_default_browser_menu ;;
+          case $(menu "Default" "  Terminal\n  Editor") in
           *Terminal*) show_setup_default_terminal_menu ;;
           *Editor*) show_setup_default_editor_menu ;;
           *) show_setup_menu ;;
-          esac
-        }
-        
-        browser_desktop_exists() {
-          [[ -f ~/.local/share/applications/$1 || -f ~/.nix-profile/share/applications/$1 || -f /usr/share/applications/$1 ]]
-        }
-        
-        show_setup_default_browser_menu() {
-          local options=""
-          browser_desktop_exists chromium.desktop && options="$options  Chromium"
-          browser_desktop_exists google-chrome.desktop && options="''${options:+$options\n}󰊯  Chrome"
-          browser_desktop_exists brave-browser.desktop && options="''${options:+$options\n}󰖟  Brave"
-          browser_desktop_exists brave-origin-beta.desktop && options="''${options:+$options\n}󰖟  Brave Origin"
-          browser_desktop_exists microsoft-edge.desktop && options="''${options:+$options\n}󰇩  Edge"
-          browser_desktop_exists firefox.desktop && options="''${options:+$options\n}󰈹  Firefox"
-          browser_desktop_exists zen.desktop && options="''${options:+$options\n}󰖟  Zen"
-        
-          local current=""
-          case "$(leenix-default-browser)" in
-          chromium) current="  Chromium" ;;
-          chrome) current="󰊯  Chrome" ;;
-          brave) current="󰖟  Brave" ;;
-          brave-origin) current="󰖟  Brave Origin" ;;
-          edge) current="󰇩  Edge" ;;
-          firefox) current="󰈹  Firefox" ;;
-          zen) current="󰖟  Zen" ;;
-          esac
-        
-          case $(menu "Default Browser" "$options" "" "$current") in
-          *Chromium*) leenix-default-browser chromium ;;
-          *Chrome*) leenix-default-browser chrome ;;
-          *"Brave Origin"*) leenix-default-browser brave-origin ;;
-          *Brave*) leenix-default-browser brave ;;
-          *Edge*) leenix-default-browser edge ;;
-          *Firefox*) leenix-default-browser firefox ;;
-          *Zen*) leenix-default-browser zen ;;
-          *) show_setup_default_menu ;;
           esac
         }
         
@@ -522,10 +484,9 @@
         }
         
         show_install_menu() {
-          case $(menu "Install" "󰣇  Package\n󰣇  AUR\n  Web App\n  TUI\n  Service\n  Style\n󰵮  Development\n  Editor\n  Terminal\n  Browser\n󱚤  AI\n  Gaming\n󰍲  Windows") in
+          case $(menu "Install" "󰣇  Package\n󰣇  AUR\n  TUI\n  Service\n  Style\n󰵮  Development\n  Editor\n  Terminal\n  Browser\n󱚤  AI\n  Gaming\n󰍲  Windows") in
           *Package*) terminal leenix-pkg-install ;;
           *AUR*) terminal leenix-pkg-aur-install ;;
-          *Web*) present_terminal leenix-webapp-install ;;
           *TUI*) present_terminal leenix-tui-install ;;
           *Service*) show_install_service_menu ;;
           *Style*) show_install_style_menu ;;
@@ -686,9 +647,8 @@
         }
         
         show_remove_menu() {
-          case $(menu "Remove" "󰣇  Package\n  Web App\n  TUI\n󰵮  Development\n󰸌  Theme\n  Browser\n  Dictation\n  Gaming\n󰍲  Windows\n󰏓  Preinstalls\n  Security") in
+          case $(menu "Remove" "󰣇  Package\n  TUI\n󰵮  Development\n󰸌  Theme\n  Browser\n  Dictation\n  Gaming\n󰍲  Windows\n󰏓  Preinstalls\n  Security") in
           *Package*) terminal leenix-pkg-remove ;;
-          *Web*) present_terminal leenix-webapp-remove ;;
           *TUI*) present_terminal leenix-tui-remove ;;
           *Development*) show_remove_development_menu ;;
           *Theme*) present_terminal leenix-theme-remove ;;

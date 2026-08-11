@@ -71,7 +71,6 @@
   bootstrap = {
     enable = true;
 
-    browser = "firefox";
     editor = "vscode";
 
     wifi = "impala";
@@ -97,6 +96,7 @@
     hyprsunset = true;
 
     fileManager = "dolphin";
+    browser = "firefox";
   };
 
   theme = {

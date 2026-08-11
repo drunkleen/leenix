@@ -28,6 +28,7 @@
       inherit variables;
 
       fileManager = config.leenix.desktop.fileManager;
+      browser = config.leenix.desktop.browser;
       themeMode = config.leenix.theme.mode;
     };
 
