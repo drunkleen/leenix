@@ -16,7 +16,16 @@ in
     # This is the source of the repeated "Charging" output. Fixed upstream in
     # commit bd222984; the patch mirrors that fix for the pinned 0.15.0 build.
     package = pkgs.waybar.overrideAttrs (old: {
-      patches = (old.patches or [ ]) ++ [ ./battery-stdout-fix.patch ];
+      patches = (old.patches or [ ]) ++ [
+        ./battery-stdout-fix.patch
+        # Hyprland >= 0.54 uses a Lua-based IPC socket protocol. Waybar's
+        # hyprland/workspaces module sends the legacy text form
+        # "dispatch workspace N", which the Lua socket rejects ("'hl.dispatch(workspace N)'"),
+        # so clicking a workspace does nothing. Port of upstream fix
+        # (waybar commits e17c0d9f + 74cf45d5): probe Hyprland version and
+        # route dispatches through the hl.dsp Lua API when needed.
+        ./waybar-workspace-lua-dispatch.patch
+      ];
     });
 
     settings.mainBar = {
@@ -48,7 +57,6 @@ in
       ];
 
       "hyprland/workspaces" = {
-        on-click = "activate";
         format = "{icon}";
         format-icons = {
           default = "";
