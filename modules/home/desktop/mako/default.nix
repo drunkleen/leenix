@@ -12,7 +12,7 @@
       background-color = "#0b1113";
       border-color = "#0b1113";
       border-size = 2;
-      border-radius = 8;
+      border-radius = 0;
       default-timeout = 5000;
       font = "JetBrainsMono Nerd Font 11";
       group-by = "app-name,summary,body";
