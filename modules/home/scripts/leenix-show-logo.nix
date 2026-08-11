@@ -16,10 +16,19 @@
 
         clear
         echo -e "\033[32m"
-        cat < ~/.local/share/leenix/logo.txt
+        logo="''${XDG_DATA_HOME:-$HOME/.local/share}/leenix/logo.txt"
+        cat < "$logo"
         echo -e "\033[0m"
         echo
       '';
     })
   ];
+
+  xdg.dataFile."leenix/logo.txt".text = ''
+    ██      ███████ ███████ ███    ██ ██ ██   ██
+    ██      ██      ██      ████   ██ ██  ██ ██
+    ██      █████   █████   ██ ██  ██ ██   ███
+    ██      ██      ██      ██  ██ ██ ██  ██ ██
+    ███████ ███████ ███████ ██   ████ ██ ██   ██
+  '';
 }
