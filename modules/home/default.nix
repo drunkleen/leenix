@@ -10,6 +10,7 @@
     ./nvim
     ./programs
     ./scripts
+    ./services
     ./shell
     ./ssh
     ./theme

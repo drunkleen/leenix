@@ -11,6 +11,7 @@
     ../modules/nixos/desktop/file-manager.nix
     ../modules/nixos/desktop/uwsm.nix
     ../modules/nixos/desktop/autologin.nix
+    ../modules/nixos/desktop/swayosd.nix
     ../modules/nixos/security/pam.nix
   ];
 

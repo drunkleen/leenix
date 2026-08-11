@@ -786,7 +786,7 @@
           *Hyprlock*) present_terminal leenix-refresh-hyprlock ;;
           *Hyprsunset*) present_terminal leenix-refresh-hyprsunset ;;
           *Plymouth*) present_terminal leenix-refresh-plymouth ;;
-          *Swayosd*) present_terminal leenix-refresh-swayosd ;;
+          *Swayosd*) present_terminal leenix-restart-swayosd ;;
           *Tmux*) present_terminal leenix-refresh-tmux ;;
           *Walker*) present_terminal leenix-refresh-walker ;;
           *Waybar*) present_terminal leenix-refresh-waybar ;;

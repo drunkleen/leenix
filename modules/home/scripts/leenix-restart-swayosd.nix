@@ -7,19 +7,14 @@
 
       runtimeInputs = with pkgs; [
         systemd
-        procps
       ];
 
       text = ''
         #!/bin/bash
 
-        # leenix:summary=Restart the SwayOSD server
+        # leenix:summary=Restart the declarative SwayOSD user service
 
-        systemctl --user daemon-reload
-        systemctl --user stop swayosd-server.service || true
-        pkill -x swayosd-server || true
-        systemctl --user reset-failed swayosd-server.service || true
-        systemctl --user enable --now swayosd-server.service
+        systemctl --user restart swayosd-server.service
       '';
     })
   ];

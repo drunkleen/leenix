@@ -69,10 +69,13 @@
 
         brightnessctl -d "$device" set "$new_brightness" >/dev/null
 
+        # Query the actual resulting brightness level.
+
+        new_brightness="$(brightnessctl -d "$device" get)"
+
         # Use SwayOSD to display the new brightness setting.
 
-        percent=$((new_brightness * 100 / max_brightness))
-        leenix-swayosd-kbd-brightness "$percent"
+        leenix-swayosd-kbd-brightness "$new_brightness" "$max_brightness"
       '';
     })
   ];

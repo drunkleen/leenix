@@ -52,6 +52,26 @@ let
       description = "Keyboard brightness down";
       command = "leenix-brightness-keyboard down";
     }
+    {
+      keys = "ALT + XF86AudioRaiseVolume";
+      description = "Volume up precise";
+      command = "leenix-swayosd-client --output-volume +1";
+    }
+    {
+      keys = "ALT + XF86AudioLowerVolume";
+      description = "Volume down precise";
+      command = "leenix-swayosd-client --output-volume -1";
+    }
+    {
+      keys = "ALT + XF86MonBrightnessUp";
+      description = "Brightness up precise";
+      command = "leenix-brightness-display +1%";
+    }
+    {
+      keys = "ALT + XF86MonBrightnessDown";
+      description = "Brightness down precise";
+      command = "leenix-brightness-display 1%-";
+    }
   ];
 
   lockedBinds = [
