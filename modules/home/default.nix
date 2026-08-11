@@ -12,6 +12,7 @@
     ./scripts
     ./shell
     ./ssh
+    ./theme
     ./ui
   ];
 }

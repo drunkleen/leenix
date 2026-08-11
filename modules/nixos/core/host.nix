@@ -74,6 +74,10 @@
       fileManager = variables.desktop.fileManager;
     };
 
+    theme = {
+      mode = variables.theme.mode;
+    };
+
     hardware = {
       asus.enable = variables.hardware.asus;
       intel.enable = variables.hardware.intel;

@@ -7,17 +7,16 @@
     (pkgs.writeShellApplication {
       name = "leenix-launch-file-manager";
 
-      runtimeInputs = with pkgs; [
-        coreutils
-        util-linux
-      ];
-
       text = ''
         #!/bin/bash
 
         # leenix:summary=Launch the configured file manager (Nautilus).
 
-        exec setsid uwsm-app -- ${pkgs.nautilus}/bin/nautilus "$@"
+        # Launch via UWSM service mode so the app inherits the centralized
+        # systemd/UWSM activation environment (declarative theme vars)
+        # instead of arbitrary/stale calling-shell environment.
+        # Scope/app mode would inherit the caller env and break appearance.
+        exec ${pkgs.uwsm}/bin/uwsm app -t service -- ${pkgs.nautilus}/bin/nautilus "$@"
       '';
     })
   ];

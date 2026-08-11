@@ -99,6 +99,10 @@
     fileManager = "dolphin";
   };
 
+  theme = {
+    mode = "dark";
+  };
+
   boot = {
     plymouth = {
       enable = true;

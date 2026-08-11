@@ -28,6 +28,7 @@
       inherit variables;
 
       fileManager = config.leenix.desktop.fileManager;
+      themeMode = config.leenix.theme.mode;
     };
 
     users.${variables.user.username} = import ../../home;

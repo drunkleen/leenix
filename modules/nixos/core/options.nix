@@ -174,6 +174,18 @@ in
       };
     };
 
+    theme = {
+      mode = mkOption {
+        type = types.enum [
+          "dark"
+          "light"
+        ];
+
+        default = "dark";
+        description = "System color-scheme preference.";
+      };
+    };
+
     hardware = {
       asus.enable = mkEnableOption "ASUS hardware support";
       intel.enable = mkEnableOption "Intel hardware support";

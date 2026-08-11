@@ -6,6 +6,7 @@
 
 {
   imports = [
+    ../modules/nixos/desktop/appearance.nix
     ../modules/nixos/desktop/bootstrap.nix
     ../modules/nixos/desktop/file-manager.nix
     ../modules/nixos/desktop/uwsm.nix
