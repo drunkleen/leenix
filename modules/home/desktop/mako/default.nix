@@ -15,15 +15,48 @@
       border-radius = 8;
       default-timeout = 5000;
       font = "JetBrainsMono Nerd Font 11";
+      group-by = "app-name,summary,body";
       height = 100;
       icons = true;
       layer = "overlay";
-      margin = 8;
+      max-icon-size = 32;
       max-visible = 5;
-      padding = 8;
+      outer-margin = 20;
+      padding = "10,15";
       progress-color = "#4c6a6f";
       text-color = "#d8e3e0";
-      width = 360;
+      width = 420;
+
+      "app-name=Spotify" = {
+        invisible = true;
+      };
+
+      "mode=do-not-disturb" = {
+        invisible = true;
+      };
+
+      "mode=do-not-disturb app-name=notify-send" = {
+        invisible = false;
+      };
+
+      "summary~=\"Learn Keybindings\"" = {
+        on-button-left = "exec leenix-notification-dismiss \"Learn Keybindings\"; leenix-menu-keybindings";
+      };
+
+      "summary~=\"Screenshot copied & saved\"" = {
+        max-icon-size = 80;
+        format = "<b>%s</b>\\n%b";
+      };
+
+      "summary~=\"Setup Wi-Fi\"" = {
+        on-button-left = "exec leenix-notification-dismiss \"Setup Wi-Fi\"; leenix-launch-wifi";
+      };
+
+      "urgency=critical" = {
+        border-color = "#a55555";
+        default-timeout = 0;
+        layer = "overlay";
+      };
 
       "urgency=low" = {
         border-color = "#4c6a6f";
@@ -32,11 +65,6 @@
 
       "urgency=normal" = {
         border-color = "#4c6a6f";
-      };
-
-      "urgency=critical" = {
-        border-color = "#a55555";
-        default-timeout = 0;
       };
     };
   };
