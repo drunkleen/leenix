@@ -61,7 +61,7 @@ let
     {
       keys = "SUPER + Z";
       description = "Zoom";
-      command = "~/.local/bin/hypr-zoom toggle";
+      command = "leenix-hypr-zoom toggle";
     }
   ];
 

@@ -236,12 +236,12 @@ let
     {
       keys = "SUPER + CTRL + Z";
       description = "Zoom in";
-      command = "hyprctl keyword cursor:zoom_factor $(hyprctl getoption cursor:zoom_factor -j | jq '.float + 1')";
+      command = "leenix-hypr-zoom in";
     }
     {
       keys = "SUPER + CTRL + ALT + Z";
       description = "Reset zoom";
-      command = "hyprctl keyword cursor:zoom_factor 1";
+      command = "leenix-hypr-zoom reset";
     }
 
     # System

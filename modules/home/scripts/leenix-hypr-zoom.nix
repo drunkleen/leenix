@@ -14,7 +14,7 @@
       text = ''
         #!/usr/bin/env bash
 
-        # Toggle / zoom in / zoom out for Hyprland (uses cursor:zoom_factor)
+        # Toggle / zoom in / zoom out / reset for Hyprland (uses cursor:zoom_factor)
 
         STEP=0.3
         MIN=1.0
@@ -38,13 +38,16 @@
             NEW=$(echo "$CUR - $STEP" | bc)
             if (( $(echo "$NEW < $MIN" | bc -l) )); then NEW=$MIN; fi
             ;;
+          reset)
+            NEW=$MIN
+            ;;
           *)
-            echo "Usage: $0 {toggle|in|out}"
+            echo "Usage: $0 {toggle|in|out|reset}"
             exit 1
             ;;
         esac
 
-        hyprctl keyword cursor:zoom_factor "$NEW"
+        hyprctl eval "hl.config({ cursor = { zoom_factor = $NEW } })"
       '';
     })
   ];
