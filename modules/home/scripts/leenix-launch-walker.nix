@@ -6,27 +6,17 @@
       name = "leenix-launch-walker";
 
       runtimeInputs = with pkgs; [
-        procps
-        util-linux
+        coreutils
+        systemd
         walker
-        elephant
-        uwsm
       ];
 
       text = ''
         #!/bin/bash
 
-        # leenix:summary=Launch Walker and ensure its Elephant data provider is running
+        # leenix:summary=Launch Walker and ensure its service is running
 
-        if ! pgrep -x elephant > /dev/null; then
-          setsid uwsm-app -- elephant &
-        fi
-
-        # Ensure walker service is running
-
-        if ! pgrep -f "walker --gapplication-service" > /dev/null; then
-          setsid uwsm-app -- env GSK_RENDERER=cairo walker --gapplication-service &
-        fi
+        systemctl --user start walker.service
 
         exec walker --width 644 --maxheight 300 --minheight 300 "$@"
       '';
