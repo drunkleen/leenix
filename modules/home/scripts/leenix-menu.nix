@@ -250,7 +250,9 @@
         }
         
         show_hardware_menu() {
-          local options="󰛧  Laptop Display\n 󰍹  Mirror Display"
+          local lap_action="Disable Laptop Monitor"
+          [[ $(leenix-monitor-laptop status 2>/dev/null | sed -n 's/^desired: //p') == "disabled" ]] && lap_action="Enable Laptop Monitor"
+          local options="󰛧  $lap_action\n󰍹  Mirror Display"
         
           if leenix-hw-hybrid-gpu; then
             options="$options\n  Hybrid GPU"
@@ -268,8 +270,9 @@
             options="$options\n󰆽  Touchscreen"
           fi
         
-          case $(menu "Toggle" "$options") in
-          *Laptop*) leenix-hyprland-monitor-internal toggle ;;
+          case $(menu "Hardware" "$options") in
+          *Disable*Laptop*) leenix-monitor-laptop disable ;;
+          *Enable*Laptop*) leenix-monitor-laptop enable ;;
           *Mirror*) leenix-hyprland-monitor-internal-mirror toggle ;;
           *Haptics*) show_hardware_touchpad_haptics_menu ;;
           *Touchpad*) leenix-toggle-touchpad ;;

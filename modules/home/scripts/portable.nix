@@ -78,6 +78,7 @@
     ./leenix-launch-wifi.nix
     ./leenix-menu.nix
     ./leenix-menu-share.nix
+    ./leenix-monitor-laptop.nix
     ./leenix-notification-dismiss.nix
     ./leenix-notification-send.nix
     ./leenix-npx-install.nix
