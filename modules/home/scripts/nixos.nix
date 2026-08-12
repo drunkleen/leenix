@@ -17,8 +17,6 @@
     ./leenix-restart-walker.nix
     ./leenix-restart-waybar.nix
     ./leenix-system-logout.nix
-    ./leenix-theme-bg-next.nix
-    ./leenix-theme-bg-set.nix
     ./leenix-toggle-idle.nix
     ./leenix-toggle-nightlight.nix
     ./leenix-toggle-waybar.nix

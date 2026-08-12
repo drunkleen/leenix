@@ -110,7 +110,6 @@
     ./leenix-system-reboot.nix
     ./leenix-system-shutdown.nix
     ./leenix-system-wake.nix
-    ./leenix-theme-bg-install.nix
     ./leenix-theme-colors-from-alacritty.nix
     ./leenix-theme-current.nix
     ./leenix-theme-install.nix

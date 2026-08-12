@@ -325,7 +325,16 @@
         }
         
         show_background_menu() {
-          leenix-launch-walker -m menus:leenixBackgroundSelector --width 800 --minheight 400
+          case $(menu "Background" "󰋼  Choose Wallpaper\n󰁅  Next\n󰁈  Previous\n  Random\n󰉋  Open Folder\n  Refresh\n󰕮  Current") in
+            *Choose*) leenix-wallpaper-switcher ;;
+            *Next*) leenix-wallpaper-next ;;
+            *Previous*) leenix-wallpaper-prev ;;
+            *Random*) leenix-wallpaper-random ;;
+            *Folder*) leenix-wallpaper-install ;;
+            *Refresh*) leenix-wallpaper-refresh ;;
+            *Current*) leenix-wallpaper-current ;;
+            *) back_to show_style_menu ;;
+          esac
         }
         
         show_font_menu() {
@@ -582,7 +591,7 @@
         show_install_style_menu() {
           case $(menu "Install" "󰸌  Theme\n  Background\n  Font") in
           *Theme*) present_terminal leenix-theme-install ;;
-          *Background*) leenix-theme-bg-install ;;
+          *Background*) leenix-wallpaper-install ;;
           *Font*) show_install_font_menu ;;
           *) show_install_menu ;;
           esac

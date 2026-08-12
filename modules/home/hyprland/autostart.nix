@@ -10,7 +10,6 @@ let
     "hyprctl setcursor ${variables.cursor.theme} ${builtins.toString variables.cursor.size}"
     "uwsm app -t service -- mako"
     "uwsm app -t service -- fcitx5 --disable notificationitem"
-    "uwsm app -t service -- swaybg -i ~/.config/leenix/current/background -m fill"
     "uwsm app -t service -- ${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"
     "leenix-powerprofiles-init"
     "uwsm app -t service -- leenix-hyprland-monitor-watch"
@@ -28,7 +27,6 @@ in
   home.packages = with pkgs; [
     fcitx5
     polkit_gnome
-    swaybg
   ];
 
   # polkit_gnome ships an XDG autostart .desktop that systemd-xdg-autostart-generator

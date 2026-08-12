@@ -62,8 +62,8 @@ let
     }
     {
       keys = "SUPER + CTRL + SPACE";
-      description = "Theme background menu";
-      command = "leenix-menu background";
+      description = "Wallpaper picker";
+      command = "leenix-wallpaper-switcher";
     }
     {
       keys = "SUPER + SHIFT + CTRL + SPACE";

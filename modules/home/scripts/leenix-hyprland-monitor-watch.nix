@@ -21,6 +21,11 @@
             monitorremoved\>\>*|monitorremovedv2\>\>*)
               leenix-hyprland-monitor-internal recover
               leenix-hyprland-monitor-internal-mirror recover
+              leenix-wallpaper-refresh
+              ;;
+            monitoradded\>\>*|monitoraddedv2\>\>*)
+              # Apply the current wallpaper to the newly connected output.
+              leenix-wallpaper-refresh
               ;;
           esac
         done
