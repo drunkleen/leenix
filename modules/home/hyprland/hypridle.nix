@@ -15,11 +15,11 @@
 
       listener = [
         {
-          timeout = 90;
+          timeout = 180;
           on-timeout = "leenix-launch-screensaver";
         }
         {
-          timeout = 300;
+          timeout = 420;
           on-timeout = "leenix-system-lock";
           on-resume = "leenix-system-wake";
         }
