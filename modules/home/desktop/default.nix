@@ -8,6 +8,7 @@
     ./image-viewer
     ./mako
     ./media
+    ./mime
     ./mousepad.nix
     ./waybar
   ];

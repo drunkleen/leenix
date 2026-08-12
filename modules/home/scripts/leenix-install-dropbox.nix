@@ -11,7 +11,7 @@
         # leenix:summary=Install and start the Dropbox service. Must then be authenticated via the web.
 
         echo "Installing all dependencies..."
-        leenix-pkg-add dropbox dropbox-cli libappindicator-gtk3 python-gpgme nautilus-dropbox
+        leenix-pkg-add dropbox dropbox-cli libappindicator-gtk3 python-gpgme
 
         echo "Starting Dropbox..."
         uwsm-app -- dropbox-cli start &>/dev/null &

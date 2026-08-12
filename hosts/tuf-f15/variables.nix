@@ -95,7 +95,6 @@
     hypridle = true;
     hyprsunset = true;
 
-    fileManager = "dolphin";
     browser = "firefox";
     mediaPlayer = "mpv";
     imageViewer = "imv";

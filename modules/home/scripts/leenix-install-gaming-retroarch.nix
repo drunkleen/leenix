@@ -106,7 +106,7 @@
         echo ""
         echo "Put your roms and bios files in ~/Games. Then start RetroArch from the app launcher (Super + Space)."
 
-        setsid nautilus "$HOME/Games" >/dev/null 2>&1 &
+        leenix-launch-file-manager "$HOME/Games"
       '';
     })
   ];

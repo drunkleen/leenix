@@ -1,7 +1,8 @@
-{ fileManager, ... }:
+{ ... }:
 
+# LEENIX supports exactly one file manager: Dolphin. Not host-selectable.
 {
   imports = [
-    (if fileManager == "dolphin" then ./dolphin.nix else ./nautilus.nix)
+    ./dolphin.nix
   ];
 }

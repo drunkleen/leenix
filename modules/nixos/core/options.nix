@@ -158,16 +158,6 @@ in
 
       uwsm.enable = mkEnableOption "UWSM-managed Wayland session";
 
-      fileManager = mkOption {
-        type = types.enum [
-          "dolphin"
-          "nautilus"
-        ];
-
-        default = "dolphin";
-        description = "Desktop file manager.";
-      };
-
       browser = mkOption {
         type = types.enum [
           "firefox"
@@ -215,7 +205,7 @@ in
         ];
 
         default = "cliamp";
-        description = "Terminal music player (supplementary; does not handle MIME types).";
+        description = "Terminal music player (owns audio MIME types through its LEENIX desktop entry).";
       };
     };
 

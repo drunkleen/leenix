@@ -29,21 +29,4 @@ in
     })
   ];
 
-  xdg.mimeApps.enable = true;
-  xdg.mimeApps.defaultApplications = {
-    "video/mp4" = "mpv.desktop";
-    "video/x-matroska" = "mpv.desktop";
-    "video/webm" = "mpv.desktop";
-    "video/quicktime" = "mpv.desktop";
-    "video/x-msvideo" = "mpv.desktop";
-    "video/mpeg" = "mpv.desktop";
-    "video/ogg" = "mpv.desktop";
-    "application/ogg" = "mpv.desktop";
-    "audio/mpeg" = "mpv.desktop";
-    "audio/flac" = "mpv.desktop";
-    "audio/ogg" = "mpv.desktop";
-    "audio/x-wav" = "mpv.desktop";
-    "audio/mp4" = "mpv.desktop";
-    "audio/aac" = "mpv.desktop";
-  };
 }

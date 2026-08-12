@@ -30,6 +30,13 @@ in
   };
 
   # Global KDE color scheme consumed by KDE apps (e.g. Dolphin) through
-  # KColorSchemeManager.
-  xdg.configFile."kdeglobals".text = builtins.readFile schemeFile;
+  # KColorSchemeManager. The [General] TerminalApplication section is read by
+  # KTerminalLauncherJob (Dolphin "Open Terminal Here") to select the LEENIX
+  # terminal without depending on a Konsole service.
+  xdg.configFile."kdeglobals".text = ''
+    ${builtins.readFile schemeFile}
+
+    [General]
+    TerminalApplication=kitty
+  '';
 }

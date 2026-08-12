@@ -302,13 +302,13 @@ let
     }
 
     {
-      match.class = "(org.leenix.bluetui|org.leenix.impala|org.leenix.wiremix|org.leenix.btop|org.leenix.terminal|org.leenix.bash|org.codeberg.dnkl.foot|org.gnome.NautilusPreviewer|org.gnome.Evince|com.gabm.satty|Leenix|About|TUI.float|imv|mpv)";
+      match.class = "(org.leenix.bluetui|org.leenix.impala|org.leenix.wiremix|org.leenix.btop|org.leenix.terminal|org.leenix.bash|org.codeberg.dnkl.foot|org.gnome.Evince|com.gabm.satty|Leenix|About|TUI.float|imv|mpv)";
       tag = "+floating-window";
     }
 
     {
       match = {
-        class = "(xdg-desktop-portal-gtk|sublime_text|DesktopEditors|org.gnome.Nautilus)";
+        class = "(xdg-desktop-portal-gtk|sublime_text|DesktopEditors)";
         title = "^(Open.*Files?|Open [F|f]older.*|Save.*Files?|Save.*As|Save|All Files|.*wants to [open|save].*|[C|c]hoose.*)";
       };
 
@@ -336,11 +336,11 @@ let
 
     # No transparency on media windows
     {
-      match.class = "^(zoom|vlc|mpv|org.kde.kdenlive|com.obsproject.Studio|com.github.PintaProject.Pinta|imv|org.gnome.NautilusPreviewer)$";
+      match.class = "^(zoom|vlc|mpv|org.kde.kdenlive|com.obsproject.Studio|com.github.PintaProject.Pinta|imv)$";
       tag = "-default-opacity";
     }
     {
-      match.class = "^(zoom|vlc|mpv|org.kde.kdenlive|com.obsproject.Studio|com.github.PintaProject.Pinta|imv|org.gnome.NautilusPreviewer)$";
+      match.class = "^(zoom|vlc|mpv|org.kde.kdenlive|com.obsproject.Studio|com.github.PintaProject.Pinta|imv)$";
       opacity = "1 1";
     }
 

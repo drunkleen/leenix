@@ -27,7 +27,6 @@
     extraSpecialArgs = {
       inherit variables;
 
-      fileManager = config.leenix.desktop.fileManager;
       browser = config.leenix.desktop.browser;
       mediaPlayer = config.leenix.desktop.mediaPlayer;
       imageViewer = config.leenix.desktop.imageViewer;

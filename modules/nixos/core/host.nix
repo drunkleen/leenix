@@ -70,7 +70,6 @@
 
       uwsm.enable = variables.desktop.uwsm.enable;
 
-      fileManager = variables.desktop.fileManager;
       browser = variables.desktop.browser;
       mediaPlayer = variables.desktop.mediaPlayer;
       imageViewer = variables.desktop.imageViewer;
