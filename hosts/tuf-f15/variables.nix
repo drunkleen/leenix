@@ -14,6 +14,7 @@
       "video"
       "audio"
       "input"
+      "gamemode"
     ];
   };
 
@@ -62,7 +63,7 @@
     desktop = true;
     laptop = true;
 
-    gaming = false;
+    gaming = true;
     development = false;
     hardened = false;
     server = false;
@@ -121,6 +122,8 @@
     };
 
     bluetooth = true;
+
+    power-profiles = true;
   };
 
   disk = {

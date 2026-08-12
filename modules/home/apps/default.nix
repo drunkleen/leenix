@@ -6,7 +6,6 @@
     discord
     signal-desktop
     spotify
-    steam
     telegram-desktop
     thunderbird
   ];

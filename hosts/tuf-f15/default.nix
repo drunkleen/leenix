@@ -11,6 +11,7 @@
 
     ../../profiles/base.nix
     ../../profiles/desktop.nix
+    ../../profiles/gaming.nix
     ../../profiles/laptop.nix
 
     ../../modules/nixos/boot/limine
