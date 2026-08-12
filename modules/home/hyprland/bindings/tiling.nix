@@ -3,7 +3,7 @@
 let
   binds = [
     {
-      keys = "SUPER + W";
+      keys = "SUPER + Q";
       description = "Close window";
       action = ''hl.dsp.window.close({})'';
     }
