@@ -19,23 +19,35 @@
 
         # leenix:summary=Launch the Leenix screensaver in the default terminal on the system with the correct font configuration.
 
+        debug() {
+          [[ -n ''${LEENIX_DEBUG:-} ]] && echo "leenix-launch-screensaver: $*" >&2 || true
+        }
+
         if ! command -v tte &>/dev/null; then
+          debug "tte not available"
           exit 1
         fi
 
-        # Exit early if screensave is already running
+        # Canonical duplicate check: a screensaver is running iff Hyprland has
+        # an org.leenix.screensaver client. Broad process matching is unreliable
+        # (kitty helper processes and the launcher's own transient `hyprctl
+        # dispatch` subprocess contain the class string) and can silently block
+        # the normal launch.
+        if hyprctl clients -j | jq -e '.[] | select(.class == "org.leenix.screensaver")' >/dev/null 2>&1; then
+          debug "screensaver already active"
+          exit 0
+        fi
 
-        pgrep -f org.leenix.screensaver && exit 0
-
-        # Allow screensaver to be turned off but also force started
-
+        # Allow screensaver to be turned off but also force started.
+        # Default state (no screensaver-off flag) is ENABLED.
         if leenix-toggle-enabled screensaver-off && [[ "''${1:-}" != "force" ]]; then
+          debug "screensaver disabled via screensaver-off toggle"
           exit 1
         fi
 
-        # Silently quit Walker on overlay
-
-        walker -q
+        # Silently quit Walker on overlay. Never block the launch on walker
+        # quirks (a missing/stopped walker must not abort under errexit).
+        walker -q &>/dev/null || true
 
         # Encode a shell string as a Lua string literal. JSON escaping yields a
         # valid Lua string for ASCII input (Hyprland monitor names and the
