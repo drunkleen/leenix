@@ -226,6 +226,7 @@ in
       intel.enable = mkEnableOption "Intel hardware support";
       nvidia.enable = mkEnableOption "NVIDIA hardware support";
       bluetooth.enable = mkEnableOption "Bluetooth support";
+      power-profiles.enable = mkEnableOption "power-profiles-daemon";
     };
 
     disk = {

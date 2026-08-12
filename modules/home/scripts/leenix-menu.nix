@@ -21,6 +21,7 @@
         hyprland
         systemd
         libnotify
+        power-profiles-daemon
       ];
 
       text = ''

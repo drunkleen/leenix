@@ -86,6 +86,7 @@
       intel.enable = variables.hardware.intel;
       nvidia.enable = variables.hardware.nvidia.enable;
       bluetooth.enable = variables.hardware.bluetooth;
+      power-profiles.enable = variables.hardware.power-profiles;
     };
 
     disk = {

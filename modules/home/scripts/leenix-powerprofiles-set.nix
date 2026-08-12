@@ -16,7 +16,7 @@
 
         # leenix:summary=Set the power profile to the requested level, falling back to balanced
 
-        # leenix:args=[autodetect|ac|battery]
+        # leenix:args=[autodetect|ac|battery|PROFILE]
 
         action="''${1-}"
 
@@ -43,7 +43,12 @@
           done
         fi
 
-        mapfile -t profiles < <(powerprofilesctl list | awk '/^\s*[\* ]\s*[a-zA-Z0-9-]+:$/ { gsub(/^[*[:space:]]+|:$/,""); print }')
+        if ! output=$(powerprofilesctl list 2>&1); then
+          echo "error: $output" >&2
+          exit 1
+        fi
+
+        mapfile -t profiles < <(printf '%s\n' "$output" | awk '/^\s*[\* ]\s*[a-zA-Z0-9-]+:$/ { gsub(/^[*[:space:]]+|:$/,""); print }')
 
         case "$action" in
           ac)
@@ -56,6 +61,16 @@
             ;;
           battery)
             powerprofilesctl set balanced
+            ;;
+          *)
+            # Explicit profile name: only set it when the profile is actually
+            # available, never silently fall back to another profile.
+            if [[ " ''${profiles[*]} " == *" $action "* ]]; then
+              powerprofilesctl set "$action"
+            else
+              echo "error: power profile '$action' is not available (available: ''${profiles[*]:-none})" >&2
+              exit 1
+            fi
             ;;
         esac
       '';

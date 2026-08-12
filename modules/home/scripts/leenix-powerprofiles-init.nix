@@ -8,13 +8,18 @@
       text = ''
         #!/bin/bash
 
-        # leenix:summary=Set the correct power profile on boot based on current AC/battery state.
+        # leenix:summary=Select the normal LEENIX power profile at login (balanced when available).
 
-        if leenix-battery-present && ! leenix-ac-present; then
-          leenix-powerprofiles-set battery
-        else
-          leenix-powerprofiles-set ac
+        # Prefer the balanced profile when it is available, falling back to
+        # power-saver, and otherwise keeping the current profile. Never forces
+        # the performance profile and never fails startup.
+
+        if leenix-powerprofiles-set balanced; then
+          exit 0
         fi
+
+        leenix-powerprofiles-set power-saver >/dev/null 2>&1 || true
+        exit 0
       '';
     })
   ];
