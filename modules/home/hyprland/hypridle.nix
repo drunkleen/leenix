@@ -15,6 +15,11 @@
 
       listener = [
         {
+          timeout = 145;
+          on-timeout = "leenix-launch-screensaver";
+          on-resume = "pkill -f org.leenix.screensaver || true";
+        }
+        {
           timeout = 152;
           on-timeout = "leenix-system-lock";
           on-resume = "leenix-system-wake";

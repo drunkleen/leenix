@@ -14,6 +14,7 @@
     ./leenix-brightness-display.nix
     ./leenix-brightness-keyboard.nix
     ./leenix-brightness-keyboard-mute.nix
+    ./leenix-branding-screensaver.nix
     ./leenix-capture-screenrecording.nix
     ./leenix-capture-screenshot.nix
     ./leenix-capture-text-extraction.nix
@@ -73,6 +74,7 @@
     ./leenix-launch-about.nix
     ./leenix-launch-audio.nix
     ./leenix-launch-bluetooth.nix
+    ./leenix-launch-screensaver.nix
     ./leenix-launch-wifi.nix
     ./leenix-menu.nix
     ./leenix-menu-share.nix

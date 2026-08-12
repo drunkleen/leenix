@@ -11,7 +11,6 @@
 
       text = ''
         #!/bin/bash
-        LEENIX_PATH=''${LEENIX_PATH:-$HOME/.local/share/leenix}
 
         # leenix:summary=Edit, set, or reset screensaver branding
 
@@ -36,7 +35,9 @@
             leenix-launch-editor ~/.config/leenix/branding/screensaver.txt >/dev/null 2>&1 && leenix-launch-screensaver force >/dev/null 2>&1
             ;;
           reset)
-            cp "$LEENIX_PATH/logo.txt" ~/.config/leenix/branding/screensaver.txt && leenix-launch-screensaver force >/dev/null 2>&1
+            # Remove any custom screensaver text so the screensaver falls back
+            # to the canonical declarative logo.txt.
+            rm -f ~/.config/leenix/branding/screensaver.txt && leenix-launch-screensaver force >/dev/null 2>&1
             ;;
           *)
             echo "Usage: leenix-branding-screensaver <image|text|reset>" >&2
