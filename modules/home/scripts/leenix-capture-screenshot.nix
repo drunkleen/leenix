@@ -33,7 +33,7 @@
         # leenix:aliases=leenix screenshot
 
         [[ -f ~/.config/user-dirs.dirs ]] && source ~/.config/user-dirs.dirs
-        OUTPUT_DIR="''${LEENIX_SCREENSHOT_DIR:-''${XDG_PICTURES_DIR:-$HOME/Pictures}}"
+        OUTPUT_DIR="''${LEENIX_SCREENSHOT_DIR:-''${XDG_PICTURES_DIR:-$HOME/Pictures/screenshots}}"
 
         if [[ ! -d $OUTPUT_DIR ]]; then
           mkdir -p "$OUTPUT_DIR"

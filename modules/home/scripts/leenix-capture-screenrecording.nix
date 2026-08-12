@@ -44,7 +44,7 @@
         # users can attach a log when reporting capture failures.
 
         [[ -f ~/.config/user-dirs.dirs ]] && source ~/.config/user-dirs.dirs
-        OUTPUT_DIR="''${LEENIX_SCREENRECORD_DIR:-''${XDG_VIDEOS_DIR:-$HOME/Videos}}"
+        OUTPUT_DIR="''${LEENIX_SCREENRECORD_DIR:-''${XDG_VIDEOS_DIR:-$HOME/Videos/screenrecord}}"
 
         if [[ ! -d $OUTPUT_DIR ]]; then
           notify-send "Screen recording directory does not exist: $OUTPUT_DIR" -u critical -t 3000
