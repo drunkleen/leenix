@@ -16,7 +16,7 @@ let
   # local.nix is NOT part of the git-flake source, so it is read from the
   # source checkout via LEENIX_SRC (impure). In pure evaluation (nix flake
   # check) the variable is empty and only the version-controlled defaults are
-  # used. leenix-config / leenix-update / leenix-rebuild run with --impure and
+  # used. leenix-config / leenix-rebuild run with --impure and
   # export LEENIX_SRC so the override is applied at build time.
   srcPath = builtins.getEnv "LEENIX_SRC";
   hostName = baseNameOf hostPath;

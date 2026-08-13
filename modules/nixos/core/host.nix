@@ -87,6 +87,7 @@ in
 
     hardware = {
       asus.enable = variables.hardware.asus;
+      asus.model = attrByPath [ "hardware" "asus" "model" ] null variables;
       intel.enable = variables.hardware.intel;
       nvidia.enable = variables.hardware.nvidia.enable;
       bluetooth.enable = variables.hardware.bluetooth;
@@ -112,6 +113,12 @@ in
       tailscale.enable = lib.mkIf (attrByPath [ "networking" "tailscale" ] null variables != null)
         (attrByPath [ "networking" "tailscale" ] false variables);
       dns = variables.networking.dns;
+      # Declarative VPN profiles. Empty when the host configures none; secrets
+      # are file references (privateKeyFile / authUserPassFile), never inline.
+      wireguard.interfaces = lib.mkIf (attrByPath [ "networking" "wireguard" "interfaces" ] null variables != null)
+        (attrByPath [ "networking" "wireguard" "interfaces" ] { } variables);
+      openvpn.profiles = lib.mkIf (attrByPath [ "networking" "openvpn" "profiles" ] null variables != null)
+        (attrByPath [ "networking" "openvpn" "profiles" ] { } variables);
     };
 
     security = {

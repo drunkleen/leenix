@@ -92,7 +92,6 @@
         GROUP_DESCRIPTIONS[transcode]="Image and video transcoding"
         GROUP_DESCRIPTIONS[tui]="Terminal UI launchers"
         GROUP_DESCRIPTIONS[tz]="Timezone selection"
-        GROUP_DESCRIPTIONS[update]="Leenix and system updates"
         GROUP_DESCRIPTIONS[version]="Version and channel information"
         GROUP_DESCRIPTIONS[voxtype]="Voxtype dictation"
         GROUP_DESCRIPTIONS[weather]="Weather status"
@@ -508,7 +507,6 @@
           leenix <group> <command> --help
         
         Common commands:
-          leenix update              Update Leenix and system packages
           leenix theme list          List available themes
           leenix theme set <name>    Apply a theme
           leenix font list           List available fonts

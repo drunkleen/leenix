@@ -9,6 +9,7 @@
         snapper
         gawk
         coreutils
+        git
       ];
 
       text = ''
@@ -31,12 +32,13 @@
         fi
 
         if ! command -v snapper &>/dev/null; then
-          exit 127 # leenix-update can use this to just ignore if snapper is not available
+          echo "snapper is not installed" >&2
+          exit 127
         fi
 
         case "$COMMAND" in
           create)
-            DESC="$(leenix-version)"
+            DESC="$(git -C "''${LEENIX_SRC:-$HOME/nix-config}" rev-parse --short HEAD 2>/dev/null || echo manual)"
 
             echo -e "\e[32mCreate system snapshot\e[0m"
 

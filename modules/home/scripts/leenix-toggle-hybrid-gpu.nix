@@ -22,23 +22,8 @@
         # leenix:requires-sudo=true
 
         if leenix-cmd-missing supergfxctl; then
-          leenix-pkg-add supergfxctl
-
-          # Create config before starting service to prevent hang on first boot
-
-          sudo tee /etc/supergfxd.conf >/dev/null <<'CONF'
-        {
-        "mode": "Hybrid",
-        "vfio_enable": true,
-        "vfio_save": false,
-        "always_reboot": false,
-        "no_logind": false,
-        "logout_timeout_s": 180,
-        "hotplug_type": "None"
-        }
-        CONF
-
-          sudo systemctl enable --now supergfxd
+          echo "supergfxctl is not installed; GPU mode switching is unavailable" >&2
+          exit 1
         fi
 
         gpu_mode=$(supergfxctl -g)

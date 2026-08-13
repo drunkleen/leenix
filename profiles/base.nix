@@ -14,6 +14,8 @@ in
   imports = [
     ../modules/nixos/networking/dns.nix
     ../modules/nixos/networking/tailscale.nix
+    ../modules/nixos/networking/wireguard.nix
+    ../modules/nixos/networking/openvpn.nix
     ../modules/nixos/services/podman.nix
   ];
 

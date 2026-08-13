@@ -225,6 +225,17 @@ in
 
     hardware = {
       asus.enable = mkEnableOption "ASUS hardware support";
+
+      asus.model = mkOption {
+        type = types.nullOr (types.enum [
+          "rog"
+          "expertbook-b9406"
+          "zenbook-ux5406aa"
+        ]);
+        default = null;
+        description = "ASUS model family for model-specific helpers. Only the matching detector is installed.";
+      };
+
       intel.enable = mkEnableOption "Intel hardware support";
       nvidia.enable = mkEnableOption "NVIDIA hardware support";
       bluetooth.enable = mkEnableOption "Bluetooth support";
