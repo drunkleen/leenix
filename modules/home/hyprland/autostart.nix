@@ -16,6 +16,9 @@ let
     # Slow app launch fix -- set systemd vars
     "systemctl --user import-environment $(env | cut -d'=' -f 1)"
     "dbus-update-activation-environment --systemd --all"
+    # Re-apply the canonical locale to the (possibly persistent) user manager,
+    # replacing any stale LC_* from a previous generation.
+    "leenix-locale-env"
     # Run post-boot hooks after startup config has loaded
     "sleep 2 && leenix-hook post-boot"
   ]

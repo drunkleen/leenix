@@ -43,6 +43,8 @@
       documentViewer = config.leenix.desktop.documentViewer;
       musicPlayer = config.leenix.desktop.musicPlayer;
       themeMode = config.leenix.theme.mode;
+      localeLanguage = config.leenix.locale.language;
+      localeRegion = config.leenix.locale.region;
     };
 
     users.${variables.user.username} = import ../../home;

@@ -56,12 +56,15 @@
         rm -f "$build_log"
         echo "BUILT: $system"
 
-        # 2) Activate the exact built closure (privilege boundary).
+        # 2) Activate the exact built closure (privilege boundary). A neutral,
+        # always-valid locale (C.UTF-8) is used ONLY for the activation command
+        # so stale shell locale env (e.g. a just-reset de_DE.UTF-8) cannot make
+        # the Perl-based activation scripts warn ("Setting locale failed").
         if ! sudo nix-env --profile /nix/var/nix/profiles/system --set "$system"; then
           echo "leenix-system-apply: profile update failed" >&2
           exit 2
         fi
-        if ! sudo env NIXOS_INSTALL_BOOTLOADER=1 "$system/bin/switch-to-configuration" switch; then
+        if ! sudo env NIXOS_INSTALL_BOOTLOADER=1 LANG=C.UTF-8 LC_ALL=C.UTF-8 "$system/bin/switch-to-configuration" switch; then
           echo "leenix-system-apply: activation failed" >&2
           exit 2
         fi

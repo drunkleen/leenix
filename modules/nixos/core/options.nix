@@ -65,14 +65,16 @@ in
     };
 
     locale = {
-      default = mkOption {
+      language = mkOption {
         type = types.str;
         default = "en_US.UTF-8";
+        description = "Application/system language and message translations (also drives weekday/month names).";
       };
 
-      extra = mkOption {
-        type = types.attrsOf types.str;
-        default = { };
+      region = mkOption {
+        type = types.str;
+        default = "de_DE.UTF-8";
+        description = "Regional formatting (numbers, currency, addresses, measurement, paper, telephone).";
       };
     };
 

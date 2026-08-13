@@ -20,9 +20,27 @@ in
 
     time.timeZone = config.leenix.host.timezone;
 
+    # Two-dimension locale policy: LANGUAGE drives the UI/messages/date
+    # language (defaultLocale plus LC_MESSAGES and LC_TIME); REGION drives
+    # regional formatting (numbers, currency, address, measurement, paper,
+    # telephone, name, identification). LC_COLLATE and LC_CTYPE are left to
+    # inherit from defaultLocale. LC_ALL is never set.
     i18n = {
-      defaultLocale = config.leenix.locale.default;
-      extraLocaleSettings = config.leenix.locale.extra;
+      defaultLocale = config.leenix.locale.language;
+
+      extraLocaleSettings = {
+        LC_MESSAGES = config.leenix.locale.language;
+        LC_TIME = config.leenix.locale.language;
+
+        LC_ADDRESS = config.leenix.locale.region;
+        LC_IDENTIFICATION = config.leenix.locale.region;
+        LC_MEASUREMENT = config.leenix.locale.region;
+        LC_MONETARY = config.leenix.locale.region;
+        LC_NAME = config.leenix.locale.region;
+        LC_NUMERIC = config.leenix.locale.region;
+        LC_PAPER = config.leenix.locale.region;
+        LC_TELEPHONE = config.leenix.locale.region;
+      };
     };
 
     services.xserver.xkb = {

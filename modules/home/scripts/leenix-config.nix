@@ -36,8 +36,6 @@
         VARS="$LEENIX_SRC/hosts/$HOST/variables.nix"
         LOCAL="$LEENIX_SRC/hosts/$HOST/local.nix"
 
-        LOCALE_LCS="LC_ADDRESS LC_IDENTIFICATION LC_MEASUREMENT LC_MONETARY LC_NAME LC_NUMERIC LC_PAPER LC_TELEPHONE LC_TIME"
-
         debug() {
           [[ -n ''${LEENIX_DEBUG:-} ]] && echo "leenix-config: $*" >&2 || true
         }
@@ -54,13 +52,15 @@
 
         # Current overrides held in the local policy file (controlled schema).
         OV_timezone=""
-        OV_locale=""
+        OV_locale_lang=""
+        OV_locale_region=""
         OV_dns_mode=""
         OV_dns_servers=()
 
         read_overrides() {
           OV_timezone=""
-          OV_locale=""
+          OV_locale_lang=""
+          OV_locale_region=""
           OV_dns_mode=""
           OV_dns_servers=()
 
@@ -68,7 +68,17 @@
           [[ -f $LOCAL ]] || return 0
 
           OV_timezone=$(sed -n 's/^  timezone = "\(.*\)";$/\1/p' "$LOCAL" | head -1)
-          OV_locale=$(sed -n 's/^    default = "\(.*\)";$/\1/p' "$LOCAL" | head -1)
+          OV_locale_lang=$(sed -n 's/^    language = "\(.*\)";$/\1/p' "$LOCAL" | head -1)
+          OV_locale_region=$(sed -n 's/^    region = "\(.*\)";$/\1/p' "$LOCAL" | head -1)
+
+          # Legacy locale schema (`default = "X";` + LC_* extra): migrate to the
+          # two-dimension model deterministically (language = region = old value).
+          local legacy_default
+          legacy_default=$(sed -n 's/^    default = "\(.*\)";$/\1/p' "$LOCAL" | head -1)
+          if [[ -n $legacy_default ]]; then
+            [[ -z $OV_locale_lang ]] && OV_locale_lang="$legacy_default"
+            [[ -z $OV_locale_region ]] && OV_locale_region="$legacy_default"
+          fi
 
           # New structured DNS block: networking.dns = { mode = ...; servers = [...]; }
           if grep -qE '^    dns = \{' "$LOCAL"; then
@@ -106,14 +116,10 @@
           {
             echo "{"
             [[ -n $OV_timezone ]] && echo "  timezone = \"$OV_timezone\";"
-            if [[ -n $OV_locale ]]; then
+            if [[ -n $OV_locale_lang || -n $OV_locale_region ]]; then
               echo "  locale = {"
-              echo "    default = \"$OV_locale\";"
-              echo "    extra = {"
-              for lc in $LOCALE_LCS; do
-                echo "      $lc = \"$OV_locale\";"
-              done
-              echo "    };"
+              [[ -n $OV_locale_lang ]] && echo "    language = \"$OV_locale_lang\";"
+              [[ -n $OV_locale_region ]] && echo "    region = \"$OV_locale_region\";"
               echo "  };"
             fi
             if [[ -n $OV_dns_mode ]]; then
@@ -153,10 +159,11 @@
           local key="$1" keypath joiner=""
           case "$key" in
             timezone) keypath="timezone" ;;
-            locale.default) keypath="locale.default" ;;
+            locale.language) keypath="locale.language" ;;
+            locale.region) keypath="locale.region" ;;
             networking.dns | networking.dns.mode) keypath="networking.dns.mode" ;;
             networking.dns.servers) keypath="networking.dns.servers"; joiner=" " ;;
-            *) die "unsupported key: $key (supported: timezone, locale.default, networking.dns[.mode|.servers])" ;;
+            *) die "unsupported key: $key (supported: timezone, locale.language, locale.region, networking.dns[.mode|.servers])" ;;
           esac
 
           local expr
@@ -221,12 +228,19 @@ EXPR
           read_overrides
           case "$key" in
             timezone) OV_timezone="$value" ;;
-            locale.default) OV_locale="$value" ;;
+            locale.language)
+              rm -f "$LOCAL.leenix-backup"
+              die "use 'leenix-config locale language <locale>' for language"
+              ;;
+            locale.region)
+              rm -f "$LOCAL.leenix-backup"
+              die "use 'leenix-config locale region <locale>' for region"
+              ;;
             networking.dns)
               rm -f "$LOCAL.leenix-backup"
               die "use 'leenix-config dns <system|preset <name>|custom <ip...>|show>' for DNS"
               ;;
-            *) rm -f "$LOCAL.leenix-backup"; die "unsupported key: $key (supported: timezone, locale.default)" ;;
+            *) rm -f "$LOCAL.leenix-backup"; die "unsupported key: $key (supported: timezone)" ;;
           esac
           write_local
           debug "$key -> $value (local override)"
@@ -243,7 +257,14 @@ EXPR
           read_overrides
           case "$key" in
             timezone) OV_timezone="" ;;
-            locale.default) OV_locale="" ;;
+            locale.language)
+              rm -f "$LOCAL.leenix-backup"
+              die "use 'leenix-config locale reset language' to reset language"
+              ;;
+            locale.region)
+              rm -f "$LOCAL.leenix-backup"
+              die "use 'leenix-config locale reset region' to reset region"
+              ;;
             networking.dns)
               rm -f "$LOCAL.leenix-backup"
               die "use 'leenix-config dns system' to reset DNS"
@@ -348,11 +369,80 @@ EXPR
           require_src
           read_overrides
           [[ -n $OV_timezone ]] && echo "timezone = $OV_timezone"
-          [[ -n $OV_locale ]] && echo "locale.default = $OV_locale"
+          [[ -n $OV_locale_lang ]] && echo "locale.language = $OV_locale_lang"
+          [[ -n $OV_locale_region ]] && echo "locale.region = $OV_locale_region"
           if [[ -n $OV_dns_mode ]]; then
             echo "networking.dns.mode = $OV_dns_mode"
             echo "networking.dns.servers = ''${OV_dns_servers[*]}"
           fi
+        }
+
+        # Set one locale dimension (language or region) and run the transaction.
+        locale_set_dimension() {
+          local which="$1" value="$2"
+          require_src
+          [[ -n $value ]] || die "usage: leenix-config locale $which <locale>"
+          if [[ -f $LOCAL ]]; then
+            cp -a "$LOCAL" "$LOCAL.leenix-backup"
+          fi
+          read_overrides
+          if [[ $which == "language" ]]; then
+            OV_locale_lang="$value"
+          else
+            OV_locale_region="$value"
+          fi
+          write_local
+          debug "locale.$which -> $value"
+          transaction
+          echo "leenix-config: locale.$which is now '$value'"
+          echo "Locale changed. Relogin required for the entire session to use the new locale."
+        }
+
+        cmd_locale() {
+          local action=''${1:-}
+          case "$action" in
+            language)
+              locale_set_dimension language "''${2:-}"
+              ;;
+            region)
+              locale_set_dimension region "''${2:-}"
+              ;;
+            show)
+              require_src
+              printf 'language: %s\n' "$(get_value locale.language)"
+              printf 'region: %s\n' "$(get_value locale.region)"
+              ;;
+            reset)
+              local which=''${2:-}
+              require_src
+              case "$which" in
+                language | region)
+                  if [[ -f $LOCAL ]]; then
+                    cp -a "$LOCAL" "$LOCAL.leenix-backup"
+                  fi
+                  read_overrides
+                  if [[ $which == "language" ]]; then
+                    OV_locale_lang=""
+                  else
+                    OV_locale_region=""
+                  fi
+                  write_local
+                  debug "locale.$which -> host default"
+                  if [[ -f $LOCAL ]] || [[ -f $LOCAL.leenix-backup ]]; then
+                    transaction
+                  fi
+                  echo "leenix-config: locale.$which reset to host default"
+                  echo "Locale changed. Relogin required for the entire session to use the new locale."
+                  ;;
+                *)
+                  die "usage: leenix-config locale reset <language|region>"
+                  ;;
+              esac
+              ;;
+            *)
+              die "usage: leenix-config locale <language <locale>|region <locale>|show|reset <language|region>>"
+              ;;
+          esac
         }
 
         cmd_rebuild() {
@@ -380,13 +470,15 @@ EXPR
             cmd_unset "$2"
             ;;
           dns) shift; cmd_dns "$@" ;;
+          locale) shift; cmd_locale "$@" ;;
           overrides) cmd_overrides ;;
           rebuild) cmd_rebuild ;;
           switch) cmd_switch ;;
           *)
-            echo "Usage: leenix-config <get|set|unset|dns|overrides|rebuild|switch> [key] [value]" >&2
-            echo "  keys: timezone | locale.default | networking.dns[.mode|.servers]" >&2
+            echo "Usage: leenix-config <get|set|unset|dns|locale|overrides|rebuild|switch> [key] [value]" >&2
+            echo "  keys: timezone | locale.language | locale.region | networking.dns[.mode|.servers]" >&2
             echo "  dns: leenix-config dns <system|reset|preset <name>|custom <ip...>|show>" >&2
+            echo "  locale: leenix-config locale <language <locale>|region <locale>|show|reset <language|region>>" >&2
             exit 1
             ;;
         esac

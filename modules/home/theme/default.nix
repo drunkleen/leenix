@@ -8,6 +8,7 @@ assert lib.assertMsg (
   imports = [
     ./fonts.nix
     ./gtk.nix
+    ./locale.nix
     ./qt.nix
   ];
 }

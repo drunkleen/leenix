@@ -277,9 +277,10 @@
         }
 
         show_locale_menu() {
-          case $(menu "Locale" "󰥔  Timezone\n󰧑  Language") in
+          case $(menu "Locale" "󰥔  Timezone\n󰧑  Language\n󰍛  Region & Formats") in
           *Timezone*) leenix-config-timezone ;;
-          *Language*) leenix-config-language ;;
+          *Language*) leenix-config-language language ;;
+          *Region*) leenix-config-language region ;;
           *) back_to show_main_menu ;;
           esac
         }

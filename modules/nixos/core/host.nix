@@ -21,8 +21,8 @@
     };
 
     locale = {
-      default = variables.locale.default;
-      extra = variables.locale.extra;
+      language = variables.locale.language;
+      region = variables.locale.region;
     };
 
     keyboard = {
