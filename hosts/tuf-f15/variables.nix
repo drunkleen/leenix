@@ -142,6 +142,11 @@
     ssh = {
       enable = false;
     };
+
+    dns = {
+      mode = "system";
+      servers = [ ];
+    };
   };
 
   security = {

@@ -11,6 +11,10 @@ let
 in
 
 {
+  imports = [
+    ../modules/nixos/networking/dns.nix
+  ];
+
   config = lib.mkIf cfg.enable {
     networking.hostName = config.leenix.host.hostname;
 

@@ -249,6 +249,27 @@ in
     networking = {
       iwd.enable = mkEnableOption "iwd";
       ssh.enable = mkEnableOption "SSH";
+      dns = mkOption {
+        type = types.submodule {
+          options = {
+            mode = mkOption {
+              type = types.enum [
+                "system"
+                "custom"
+              ];
+              default = "system";
+              description = "DNS mode: system = DHCP-provided, custom = explicit ordered servers only.";
+            };
+            servers = mkOption {
+              type = types.listOf types.str;
+              default = [ ];
+              description = "Ordered DNS servers used in custom mode (IPv4/IPv6).";
+            };
+          };
+        };
+        default = { };
+        description = "Declarative DNS policy.";
+      };
     };
 
     security = {

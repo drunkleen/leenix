@@ -27,9 +27,6 @@
     ./leenix-dev-bin-metadata.nix
     ./leenix-drive-info.nix
     ./leenix-drive-select.nix
-    ./leenix-font-current.nix
-    ./leenix-font-list.nix
-    ./leenix-font-set.nix
     ./leenix-hook.nix
     ./leenix-hook-install.nix
     ./leenix-hw-asus-expertbook-b9406.nix
@@ -66,11 +63,6 @@
     ./leenix-hyprland-window-single-square-aspect-toggle.nix
     ./leenix-hyprland-window-transparency-toggle.nix
     ./leenix-hyprland-workspace-layout-toggle.nix
-    ./leenix-install-chromium-google-account.nix
-    ./leenix-install-gaming-geforce-now.nix
-    ./leenix-install-gaming-xbox-cloud.nix
-    ./leenix-install-vscode.nix
-    ./leenix-install-zed.nix
     ./leenix-launch-about.nix
     ./leenix-launch-audio.nix
     ./leenix-launch-bluetooth.nix
@@ -86,8 +78,6 @@
     ./leenix-powerprofiles-list.nix
     ./leenix-powerprofiles-set.nix
     ./leenix-reminder.nix
-    ./leenix-remove-gaming-geforce-now.nix
-    ./leenix-remove-gaming-xbox-cloud.nix
     ./leenix-restart-bluetooth.nix
     ./leenix-restart-btop.nix
     ./leenix-restart-helix.nix
@@ -109,23 +99,11 @@
     ./leenix-swayosd-brightness.nix
     ./leenix-swayosd-client.nix
     ./leenix-swayosd-kbd-brightness.nix
+    ./leenix-system-apply.nix
     ./leenix-system-lock.nix
     ./leenix-system-reboot.nix
     ./leenix-system-shutdown.nix
     ./leenix-system-wake.nix
-    ./leenix-theme-colors-from-alacritty.nix
-    ./leenix-theme-current.nix
-    ./leenix-theme-install.nix
-    ./leenix-theme-refresh.nix
-    ./leenix-theme-remove.nix
-    ./leenix-theme-set-foot.nix
-    ./leenix-theme-set-gnome.nix
-    ./leenix-theme-set-keyboard.nix
-    ./leenix-theme-set-keyboard-asus-rog.nix
-    ./leenix-theme-set-keyboard-f16.nix
-    ./leenix-theme-set-obsidian.nix
-    ./leenix-theme-set-vscode.nix
-    ./leenix-theme-update.nix
     ./leenix-toggle.nix
     ./leenix-toggle-enabled.nix
     ./leenix-toggle-notification-silencing.nix
@@ -133,20 +111,22 @@
     ./leenix-toggle-suspend.nix
     ./leenix-toggle-touchpad.nix
     ./leenix-toggle-touchscreen.nix
-    ./leenix-tz-select.nix
     ./leenix-transcode.nix
     ./leenix-transcode-ascii.nix
-    ./leenix-tui-install.nix
-    ./leenix-tui-remove.nix
-    ./leenix-tui-remove-all.nix
-    ./leenix-update-available-reset.nix
-    ./leenix-update-without-idle.nix
-    ./leenix-voxtype-config.nix
-    ./leenix-voxtype-model.nix
-    ./leenix-voxtype-status.nix
     ./leenix-weather-data.nix
     ./leenix-weather-icon.nix
     ./leenix-weather-status.nix
     ./leenix-wifi-powersave.nix
+    ./leenix-config.nix
+    ./leenix-config-dns.nix
+    ./leenix-config-language.nix
+    ./leenix-config-timezone.nix
+    ./leenix-rebuild.nix
+    ./leenix-update.nix
+    ./leenix-voxtype-config.nix
+    ./leenix-voxtype-model.nix
+    ./leenix-voxtype-status.nix
   ];
 }
+
+

@@ -107,7 +107,7 @@ in
         format = "{:L%A %H:%M}";
         format-alt = "{:L%d %B W%V %Y}";
         tooltip = false;
-        on-click-right = "leenix-launch-floating-terminal-with-presentation leenix-tz-select";
+        on-click-right = "leenix-config-timezone";
       };
 
       "network" = {

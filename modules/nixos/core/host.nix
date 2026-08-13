@@ -102,6 +102,7 @@
     networking = {
       iwd.enable = variables.networking.iwd;
       ssh.enable = variables.networking.ssh.enable;
+      dns = variables.networking.dns;
     };
 
     security = {

@@ -18,8 +18,8 @@
 
         leenix-toggle waybar-off
 
-        if pgrep -x waybar >/dev/null; then
-          pkill -9 -x waybar
+        if pgrep -x .waybar-wrapped >/dev/null; then
+          pkill -9 -x .waybar-wrapped
         else
           uwsm-app -- waybar >/dev/null 2>&1 &
         fi
