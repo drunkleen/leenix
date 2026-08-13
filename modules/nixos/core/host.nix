@@ -1,4 +1,8 @@
-{ variables, ... }:
+{ variables, lib, ... }:
+
+let
+  inherit (lib) attrByPath;
+in
 
 {
   leenix = {
@@ -102,6 +106,11 @@
     networking = {
       iwd.enable = variables.networking.iwd;
       ssh.enable = variables.networking.ssh.enable;
+      # Universal policy default lives in profiles/base.nix (lib.mkDefault true).
+      # Host wiring only overrides when the variable is explicitly present, so a
+      # base-using host inherits the default without setting anything.
+      tailscale.enable = lib.mkIf (attrByPath [ "networking" "tailscale" ] null variables != null)
+        (attrByPath [ "networking" "tailscale" ] false variables);
       dns = variables.networking.dns;
     };
 
@@ -115,5 +124,10 @@
         pinVerification = variables.security.fido2.pinVerification;
       };
     };
+
+    # Universal policy default lives in profiles/base.nix (lib.mkDefault true).
+    # Only overridden when the host explicitly declares the variable.
+    services.podman.enable = lib.mkIf (attrByPath [ "services" "podman" ] null variables != null)
+      (attrByPath [ "services" "podman" ] false variables);
   };
 }

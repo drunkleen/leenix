@@ -2,6 +2,10 @@ return {
   defaults = { lazy = true },
   install = { colorscheme = { "leenium" } },
 
+  -- Keep the lazy.nvim runtime lock state OUT of the Nix-managed (read-only)
+  -- ~/.config/nvim tree. Writable XDG state per the XDG spec.
+  lockfile = vim.fn.stdpath("state") .. "/lazy-lock.json",
+
   ui = {
     icons = {
       ft = "",

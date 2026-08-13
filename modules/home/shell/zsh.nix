@@ -52,11 +52,5 @@
       expireDuplicatesFirst = true;
       share = true;
     };
-
-    package = pkgs.zsh;
   };
-
-  home.packages = with pkgs; [
-    unzip
-  ];
 }

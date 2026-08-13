@@ -1,18 +1,14 @@
 { pkgs, ... }:
 
 {
+  # Binary ownership: the canonical terminal set (zsh, tmux, neovim, yazi,
+  # eza, bat, fzf, zoxide, ripgrep, fd, jq, btop, …) lives in NixOS base
+  # (profiles/base.nix). Home Manager owns only config and shell integration.
   home.packages = with pkgs; [
-    zsh
     starship
-    bat
     bc
-    curl
-    eza
-    fzf
     iproute2
-    jq
     xdg-utils
-    yazi
   ];
 
   programs.zoxide = {

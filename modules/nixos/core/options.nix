@@ -251,6 +251,7 @@ in
     networking = {
       iwd.enable = mkEnableOption "iwd";
       ssh.enable = mkEnableOption "SSH";
+      tailscale.enable = mkEnableOption "Tailscale client";
       dns = mkOption {
         type = types.submodule {
           options = {
@@ -295,6 +296,10 @@ in
           default = true;
         };
       };
+    };
+
+    services = {
+      podman.enable = mkEnableOption "Podman container baseline";
     };
   };
 }

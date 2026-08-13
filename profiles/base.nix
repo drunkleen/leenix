@@ -13,10 +13,19 @@ in
 {
   imports = [
     ../modules/nixos/networking/dns.nix
+    ../modules/nixos/networking/tailscale.nix
+    ../modules/nixos/services/podman.nix
   ];
 
   config = lib.mkIf cfg.enable {
     networking.hostName = config.leenix.host.hostname;
+
+    # Universal LEENIX baseline: Tailscale and Podman are ON by default.
+    # profiles/base.nix is the single default-policy owner; a host can still
+    # override per capability via its variables (networking.tailscale /
+    # services.podman = false) through host.nix conditional wiring.
+    leenix.networking.tailscale.enable = lib.mkDefault true;
+    leenix.services.podman.enable = lib.mkDefault true;
 
     time.timeZone = config.leenix.host.timezone;
 
@@ -60,11 +69,35 @@ in
       wheelNeedsPassword = true;
     };
 
+    # Canonical universal terminal/CLI binaries, guaranteed by NixOS base even
+    # on a headless/SSH host independent of any Home Manager composition.
+    # Home Manager owns only their user configuration/integration.
     environment.systemPackages = with pkgs; [
       git
       curl
       wget
       vim
+      nano
+      which
+      zsh
+      tmux
+      neovim
+      yazi
+      eza
+      bat
+      fzf
+      zoxide
+      ripgrep
+      fd
+      jq
+      btop
+      htop
+      tree
+      file
+      rsync
+      zip
+      unzip
+      p7zip
     ];
 
     programs.zsh.enable = true;
