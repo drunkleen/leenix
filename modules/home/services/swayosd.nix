@@ -157,8 +157,10 @@ in
 
     # The swayosd OSD resolves icons through the GTK icon theme. The default
     # theme name is "Adwaita", which is not installed on LEENIX. Provide a
-    # minimal Adwaita theme (inheriting hicolor) so the keyboard-brightness
-    # icon used by the keyboard backlight OSD actually resolves.
+    # minimal Adwaita theme (inheriting hicolor) with an indexed symbolic/status
+    # directory so the keyboard-brightness and LEENIUM touchpad OSD icons used
+    # by the OSD actually resolve. Icons must live in the indexed directory;
+    # installing them elsewhere (e.g. hicolor without an index) silently fails.
     xdg.dataFile."icons/Adwaita/index.theme".text = ''
       [Icon Theme]
       Name=Adwaita
@@ -175,6 +177,18 @@ in
 
     xdg.dataFile."icons/Adwaita/symbolic/status/keyboard-brightness-symbolic.svg".source =
       ./files/keyboard-brightness-symbolic.svg;
+
+    xdg.dataFile."icons/Adwaita/symbolic/status/leenix-touchpad-on-symbolic.svg".source =
+      ./files/leenix-touchpad-on-symbolic.svg;
+
+    xdg.dataFile."icons/Adwaita/symbolic/status/leenix-touchpad-off-symbolic.svg".source =
+      ./files/leenix-touchpad-off-symbolic.svg;
+
+    xdg.dataFile."icons/Adwaita/symbolic/status/leenix-touchscreen-on-symbolic.svg".source =
+      ./files/leenix-touchscreen-on-symbolic.svg;
+
+    xdg.dataFile."icons/Adwaita/symbolic/status/leenix-touchscreen-off-symbolic.svg".source =
+      ./files/leenix-touchscreen-off-symbolic.svg;
 
     systemd.user.services.swayosd-server = {
       Unit = {

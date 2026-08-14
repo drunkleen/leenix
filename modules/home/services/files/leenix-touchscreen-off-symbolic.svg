@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg height="16px" viewBox="0 0 16 16" width="16px" xmlns="http://www.w3.org/2000/svg">
+  <!-- LEENIUM touchscreen disabled icon: screen + touch arrow + slash -->
+  <rect x="1.5" y="2.0" width="13.0" height="9.0" rx="1.2" fill="none" stroke="#7f918f" stroke-width="1.3"/>
+  <rect x="6.5" y="12.2" width="3.0" height="1.6" rx="0.6" fill="#7f918f"/>
+  <path fill="#7f918f" d="M4.6 4.4 L7.8 7.6 L7.8 5.4 L9.0 5.4 L9.0 9.4 L5.0 9.4 L5.0 8.2 L7.2 8.2 L4.0 5.0 Z"/>
+  <path fill="#ff6b6b" stroke="#ff6b6b" stroke-width="1.3" stroke-linecap="round" d="M2.2 13.8 L13.8 2.2"/>
+</svg>

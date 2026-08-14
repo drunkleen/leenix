@@ -21,6 +21,11 @@ let
     "leenix-locale-env"
     # Run post-boot hooks after startup config has loaded
     "sleep 2 && leenix-hook post-boot"
+    # Reapply a persisted touchpad-disable across a new graphical session.
+    # Self-gating: only runs when the state file exists and the toggle is
+    # installed (laptop capability). Nix stays the config source of truth;
+    # this helper re-applies the runtime toggle after compositor start.
+    "command -v leenix-toggle-touchpad >/dev/null && [[ -f $HOME/.local/state/leenix/toggles/hypr/touchpad-disabled.conf ]] && leenix-toggle-touchpad off --no-osd"
   ]
   ++ lib.optional variables.desktop.waybar "! leenix-toggle-enabled waybar-off && uwsm app -t service -- waybar";
 

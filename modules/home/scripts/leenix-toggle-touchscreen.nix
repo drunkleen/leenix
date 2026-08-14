@@ -8,31 +8,52 @@
       runtimeInputs = with pkgs; [
         coreutils
         hyprland
+        jq
         libnotify
       ];
 
       text = ''
         #!/bin/bash
 
-        # leenix:summary=Enable, disable, or toggle the touch functionality of the screen
+        # leenix:summary=Enable, disable, toggle, or show status of the touchscreen
 
-        # leenix:args=[on|off|toggle|status]
+        # leenix:args=[on|off|toggle|status] [--no-osd]
 
         STATE_CONF="$HOME/.local/state/leenix/toggles/hypr/touchscreen-disabled.conf"
 
-        # Same Hyprland 0.56 Lua runtime API as the touchpad toggle
-        # (hl.device via hyprctl eval). Touchscreens are reported by
-        # leenix-hw-touchscreen (Hyprland .touch/.tablets devices).
-        device="$(leenix-hw-touchscreen)"
+        NO_OSD=false
+        [[ $1 == "--no-osd" ]] && { NO_OSD=true; shift; }
 
-        if [[ -z $device ]]; then
+        # Touchscreens are reported by Hyprland under .touch and .tablets.
+        # Group siblings by the device prefix, mirroring the touchpad logic.
+        anchor="$(leenix-hw-touchscreen)"
+
+        if [[ -z $anchor ]]; then
           echo "No touchscreen device found" >&2
           exit 1
         fi
 
+        prefix="''${anchor%-*}"
+        mapfile -t devices < <(hyprctl devices -j | jq -r --arg p "$prefix" '[.touch[]?.name, .tablets[]?.name] | map(select(startswith($p))) | .[]')
+        [[ ''${#devices[@]} -eq 0 ]] && devices=("$anchor")
+
+        apply() {
+          local state="$1"
+          local failed=0
+          for dev in "''${devices[@]}"; do
+            local out
+            out=$(hyprctl eval "hl.device({ name = \"$dev\", enabled = $state })" 2>/dev/null)
+            [[ $out == error* ]] && failed=1
+          done
+          return $failed
+        }
+
         osd() {
           local icon="$1"
           local message="$2"
+          if [[ $NO_OSD == true ]]; then
+            return 0
+          fi
           if command -v leenix-swayosd-client >/dev/null 2>&1; then
             leenix-swayosd-client --custom-icon "$icon" --custom-message "$message" 2>/dev/null ||
               notify-send -u low "''${message}" 2>/dev/null
@@ -46,16 +67,22 @@
         }
 
         enable() {
-          hyprctl eval "hl.device({ name = \"$device\", enabled = true })" >/dev/null
+          if ! apply true; then
+            notify-send -u critical "Touchscreen enable failed" "Hyprland rejected the device change" 2>/dev/null
+            return 1
+          fi
           rm -f "$STATE_CONF"
-          osd input-touchscreen-symbolic "Touchscreen enabled"
+          osd leenix-touchscreen-on-symbolic "Touchscreen enabled"
         }
 
         disable() {
-          hyprctl eval "hl.device({ name = \"$device\", enabled = false })" >/dev/null
+          if ! apply false; then
+            notify-send -u critical "Touchscreen disable failed" "Hyprland rejected the device change" 2>/dev/null
+            return 1
+          fi
           mkdir -p "$(dirname "$STATE_CONF")"
-          printf 'hl.device({ name = "%s", enabled = false })\n' "$device" > "$STATE_CONF"
-          osd touch-disabled-symbolic "Touchscreen disabled"
+          : > "$STATE_CONF"
+          osd leenix-touchscreen-off-symbolic "Touchscreen disabled"
         }
 
         case "''${1:-toggle}" in
@@ -67,10 +94,11 @@
             ;;
           status)
             if is_disabled; then
-              echo disabled
+              echo "desired: disabled"
             else
-              echo enabled
+              echo "desired: enabled"
             fi
+            echo "effective: unknown"
             ;;
           toggle)
             if is_disabled; then
@@ -78,6 +106,10 @@
             else
               disable
             fi
+            ;;
+          *)
+            echo "Usage: leenix-toggle-touchscreen <on|off|toggle|status> [--no-osd]" >&2
+            exit 1
             ;;
         esac
       '';

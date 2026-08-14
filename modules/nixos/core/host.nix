@@ -106,7 +106,16 @@ in
 
     networking = {
       iwd.enable = variables.networking.iwd;
-      ssh.enable = variables.networking.ssh.enable;
+      ssh = {
+        enable = attrByPath [ "networking" "ssh" "enable" ] false variables;
+        autoStart = attrByPath [ "networking" "ssh" "autoStart" ] true variables;
+        port = attrByPath [ "networking" "ssh" "port" ] 22 variables;
+        passwordAuthentication = attrByPath [ "networking" "ssh" "passwordAuthentication" ] false variables;
+        keyboardInteractiveAuthentication = attrByPath [ "networking" "ssh" "keyboardInteractiveAuthentication" ] false variables;
+        permitRootLogin = attrByPath [ "networking" "ssh" "permitRootLogin" ] "no" variables;
+        allowedUsers = attrByPath [ "networking" "ssh" "allowedUsers" ] [ ] variables;
+        publicKeys = attrByPath [ "networking" "ssh" "publicKeys" ] [ ] variables;
+      };
       # Universal policy default lives in profiles/base.nix (lib.mkDefault true).
       # Host wiring only overrides when the variable is explicitly present, so a
       # base-using host inherits the default without setting anything.
@@ -119,6 +128,11 @@ in
         (attrByPath [ "networking" "wireguard" "interfaces" ] { } variables);
       openvpn.profiles = lib.mkIf (attrByPath [ "networking" "openvpn" "profiles" ] null variables != null)
         (attrByPath [ "networking" "openvpn" "profiles" ] { } variables);
+    };
+
+    security.firewall = {
+      enable = attrByPath [ "security" "firewall" "enable" ] false variables;
+      rules = attrByPath [ "security" "firewall" "rules" ] [ ] variables;
     };
 
     security = {

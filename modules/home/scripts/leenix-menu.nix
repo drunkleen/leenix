@@ -246,7 +246,7 @@ in
           local tp_state tp_action ts_state ts_action
 
           if [[ $LEENIX_CAP_LAPTOP == "1" ]] && leenix-hw-touchpad; then
-            tp_state=$(leenix-toggle-touchpad status)
+            tp_state=$(leenix-toggle-touchpad status | sed -n 's/^desired: //p')
             if [[ $tp_state == "disabled" ]]; then
               tp_action="Enable Touchpad"
             else
@@ -256,7 +256,7 @@ in
           fi
 
           if [[ $LEENIX_CAP_LAPTOP == "1" ]] && leenix-hw-touchscreen; then
-            ts_state=$(leenix-toggle-touchscreen status)
+            ts_state=$(leenix-toggle-touchscreen status | sed -n 's/^desired: //p')
             if [[ $ts_state == "disabled" ]]; then
               ts_action="Enable Touchscreen"
             else

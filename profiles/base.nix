@@ -14,9 +14,11 @@ in
   imports = [
     ../modules/nixos/networking/dns.nix
     ../modules/nixos/networking/tailscale.nix
+    ../modules/nixos/networking/ssh.nix
     ../modules/nixos/networking/wireguard.nix
     ../modules/nixos/networking/openvpn.nix
     ../modules/nixos/services/podman.nix
+    ../modules/nixos/security/firewall.nix
   ];
 
   config = lib.mkIf cfg.enable {
@@ -94,6 +96,7 @@ in
       jq
       btop
       htop
+      openssh
       tree
       file
       rsync

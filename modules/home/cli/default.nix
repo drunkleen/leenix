@@ -10,7 +10,6 @@
     _7zz
     gnumake
     libfido2
-    openssh
     terminaltexteffects
     usbutils
     yubikey-manager
