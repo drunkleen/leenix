@@ -9,27 +9,26 @@
   Built with NixOS, Flakes, Home Manager, Hyprland and a questionable desire to configure absolutely everything.
 </p>
 
-⸻
+---
 
-What is LEENIX?
+## What is LEENIX?
 
 LEENIX is my declarative NixOS configuration and framework for building reproducible Linux systems.
 
 The idea is simple:
 
+```text
 HOST → PROFILE → MODULE → IMPLEMENTATION
+```
 
-A machine defines what it is and what it needs.
-
+A machine defines **what it is** and **what it needs**.
 Profiles compose capabilities.
-
 Modules implement them.
-
 Nix does the rest.
 
 Instead of maintaining a giant machine-specific configuration, LEENIX is designed so that adding another laptop, desktop, server, VM or ARM machine mostly means defining its variables and selecting the capabilities it should have.
 
-Philosophy
+## Philosophy
 
 LEENIX follows a few rules:
 
@@ -44,8 +43,9 @@ LEENIX follows a few rules:
 * Components should remain independently enableable
 * Rebuilds should be reproducible
 
-Architecture
+## Architecture
 
+```text
 leenix/
 ├── flake.nix
 ├── flake.lock
@@ -90,17 +90,21 @@ leenix/
 ├── lib/
 ├── dotfiles/
 └── system/
+```
 
-Host configuration
+## Host configuration
 
 Each machine owns a variables.nix file containing its identity and policy.
 
 For example:
 
+```text
 hosts/tuf-f15/variables.nix
+```
 
 This is where host-specific choices belong:
 
+```text
 hostname
 architecture
 username
@@ -116,30 +120,34 @@ power policy
 authentication
 SSH policy
 services
+```
 
 Implementation stays outside the host.
 
 This makes it possible to introduce another machine without copying the entire configuration.
 
-leenix.*
+## leenix.*
 
 Reusable functionality is exposed through custom NixOS options under the leenix namespace.
 
 Conceptually:
 
+```text
 leenix.hardware.nvidia.enable = true;
 leenix.networking.iwd.enable = true;
 leenix.memory.zram.enable = true;
 leenix.desktop.gaming.enable = true;
+```
 
 This keeps capabilities composable while allowing host policy to remain centralized.
 
-Desktop
+## Desktop
 
 The desktop environment is based around Hyprland and is managed declaratively through Home Manager.
 
 LEENIX currently manages components including:
 
+```text
 Hyprland
 Waybar
 Hyprlock
@@ -157,35 +165,42 @@ wallpapers
 clipboard tools
 screenshots
 screen recording
+```
 
 Hyprland itself is split by responsibility instead of living inside one enormous configuration.
 
-Storage
+## Storage
 
 The laptop storage layout uses:
 
+```text
 GPT
  ├── EFI
  └── LUKS2
       └── BTRFS
+```
 
 Storage definitions live separately under:
 
+```text
 disks/
+```
 
 allowing disk layouts to be reused independently from host configuration.
 
-Boot
+
+## Boot
 
 LEENIX includes declarative boot configuration with:
 
-* Limine support
-* custom LEENIX/Leenium styling
-* Plymouth
-* encrypted-root boot flow
+- Limine support
+- custom LEENIX/Leenium styling
+- Plymouth
+- encrypted-root boot flow
 
 The intended boot path is roughly:
 
+```text
 UEFI
   ↓
 Limine
@@ -201,13 +216,15 @@ systemd
 UWSM
   ↓
 Hyprland
+```
 
-Hardware
+## Hardware
 
 Hardware support is kept modular.
 
 Current configuration includes support for components such as:
 
+```text
 Intel
 NVIDIA
 hybrid graphics
@@ -215,27 +232,31 @@ ASUS laptop features
 Bluetooth
 power profiles
 ZRAM
+```
 
 Hardware implementation does not belong inside generic desktop or laptop profiles.
 
-Networking
+## Networking
 
 Networking capabilities are also independently configurable, including:
 
+```text
 iwd
 DNS
 Tailscale
 WireGuard
 OpenVPN
+```
 
 Network policy remains host-specific while implementation stays reusable.
 
-Gaming
+## Gaming
 
 LEENIX contains a dedicated gaming profile and NixOS gaming module.
 
 The gaming stack is designed around technologies such as:
 
+```text
 Steam
 Proton
 GameMode
@@ -243,17 +264,21 @@ Gamescope
 MangoHud
 NVIDIA PRIME
 Vulkan
+```
 
 so gaming configuration can be enabled as a capability rather than being mixed into the base system.
 
-Home Manager
+## Home Manager
 
 System configuration and user configuration have intentionally different responsibilities.
 
+```text
 modules/nixos/
+```
 
 owns things such as:
 
+```text
 boot
 kernel
 hardware
@@ -261,13 +286,17 @@ storage
 networking
 security
 system services
+```
 
 while:
 
+```text
 modules/home/
+```
 
 owns the user environment:
 
+```text
 Hyprland
 Waybar
 terminal
@@ -276,26 +305,33 @@ applications
 themes
 scripts
 desktop utilities
+```
 
-Rebuilding
+## Rebuilding
 
 A normal system rebuild uses:
 
+```text
 sudo nixos-rebuild switch --flake .#<host>
+```
 
 For the current laptop:
 
+```text
 sudo nixos-rebuild switch --flake .#tuf-f15
+```
 
 The repository also contains a Makefile for common development and validation operations.
 
 Before activating major changes:
 
+```text
 nix flake check
+```
 
 and build first when appropriate.
 
-Adding another machine
+## Adding another machine
 
 The long-term goal of LEENIX is for adding another system to mostly look like this:
 
@@ -310,7 +346,7 @@ The implementation should already live in reusable modules.
 
 No giant copy-pasted configuration.nix.
 
-Status
+## Status
 
 LEENIX is under active development.
 
@@ -318,7 +354,7 @@ It currently represents my actual NixOS environment rather than a polished gener
 
 Use it as inspiration, steal useful modules, or break it in interesting ways.
 
-⸻
+---
 
 <p align="center">
   <strong>LEENIX</strong><br>
