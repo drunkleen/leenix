@@ -4,11 +4,13 @@
   home.packages = [
     (pkgs.writeShellApplication {
       name = "leenix-network-tailscale";
+      excludeShellChecks = [ "SC2016" ];
 
       runtimeInputs = with pkgs; [
         tailscale
         jq
         coreutils
+        gnused
       ];
 
       text = ''
@@ -20,21 +22,30 @@
 
         set -euo pipefail
 
-        state() {
-          tailscale status --json 2>/dev/null | jq -r '.BackendState // "Unknown"'
+        json_state() {
+          tailscale status --json 2>/dev/null || echo '{"BackendState":"Unknown"}'
         }
 
         case "''${1:-status}" in
           status)
-            if [[ $(state) == "Running" ]]; then
-              tailscale status
+            json=$(json_state)
+            state=$(echo "$json" | jq -r '.BackendState // "Unknown"')
+            echo "backend: $state"
+            if [[ $state == "Running" ]]; then
+              node=$(echo "$json" | jq -r '.Self.DNSName // ""' | sed 's/\.$//')
+              ipv4=$(echo "$json" | jq -r '[.Self.TailscaleIPs[] | select(contains(":") | not)] | first // ""')
+              ipv6=$(echo "$json" | jq -r '[.Self.TailscaleIPs[] | select(contains(":"))] | first // ""')
+              online=$(echo "$json" | jq -r '[.Peer[] | select(.Online == true)] | length')
+              [[ -n $node ]] && echo "node: $node"
+              [[ -n $ipv4 ]] && echo "tailscale ipv4: $ipv4"
+              [[ -n $ipv6 ]] && echo "tailscale ipv6: $ipv6"
+              echo "online peers: $online"
             else
-              echo "Tailscale is not connected (backend state: $(state))"
-              exit 1
+              echo "Tailscale is not connected; authenticate with 'leenix-network-tailscale up'"
             fi
             ;;
           up)
-            if [[ $(state) == "Running" ]]; then
+            if [[ $(json_state | jq -r '.BackendState // "Unknown"') == "Running" ]]; then
               echo "Tailscale is already connected"
               exit 0
             fi
