@@ -17,6 +17,9 @@
 
         # leenix:summary=Toggle the layout on the current active workspace between dwindle and scrolling
 
+        # Hyprland 0.56 Lua: `hyprctl keyword` is disabled for Lua configs, so
+        # the per-workspace layout is applied via the workspace_rule Lua API.
+
         ACTIVE_WORKSPACE=$(hyprctl activeworkspace -j | jq -r '.id')
         CURRENT_LAYOUT=$(hyprctl activeworkspace -j | jq -r '.tiledLayout')
 
@@ -25,7 +28,7 @@
           *) NEW_LAYOUT=dwindle ;;
         esac
 
-        hyprctl keyword workspace $ACTIVE_WORKSPACE, layout:$NEW_LAYOUT
+        hyprctl eval "hl.workspace_rule({ workspace = \"$ACTIVE_WORKSPACE\", layout = \"$NEW_LAYOUT\" })" >/dev/null 2>&1
         notify-send -u low "󱂬    Workspace layout set to $NEW_LAYOUT"
       '';
     })
