@@ -40,16 +40,26 @@
 
         [[ -d $LEENIX_SRC ]] || die "source checkout not found: $LEENIX_SRC"
 
-        # 1) Build once as user, capturing the exact toplevel store path.
+        # 1) Build once as user, capturing the exact toplevel store path. The
+        # build log is streamed to the terminal (tee) so the user sees progress
+        # during what can be a multi-minute build, while still being captured for
+        # the failure dump. Without this, a long build looks frozen. The exit
+        # status is captured explicitly so failures always report instead of
+        # being swallowed by `set -e` mid-substitution.
+        echo "Building the LEENIX system... this may take a while."
         build_log=$(mktemp)
+        set +e
         system=$(nix build \
           --impure \
           --no-link \
           --print-out-paths \
           --extra-experimental-features 'nix-command flakes' \
-          "$LEENIX_SRC#nixosConfigurations.$HOST.config.system.build.toplevel" 2>"$build_log" | tail -1)
-        if [[ -z $system || ! -d $system ]]; then
-          cat "$build_log" >&2
+          "$LEENIX_SRC#nixosConfigurations.$HOST.config.system.build.toplevel" \
+          2> >(tee "$build_log" >&2) | tail -1)
+        build_status=$?
+        set -e
+        if [[ $build_status -ne 0 || -z $system || ! -d $system ]]; then
+          echo "leenix-system-apply: build failed (see output above)" >&2
           rm -f "$build_log"
           exit 1
         fi
