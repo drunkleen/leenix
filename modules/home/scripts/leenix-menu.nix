@@ -150,7 +150,13 @@ in
             options="$options\n󰌌  Keyboard Backlight"
           fi
           if [[ $LEENIX_CAP_HYPRLAND == "1" ]]; then
-            options="$options\n󰌌  Caps Lock"
+            local cl
+            cl=$(leenix-capslock status 2>/dev/null | head -1)
+            if [[ $cl == "on" ]]; then
+              options="$options\n󰌌  Disable Caps Lock"
+            else
+              options="$options\n󰌌  Enable Caps Lock"
+            fi
             options="$options\n󰁷  Cameras"
           fi
 
@@ -159,7 +165,8 @@ in
           *Enable*Touchpad*) leenix-toggle-touchpad on ;;
           *Disable*Touchpad*) leenix-toggle-touchpad off ;;
           *Keyboard*) show_keyboard_backlight_menu ;;
-          *Caps*Lock*) show_capslock_menu ;;
+          *Enable*Caps*Lock*) leenix-capslock on ;;
+          *Disable*Caps*Lock*) leenix-capslock off ;;
           *Cameras*) show_cameras_menu ;;
           *) back_to show_toggles_menu ;;
           esac
@@ -187,14 +194,6 @@ in
           *Workspace*Layout*) leenix-hyprland-workspace-layout-toggle ;;
           *Window*Gaps*) leenix-hyprland-window-gaps-toggle ;;
           *1-Window*Ratio*) leenix-hyprland-window-single-square-aspect-toggle ;;
-          *) back_to show_toggles_menu ;;
-          esac
-        }
-
-        show_capslock_menu() {
-          case $(menu "Caps Lock" "󰌌  Turn On\n󰌌  Turn Off") in
-          *"Turn On"*) leenix-capslock on ;;
-          *"Turn Off"*) leenix-capslock off ;;
           *) back_to show_toggles_menu ;;
           esac
         }
