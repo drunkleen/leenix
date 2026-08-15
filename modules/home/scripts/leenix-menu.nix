@@ -7,13 +7,10 @@
 let
   laptopCap = variables.profiles.laptop or false;
   hyprlandCap = variables.desktop.hyprland or false;
+  desktopCap = variables.profiles.desktop or false;
   wifiCap = variables.networking.iwd or false;
   bluetoothCap = variables.hardware.bluetooth or false;
-  wireguardIfaces = builtins.attrNames ((variables.networking or { }).wireguard.interfaces or { });
-  openvpnProfiles = builtins.attrNames ((variables.networking or { }).openvpn.profiles or { });
 
-  # Shell fragment defining the Nix-derived capability flags the menu branches
-  # on. The menu only exposes branches for capabilities configured on the host.
   caps = ''
     LEENIX_CAP_LAPTOP=${
       if laptopCap then "1" else "0"
@@ -21,14 +18,15 @@ let
     LEENIX_CAP_HYPRLAND=${
       if hyprlandCap then "1" else "0"
     }
+    LEENIX_CAP_DESKTOP=${
+      if desktopCap then "1" else "0"
+    }
     LEENIX_CAP_WIFI=${
       if wifiCap then "1" else "0"
     }
     LEENIX_CAP_BLUETOOTH=${
       if bluetoothCap then "1" else "0"
     }
-    LEENIX_WG_IFACES=(${builtins.concatStringsSep " " (map (i: "'${i}'") wireguardIfaces)})
-    LEENIX_OVPN_PROFILES=(${builtins.concatStringsSep " " (map (p: "'${p}'") openvpnProfiles)})
   '';
 in
 
@@ -36,7 +34,7 @@ in
   home.packages = [
     (pkgs.writeShellApplication {
       name = "leenix-menu";
-      excludeShellChecks = [ "SC1090" "SC2086" "SC2155" ];
+      excludeShellChecks = [ "SC1090" "SC2086" "SC2155" "SC1091" "SC2034" ];
 
       runtimeInputs = with pkgs; [
         bash
@@ -54,23 +52,20 @@ in
         systemd
         libnotify
         power-profiles-daemon
-        iproute2
-        wireguard-tools
+        brightnessctl
       ];
 
       text = ''
         #!/bin/bash
 
-        # leenix:summary=Launch the Leenix Menu or jump straight to a submenu.
+        # leenix:summary=LEENIX control center
 
         ${caps}
 
-        # Set to true when going directly to a submenu, so we can exit directly
         BACK_TO_EXIT=false
 
         back_to() {
           local parent_menu="$1"
-
           if [[ $BACK_TO_EXIT == "true" ]]; then
             exit 0
           elif [[ -n $parent_menu ]]; then
@@ -83,6 +78,10 @@ in
         toggle_existing_menu() {
           if pgrep -f "walker.*--dmenu" >/dev/null; then
             walker --close >/dev/null 2>&1
+            # A menu can run as an independent (non-service) instance; give the
+            # service-close a moment, then terminate any remaining menu picker.
+            sleep 0.2
+            pkill -f "walker.*--dmenu" 2>/dev/null || true
             exit 0
           fi
         }
@@ -92,18 +91,19 @@ in
           local options="$2"
           local extra=''${3:-}
           local preselect=''${4:-}
-
           read -r -a args <<<"$extra"
-
           if [[ -n $preselect ]]; then
             local index
-            index=$(echo -e "$options" | grep -nxF "$preselect" | cut -d: -f1)
-            if [[ -n $index ]]; then
-              args+=("-c" "$index")
-            fi
+            index=$(echo -e "$options" | grep -nxF "$preselect" | cut -d: -f1 || true)
+            [[ -n $index ]] && args+=("-c" "$index")
           fi
-
-          echo -e "$options" | leenix-launch-walker --dmenu --width 295 --minheight 1 --maxheight 630 -p "$prompt…" "''${args[@]}" 2>/dev/null
+          # Lifecycle: run walker directly — never start/stop the persistent
+          # app-launcher service — with -e (exit after this dmenu call) so the
+          # panel ALWAYS closes after a selection or Escape. Width is content-
+          # sized per invocation from the longest label (leenix-menu-width).
+          local width
+          width=$(printf '%b' "$options" | leenix-menu-width 2>/dev/null || echo 400)
+          echo -e "$options" | walker --dmenu -t leenix-menu --width "$width" --minheight 1 --maxheight 720 -e -p "$prompt…" "''${args[@]}" 2>/dev/null
         }
 
         terminal() {
@@ -114,216 +114,193 @@ in
           leenix-launch-floating-terminal-with-presentation $1
         }
 
-        # ---------------------------------------------------------------- Desktop
-        show_desktop_menu() {
-          local options="󰋼  Background\n󰆾  Screensaver\n  Capture\n󰓦  Toggles"
-          case $(menu "Desktop" "$options") in
-          *Background*) show_background_menu ;;
-          *Screensaver*) leenix-launch-screensaver force ;;
-          *Capture*) show_capture_menu ;;
-          *Toggles*) show_toggle_menu ;;
+        # ------------------------------------------------------------ TOGGLES
+        # Toggles is split into two capability groups:
+        #   Devices         - hardware-related (Displays, Touchpad, Keyboard
+        #                     Backlight, Caps Lock, Cameras)
+        #   UI/UX Behavior  - desktop/session behavior (Screensaver, Automatic
+        #                     Lock, Night Light, Notifications, Waybar,
+        #                     Workspace Layout, Window Gaps, 1-Window Ratio)
+        show_toggles_menu() {
+          case $(menu "Toggles" "󰓩  Devices\n󰄜  UI/UX Behavior") in
+          *Devices*) show_devices_menu ;;
+          *Behavior*) show_behavior_menu ;;
           *) back_to show_main_menu ;;
           esac
         }
 
-        show_background_menu() {
-          case $(menu "Background" "󰋼  Choose Wallpaper\n󰁅  Next\n󰁈  Previous\n  Random\n󰉋  Open Folder\n  Refresh\n󰕮  Current") in
-            *Choose*) leenix-wallpaper-switcher ;;
-            *Next*) leenix-wallpaper-next ;;
-            *Previous*) leenix-wallpaper-prev ;;
-            *Random*) leenix-wallpaper-random ;;
-            *Folder*) leenix-wallpaper-install ;;
-            *Refresh*) leenix-wallpaper-refresh ;;
-            *Current*) leenix-wallpaper-current ;;
-            *) back_to show_desktop_menu ;;
-          esac
-        }
-
-        show_capture_menu() {
-          case $(menu "Capture" "  Screenshot\n  Screenrecord\n󰴑  Text Extraction\n󰃉  Color") in
-          *Screenshot*) leenix-capture-screenshot ;;
-          *Screenrecord*) show_screenrecord_menu ;;
-          *Text*) leenix-capture-text-extraction ;;
-          *Color*) pkill hyprpicker || hyprpicker -a ;;
-          *) back_to show_desktop_menu ;;
-          esac
-        }
-
-        get_webcam_list() {
-          v4l2-ctl --list-devices 2>/dev/null | while IFS= read -r line; do
-            if [[ $line != $'\t'* && -n $line ]]; then
-              local name="$line"
-              IFS= read -r device || break
-              device=$(echo "$device" | tr -d '\t' | head -1)
-              [[ -n $device ]] && echo "$device  $name"
-            fi
-          done
-        }
-
-        show_webcam_select_menu() {
-          local devices=$(get_webcam_list)
-          local count=$(echo "$devices" | grep -c . 2>/dev/null || echo 0)
-
-          if [[ -z $devices ]] || ((count == 0)); then
-            notify-send "No webcam devices found" -u critical -t 3000
-            return 1
-          fi
-
-          if ((count == 1)); then
-            echo "$devices" | awk '{print $1}'
-          else
-            menu "Select Webcam" "$devices" | awk '{print $1}'
-          fi
-        }
-
-        show_screenrecord_menu() {
-          leenix-capture-screenrecording --stop-recording && exit 0
-
-          case $(menu "Screenrecord" "  With no audio\n  With desktop audio\n  With desktop + microphone audio\n  With desktop + microphone audio + webcam") in
-          *"With no audio") leenix-capture-screenrecording ;;
-          *"With desktop audio") leenix-capture-screenrecording --with-desktop-audio ;;
-          *"With desktop + microphone audio") leenix-capture-screenrecording --with-desktop-audio --with-microphone-audio ;;
-          *"With desktop + microphone audio + webcam")
-            local device=$(show_webcam_select_menu) || {
-              back_to show_capture_menu
-              return
-            }
-            leenix-capture-screenrecording --with-desktop-audio --with-microphone-audio --with-webcam --webcam-device="$device"
-            ;;
-          *) back_to show_capture_menu ;;
-          esac
-        }
-
-        show_toggle_menu() {
-          local options="󱄄  Screensaver\n󰔎  Nightlight\n󱫖  Idle Lock\n󰂛  Notifications\n󰍜  Top Bar\n󱂬  Workspace Layout\n  Window Gaps\n  1-Window Ratio\n󰍹  Monitor Scaling"
-
-          case $(menu "Toggles" "$options") in
-          *Screensaver*) leenix-toggle-screensaver ;;
-          *Nightlight*) leenix-toggle-nightlight ;;
-          *Idle*) leenix-toggle-idle ;;
-          *Notifications*) leenix-toggle-notification-silencing ;;
-          *Bar*) leenix-toggle-waybar ;;
-          *Layout*) leenix-hyprland-workspace-layout-toggle ;;
-          *Ratio*) leenix-hyprland-window-single-square-aspect-toggle ;;
-          *Gaps*) leenix-hyprland-window-gaps-toggle ;;
-          *Scaling*) leenix-hyprland-monitor-scaling-cycle ;;
-          *) back_to show_desktop_menu ;;
-          esac
-        }
-
-        # ---------------------------------------------------------------- Hardware
-        show_hardware_menu() {
-          local options="󰍹  Displays\n󰟸  Input\n󰍹  Audio"
-          leenix-powerprofiles-list >/dev/null 2>&1 && options="$options\n󱐋  Power Profile"
-
-          case $(menu "Hardware" "$options") in
-          *Displays*) show_hardware_displays_menu ;;
-          *Input*) show_hardware_input_menu ;;
-          *Audio*) leenix-launch-audio ;;
-          *Power*) show_setup_power_menu ;;
-          *) back_to show_main_menu ;;
-          esac
-        }
-
-        show_hardware_displays_menu() {
+        show_devices_menu() {
           local options=""
-          if [[ $LEENIX_CAP_LAPTOP == "1" ]]; then
-            local lap_action="Disable Laptop Monitor"
-            [[ $(leenix-monitor-laptop status 2>/dev/null | sed -n 's/^desired: //p') == "disabled" ]] && lap_action="Enable Laptop Monitor"
-            options="$options󰛧  $lap_action\n󰍹  Mirror Display"
-          fi
-
-          case $(menu "Displays" "$options") in
-          *Disable*Laptop*) leenix-monitor-laptop disable ;;
-          *Enable*Laptop*) leenix-monitor-laptop enable ;;
-          *Mirror*) leenix-hyprland-monitor-internal-mirror toggle ;;
-          *) back_to show_hardware_menu ;;
-          esac
-        }
-
-        show_hardware_input_menu() {
-          local options=""
-          local tp_state tp_action ts_state ts_action
-
+          if [[ $LEENIX_CAP_HYPRLAND == "1" ]]; then options="$options󰹉  Displays"; fi
           if [[ $LEENIX_CAP_LAPTOP == "1" ]] && leenix-hw-touchpad; then
-            tp_state=$(leenix-toggle-touchpad status | sed -n 's/^desired: //p')
-            if [[ $tp_state == "disabled" ]]; then
-              tp_action="Enable Touchpad"
-            else
-              tp_action="Disable Touchpad"
-            fi
-            options="$options󰟸  $tp_action"
+            local tp
+            tp=$(leenix-toggle-touchpad status | sed -n 's/^desired: //p')
+            if [[ $tp == "disabled" ]]; then options="$options\n󰟸  Enable Touchpad"; else options="$options\n󰟸  Disable Touchpad"; fi
+          fi
+          if [[ $LEENIX_CAP_LAPTOP == "1" ]]; then
+            options="$options\n󰌌  Keyboard Backlight"
+          fi
+          if [[ $LEENIX_CAP_HYPRLAND == "1" ]]; then
+            options="$options\n󰌌  Caps Lock"
+            options="$options\n󰁷  Cameras"
           fi
 
-          if [[ $LEENIX_CAP_LAPTOP == "1" ]] && leenix-hw-touchscreen; then
-            ts_state=$(leenix-toggle-touchscreen status | sed -n 's/^desired: //p')
-            if [[ $ts_state == "disabled" ]]; then
-              ts_action="Enable Touchscreen"
-            else
-              ts_action="Disable Touchscreen"
-            fi
-            options="$options\n󰆽  $ts_action"
-          fi
-
-          if leenix-hw-dell-xps-haptic-touchpad && leenix-cmd-present dell-xps-touchpad-haptics; then
-            options="$options\n󰌌  Touchpad Haptics"
-          fi
-
-          if leenix-hw-hybrid-gpu; then
-            options="$options\n󰢮  Hybrid GPU"
-          fi
-
-          case $(menu "Input" "$options") in
-          *Disable*Touchpad*) leenix-toggle-touchpad off ;;
+          case $(menu "Devices" "$options") in
+          *Displays*) show_displays_menu ;;
           *Enable*Touchpad*) leenix-toggle-touchpad on ;;
-          *Disable*Touchscreen*) leenix-toggle-touchscreen off ;;
-          *Enable*Touchscreen*) leenix-toggle-touchscreen on ;;
-          *Haptics*) show_hardware_touchpad_haptics_menu ;;
-          *"Hybrid GPU"*) present_terminal leenix-toggle-hybrid-gpu ;;
-          *) back_to show_hardware_menu ;;
+          *Disable*Touchpad*) leenix-toggle-touchpad off ;;
+          *Keyboard*) show_keyboard_backlight_menu ;;
+          *Caps*Lock*) show_capslock_menu ;;
+          *Cameras*) show_cameras_menu ;;
+          *) back_to show_toggles_menu ;;
           esac
         }
 
-        show_hardware_touchpad_haptics_menu() {
-          local current=$(dell-xps-touchpad-haptics get)
-          local selected=$(menu "Touchpad Haptics" "low\nmid\nhigh" "" "$current")
+        show_behavior_menu() {
+          local options=""
+          if [[ $LEENIX_CAP_HYPRLAND == "1" ]]; then
+            options="$options󱄄  Screensaver"
+            options="$options\n󰍁  Automatic Lock"
+            options="$options\n󰛨  Night Light"
+            options="$options\n󰂚  Notifications"
+            options="$options\n󰍜  Waybar"
+            options="$options\n󱂬  Workspace Layout"
+            options="$options\n  Window Gaps"
+            options="$options\n󰄖  1-Window Ratio"
+          fi
 
-          if [[ -n $selected ]]; then
-            dell-xps-touchpad-haptics set "$selected"
+          case $(menu "UI/UX Behavior" "$options") in
+          *Screensaver*) leenix-toggle-screensaver ;;
+          *Automatic*Lock*) leenix-toggle-idle ;;
+          *Night*Light*) leenix-toggle-nightlight ;;
+          *Notifications*) leenix-toggle-notification-silencing ;;
+          *Waybar*) leenix-toggle-waybar ;;
+          *Workspace*Layout*) leenix-hyprland-workspace-layout-toggle ;;
+          *Window*Gaps*) leenix-hyprland-window-gaps-toggle ;;
+          *1-Window*Ratio*) leenix-hyprland-window-single-square-aspect-toggle ;;
+          *) back_to show_toggles_menu ;;
+          esac
+        }
+
+        show_capslock_menu() {
+          case $(menu "Caps Lock" "󰌌  Turn On\n󰌌  Turn Off") in
+          *"Turn On"*) leenix-capslock on ;;
+          *"Turn Off"*) leenix-capslock off ;;
+          *) back_to show_toggles_menu ;;
+          esac
+        }
+
+        show_displays_menu() {
+          local list="" monitors name desc action
+          # `monitors all` includes physically-connected outputs that are
+          # currently disabled, so disabled monitors can be re-enabled here.
+          monitors=$(hyprctl monitors all -j | jq -r --arg f "FALLBACK" '.[] | select(.name != $f) | [.name, (.description // "")] | @tsv' 2>/dev/null)
+          while IFS=$'\t' read -r name desc; do
+            [[ -z $name ]] && continue
+            action=$(leenix-monitor status "$name" 2>/dev/null | sed -n 's/^desired: //p')
+            if [[ $action == "disabled" ]]; then
+              list="$list\n󰍹  Enable ''${desc:-''$name} · $name"
+            else
+              list="$list\n󰍹  Disable ''${desc:-''$name} · $name"
+            fi
+          done <<<"$monitors"
+
+          local selection
+          selection=$(menu "Displays" "$list")
+          local mon
+          mon=$(echo "$selection" | grep -oE '· [A-Za-z0-9-]+$' | tr -d '· ' || true)
+          if [[ $selection == *"Enable "* && -n $mon ]]; then
+            leenix-monitor enable "$mon"
+          elif [[ $selection == *"Disable "* && -n $mon ]]; then
+            leenix-monitor disable "$mon"
           else
-            back_to show_hardware_input_menu
+            back_to show_toggles_menu
           fi
         }
 
-        # ---------------------------------------------------------------- Network
+        show_keyboard_backlight_menu() {
+          local dev=""
+          for candidate in /sys/class/leds/*kbd_backlight*; do
+            [[ -e $candidate ]] && { dev="$(basename "$candidate")"; break; }
+          done
+          if [[ -z $dev ]]; then
+            notify-send -u low "No keyboard backlight device found" 2>/dev/null
+            back_to show_toggles_menu
+            return
+          fi
+          local max cur i opts=""
+          max=$(cat "/sys/class/leds/$dev/max_brightness" 2>/dev/null || echo 1)
+          cur=$(cat "/sys/class/leds/$dev/brightness" 2>/dev/null || echo 0)
+          for ((i = 0; i <= max; i++)); do
+            if ((i == 0)); then label="Off"; elif ((i == max)); then label="Max"; else label="Step $i"; fi
+            opts="$opts\n󰌌  $label"
+          done
+          local curlabel="Off"
+          [[ $cur -eq $max ]] && curlabel="Max"
+          [[ $cur -gt 0 && $cur -lt $max ]] && curlabel="Step $cur"
+          local selection
+          selection=$(menu "Keyboard Backlight" "$opts" "" "󰌌  $curlabel")
+          local level
+          case "$selection" in
+          *"Off") level=0 ;;
+          *"Max") level=$max ;;
+          *"Step "*) level=$(echo "$selection" | grep -oE 'Step [0-9]+' | awk '{print $2}') ;;
+          *) back_to show_toggles_menu ;;
+          esac
+          [[ -n $level ]] || { back_to show_toggles_menu; return; }
+          # Actually set the hardware brightness, persist desired level, then OSD.
+          if brightnessctl -d "$dev" set "$level" >/dev/null 2>&1; then
+            leenix-state set "hardware/keyboard-backlight" "$level" 2>/dev/null || true
+          fi
+          leenix-swayosd-kbd-brightness "$(cat "/sys/class/leds/$dev/brightness" 2>/dev/null || echo 0)" "$max"
+        }
+
+        show_cameras_menu() {
+          local cameras entries="" line node state display_name
+          cameras=$(leenix-camera list 2>/dev/null)
+          if [[ -z $cameras ]]; then
+            notify-send -u low "No cameras detected" 2>/dev/null
+            back_to show_toggles_menu
+            return
+          fi
+          while IFS= read -r line; do
+            node=$(echo "$line" | awk '{print $1}')
+            state=$(echo "$line" | grep -oE '\((on|off|unknown)\)' | tr -d '()' || true)
+            display_name=$(echo "$line" | sed -E 's/^[^ ]+ +//; s/ *\((on|off|unknown)\)$//' || true)
+            if [[ $state == "on" ]]; then
+              entries="$entries\n󰁷  Disable ''${display_name:-''$node}"
+            else
+              entries="$entries\n󰁷  Enable ''${display_name:-''$node}"
+            fi
+          done <<<"$cameras"
+
+          local selection
+          selection=$(menu "Cameras" "$entries")
+          case "$selection" in
+            *Disable*) leenix-camera disable "''${selection#*Disable }" ;;
+            *Enable*) leenix-camera enable "''${selection#*Enable }" ;;
+            *) back_to show_toggles_menu ;;
+          esac
+        }
+
+        # ------------------------------------------------------------ NETWORK
         show_network_menu() {
           local options="󰇫  DNS"
-
-          if [[ $LEENIX_CAP_WIFI == "1" ]]; then
-            options="$options\n  Wi-Fi"
-          fi
-
-          if [[ $LEENIX_CAP_BLUETOOTH == "1" ]]; then
-            options="$options\n󰂯  Bluetooth"
-          fi
-
+          [[ $LEENIX_CAP_WIFI == "1" ]] && options="$options\n  Wi-Fi"
+          [[ $LEENIX_CAP_BLUETOOTH == "1" ]] && options="$options\n󰂯  Bluetooth"
           options="$options\n󰁾  Tailscale"
-
-          if ((''${#LEENIX_WG_IFACES[@]} > 0)); then
-            options="$options\n󰆗  WireGuard"
-          fi
-
-          if ((''${#LEENIX_OVPN_PROFILES[@]} > 0)); then
-            options="$options\n󰈐  OpenVPN"
-          fi
+          options="$options\n󰑩  SSH"
+          if [[ $LEENIX_CAP_DESKTOP == "1" ]]; then options="$options\n󰣹  LocalSend"; fi
+          if [[ $LEENIX_CAP_WIFI == "1" || $LEENIX_CAP_BLUETOOTH == "1" ]]; then options="$options\n󰖑  Airplane Mode"; fi
 
           case $(menu "Network" "$options") in
           *DNS*) leenix-config-dns ;;
           *Wi-Fi*) leenix-launch-wifi ;;
           *Bluetooth*) leenix-launch-bluetooth ;;
           *Tailscale*) show_tailscale_menu ;;
-          *WireGuard*) show_wireguard_menu ;;
-          *OpenVPN*) show_openvpn_menu ;;
+          *SSH*) show_ssh_menu ;;
+          *LocalSend*) show_localsend_menu ;;
+          *Airplane*) show_airplane_menu ;;
           *) back_to show_main_menu ;;
           esac
         }
@@ -331,294 +308,200 @@ in
         show_tailscale_menu() {
           local action
           if tailscale status --json 2>/dev/null | jq -e '.BackendState == "Running"' >/dev/null; then
-            action="󰁾  Disconnect"
+            action="󰁿  Disconnect"
           else
             action="󰁰  Connect"
           fi
-
-          case $(menu "Tailscale" "󰵮  Status\n$action\n󰈀  IP / Node Info\n󰑬  Diagnostics") in
+          case $(menu "Tailscale" "󰵮  Status\n󰣹  Send File\n$action\n󰈀  Node Info") in
           *Status*) present_terminal "leenix-network-tailscale status" ;;
+          *"Send File"*) present_terminal "leenix-tailscale-send" ;;
           *Disconnect*) leenix-network-tailscale down ;;
           *Connect*) present_terminal "leenix-network-tailscale up" ;;
-          *"IP"*) present_terminal "leenix-network-tailscale ip" ;;
-          *Diagnostics*) present_terminal "leenix-network-tailscale diagnostics" ;;
+          *"Node Info"*) present_terminal "leenix-network-tailscale ip" ;;
           *) back_to show_network_menu ;;
           esac
         }
 
-        show_wireguard_menu() {
-          local iface options=""
-          for iface in "''${LEENIX_WG_IFACES[@]}"; do
-            options="$options\n󰆗  $iface"
-          done
-
-          case $(menu "WireGuard" "$options") in
-          *''${LEENIX_WG_IFACES[0]}*) show_wireguard_iface_menu "''${LEENIX_WG_IFACES[0]}" ;;
-          *) back_to show_network_menu ;;
-          esac
-        }
-
-        show_wireguard_iface_menu() {
-          local iface="$1"
+        show_ssh_menu() {
           local action
-          if systemctl is-active --quiet "wireguard-$iface.service"; then
-            action="󰁿  Disconnect"
+          if systemctl is-active --quiet sshd; then
+            action="󰛉  Stop SSH"
           else
-            action="󰁰  Connect"
+            action="󰛉  Start SSH"
           fi
-
-          case $(menu "WireGuard: $iface" "󰵮  Status\n$action\n󰆗  Show All") in
-          *Status*) present_terminal "leenix-network-wireguard $iface status" ;;
-          *Disconnect*) leenix-network-wireguard "$iface" disconnect ;;
-          *Connect*) leenix-network-wireguard "$iface" connect ;;
-          *"Show All") present_terminal "wg show" ;;
-          *) back_to show_wireguard_menu ;;
-          esac
-        }
-
-        show_openvpn_menu() {
-          local profile options=""
-          for profile in "''${LEENIX_OVPN_PROFILES[@]}"; do
-            options="$options\n󰈐  $profile"
-          done
-
-          case $(menu "OpenVPN" "$options") in
-          *''${LEENIX_OVPN_PROFILES[0]}*) show_openvpn_profile_menu "''${LEENIX_OVPN_PROFILES[0]}" ;;
+          case $(menu "SSH" "󰵮  Status\n$action") in
+          *Status*) present_terminal "leenix-ssh status" ;;
+          *"Start SSH"*) leenix-ssh start ;;
+          *"Stop SSH"*) leenix-ssh stop ;;
           *) back_to show_network_menu ;;
           esac
         }
 
-        show_openvpn_profile_menu() {
-          local profile="$1"
-          local action
-          if systemctl is-active --quiet "openvpn-$profile.service"; then
-            action="󰁿  Disconnect"
-          else
-            action="󰁰  Connect"
-          fi
-
-          case $(menu "OpenVPN: $profile" "󰵮  Status\n$action") in
-          *Status*) present_terminal "leenix-network-openvpn $profile status" ;;
-          *Disconnect*) leenix-network-openvpn "$profile" disconnect ;;
-          *Connect*) leenix-network-openvpn "$profile" connect ;;
-          *) back_to show_openvpn_menu ;;
+        show_localsend_menu() {
+          case $(menu "LocalSend" "󰣹  Send\n󰣹  Receive\n󰤆  Quit") in
+          *Send*) leenix-menu-share file ;;
+          *Receive*) localsend --headless receive &
+            ;;
+          *Quit*) pkill -x localsend_app 2>/dev/null; pkill -x localsend 2>/dev/null ;;
+          *) back_to show_network_menu ;;
           esac
         }
 
-        # ---------------------------------------------------------------- Locale
-        show_locale_menu() {
-          case $(menu "Locale" "󰧑  Language\n󰍛  Region & Formats\n󰥔  Timezone") in
+        show_airplane_menu() {
+          local action
+          if leenix-airplane status | grep -q 'airplane: on'; then
+            action="󰖑  Turn Off"
+          else
+            action="󰖑  Turn On"
+          fi
+          case $(menu "Airplane Mode" "$action\n󰵮  Status") in
+          *"Turn On"*) present_terminal "leenix-airplane on" ;;
+          *"Turn Off"*) present_terminal "leenix-airplane off" ;;
+          *Status*) present_terminal "leenix-airplane status" ;;
+          *) back_to show_network_menu ;;
+          esac
+        }
+
+        # ------------------------------------------------------------ CAPTURE
+        show_capture_menu() {
+          case $(menu "Capture" "󰽵  Screen Record\n󰾲  Screenshot\n󰑜  Text Extraction\n󰏘  Color Picker") in
+          *Screen*Record*) show_screenrecord_menu ;;
+          *Screenshot*) leenix-capture-screenshot ;;
+          *Text*) leenix-capture-text-extraction ;;
+          *Color*) pkill hyprpicker || hyprpicker -a ;;
+          *) back_to show_main_menu ;;
+          esac
+        }
+
+        show_screenrecord_menu() {
+          leenix-capture-screenrecording --stop-recording && exit 0
+          case $(menu "Screen Record" "󰽵  Desktop Only\n󰽵  Desktop + Audio\n󰽵  Desktop + Audio + Microphone\n󰽵  Desktop + Audio + Microphone + Webcam") in
+          *"Desktop Only") leenix-capture-screenrecording ;;
+          *"Desktop + Audio") leenix-capture-screenrecording --with-desktop-audio ;;
+          *"Desktop + Audio + Microphone") leenix-capture-screenrecording --with-desktop-audio --with-microphone-audio ;;
+          *"Desktop + Audio + Microphone + Webcam") leenix-capture-screenrecording --with-desktop-audio --with-microphone-audio --with-webcam ;;
+          *) back_to show_capture_menu ;;
+          esac
+        }
+
+        # ------------------------------------------------------------ STYLE
+        show_style_menu() {
+          local options="󰋼  Background\n󰸉  Screensaver Text"
+          case $(menu "Style" "$options") in
+          *Background*) show_background_menu ;;
+          *Screensaver*Text*) show_screensaver_text_menu ;;
+          *) back_to show_main_menu ;;
+          esac
+        }
+
+        show_screensaver_text_menu() {
+          case $(menu "Screensaver Text" "󰸉  Show Current\n󰸉  Set Text\n󰋼  Reset to LEENIX Logo") in
+          *"Show Current"*) present_terminal "leenix-screensaver-text show" ;;
+          *"Set Text"*) present_terminal "leenix-screensaver-text set" ;;
+          *"Reset"*) leenix-screensaver-text reset ;;
+          *) back_to show_style_menu ;;
+          esac
+        }
+
+        show_background_menu() {
+          case $(menu "Background" "󰋼  Choose Wallpaper\n󰁅  Next\n󰁈  Previous\n󰅒  Random\n󰉋  Open Folder\n󰌑  Refresh\n󰕮  Current") in
+          *Choose*) leenix-wallpaper-switcher ;;
+          *Next*) leenix-wallpaper-next ;;
+          *Previous*) leenix-wallpaper-prev ;;
+          *Random*) leenix-wallpaper-random ;;
+          *Folder*) leenix-wallpaper-install ;;
+          *Refresh*) leenix-wallpaper-refresh ;;
+          *Current*) leenix-wallpaper-current ;;
+          *) back_to show_style_menu ;;
+          esac
+        }
+
+        # ------------------------------------------------------------ SETUP
+        show_setup_menu() {
+          local options="󰊤  Passwordless Sudo\n󰧑  Language\n󰍛  Region & Formats\n󰥔  Timezone"
+          [[ $LEENIX_CAP_HYPRLAND == "1" ]] && options="$options\n󰹉  Configure Displays"
+          case $(menu "Setup" "$options") in
+          *Passwordless*) show_passwordless_menu ;;
           *Language*) leenix-config-language language ;;
           *Region*) leenix-config-language region ;;
           *Timezone*) leenix-config-timezone ;;
+          *Displays*) terminal hyprmon
+            ;;
           *) back_to show_main_menu ;;
           esac
         }
 
-        # ---------------------------------------------------------------- Tools
-        show_tools_menu() {
-          local options="󰔛  Reminder\n  Share\n󰧸  Transcode"
-          case $(menu "Tools" "$options") in
-          *Reminder*) show_reminder_menu ;;
-          *Share*) show_share_menu ;;
-          *Transcode*) leenix-transcode || back_to show_tools_menu ;;
-          *) back_to show_main_menu ;;
-          esac
-        }
-
-        show_reminder_menu() {
-          case $(menu "Reminder" "󰔛  Set one\n󰔛  Show all\n󰔛  Clear all") in
-          *Set*) show_custom_reminder_input ;;
-          *"Show all"*) leenix-reminder show ;;
-          *"Clear all"*) leenix-reminder clear ;;
-          *) back_to show_tools_menu ;;
-          esac
-        }
-
-        show_custom_reminder_input() {
-          local minutes
-          minutes=$(leenix-menu-input "Remind in minutes")
-
-          if [[ $minutes =~ ^[0-9]+$ ]] && ((minutes > 0)); then
-            show_reminder_message_input "$minutes"
-          elif [[ -n $minutes ]]; then
-            leenix-notification-send "󰔛" "Invalid reminder" "Enter the number of minutes" -u critical
-            show_custom_reminder_input
+        show_passwordless_menu() {
+          local action
+          if leenix-config sudo-passwordless status 2>/dev/null | grep -q enabled; then
+            action="󰊤  Disable Passwordless Sudo"
           else
-            back_to show_reminder_menu
+            action="󰊤  Enable Passwordless Sudo"
           fi
-        }
-
-        show_reminder_message_input() {
-          local minutes="$1"
-          local message
-          message=$(leenix-menu-input "Reminder message")
-
-          if [[ -n $message ]]; then
-            leenix-reminder "$minutes" "$message"
-          else
-            leenix-reminder "$minutes"
-          fi
-        }
-
-        show_share_menu() {
-          case $(menu "Share" "  Clipboard\n  File \n  Folder") in
-          *Clipboard*) leenix-menu-share clipboard ;;
-          *File*) terminal bash -c "leenix-menu-share file" ;;
-          *Folder*) terminal bash -c "leenix-menu-share folder" ;;
-          *) back_to show_tools_menu ;;
-          esac
-        }
-
-        # ---------------------------------------------------------------- Setup
-        show_setup_menu() {
-          local options="󰒲  Sleep / Hibernate\n󰈷  Defaults"
-          case $(menu "Setup" "$options") in
-          *Sleep*) show_setup_system_menu ;;
-          *Defaults*) show_setup_default_menu ;;
-          *) back_to show_main_menu ;;
-          esac
-        }
-
-        show_setup_system_menu() {
-          local options=""
-          if leenix-toggle-enabled suspend-off; then
-            options="$options󰒲  Enable Suspend"
-          else
-            options="$options󰒲  Disable Suspend"
-          fi
-
-          if leenix-hibernation-available; then
-            options="$options\n󰤁  Disable Hibernate"
-          else
-            options="$options\n󰤁  Enable Hibernate"
-          fi
-
-          case $(menu "Sleep / Hibernate" "$options") in
-          *Suspend*) leenix-toggle-suspend ;;
-          *"Enable Hibernate"*) present_terminal leenix-hibernation-setup ;;
-          *"Disable Hibernate"*) present_terminal leenix-hibernation-remove ;;
+          case $(menu "Passwordless Sudo" "$action") in
+          *"Enable"*) present_terminal "leenix-config sudo-passwordless on" ;;
+          *"Disable"*) present_terminal "leenix-config sudo-passwordless off" ;;
           *) back_to show_setup_menu ;;
           esac
         }
 
-        show_setup_default_menu() {
-          case $(menu "Default" "  Terminal\n  Editor") in
-          *Terminal*) show_setup_default_terminal_menu ;;
-          *Editor*) show_setup_default_editor_menu ;;
-          *) back_to show_setup_menu ;;
-          esac
-        }
-
-        show_setup_default_terminal_menu() {
-          local options=""
-          leenix-cmd-present alacritty && options="$options  Alacritty"
-          leenix-cmd-present foot && options="''${options:+$options\n}  Foot"
-          leenix-cmd-present ghostty && options="''${options:+$options\n}  Ghostty"
-          leenix-cmd-present kitty && options="''${options:+$options\n}  Kitty"
-
-          local current=""
-          case "$(leenix-default-terminal)" in
-          alacritty) current="  Alacritty" ;;
-          foot) current="  Foot" ;;
-          ghostty) current="  Ghostty" ;;
-          kitty) current="  Kitty" ;;
-          esac
-
-          case $(menu "Default Terminal" "$options" "" "$current") in
-          *Alacritty*) leenix-default-terminal alacritty ;;
-          *Foot*) leenix-default-terminal foot ;;
-          *Ghostty*) leenix-default-terminal ghostty ;;
-          *Kitty*) leenix-default-terminal kitty ;;
-          *) back_to show_setup_default_menu ;;
-          esac
-        }
-
-        show_setup_default_editor_menu() {
-          local options=""
-          leenix-cmd-present nvim && options="$options  Neovim"
-          leenix-cmd-present code && options="''${options:+$options\n}  VSCode"
-          leenix-cmd-present cursor && options="''${options:+$options\n}  Cursor"
-          leenix-cmd-present zeditor && options="''${options:+$options\n}  Zed"
-          leenix-cmd-present helix && options="''${options:+$options\n}  Helix"
-          leenix-cmd-present vim && options="''${options:+$options\n}  Vim"
-          leenix-cmd-present emacs && options="''${options:+$options\n}  Emacs"
-
-          local current=""
-          case "$(leenix-default-editor)" in
-          nvim) current="  Neovim" ;;
-          code) current="  VSCode" ;;
-          cursor) current="  Cursor" ;;
-          zed | zeditor) current="  Zed" ;;
-          helix) current="  Helix" ;;
-          vim) current="  Vim" ;;
-          emacs) current="  Emacs" ;;
-          esac
-
-          case $(menu "Default Editor" "$options" "" "$current") in
-          *Neovim*) leenix-default-editor nvim ;;
-          *VSCode*) leenix-default-editor code ;;
-          *Cursor*) leenix-default-editor cursor ;;
-          *Zed*) leenix-default-editor zed ;;
-          *Helix*) leenix-default-editor helix ;;
-          *Vim*) leenix-default-editor vim ;;
-          *Emacs*) leenix-default-editor emacs ;;
-          *) back_to show_setup_default_menu ;;
-          esac
-        }
-
-        show_setup_power_menu() {
-          profile=$(menu "Power Profile" "$(leenix-powerprofiles-list)" "" "$(powerprofilesctl get)")
-
-          if [[ $profile == "CNCLD" || -z $profile ]]; then
-            back_to show_hardware_menu
-          else
-            powerprofilesctl set "$profile"
+        # ------------------------------------------------------------ POWER
+        show_power_menu() {
+          local profile
+          profile=$(menu "Power" "$(leenix-powerprofiles-list)" "" "$(powerprofilesctl get)")
+          if [[ -n $profile && $profile != "CNCLD" ]]; then
+            leenix-powerprofiles-set "$profile"
           fi
         }
 
-        # ---------------------------------------------------------------- System
+        # ------------------------------------------------------------ SYSTEM
         show_system_menu() {
-          local options="󰜉  Rebuild LEENIX\n󰤁  Hibernate"
-
-          if [[ $LEENIX_CAP_HYPRLAND == "1" ]]; then
-            options="$options\n  Lock"
-          fi
-
-          ! leenix-toggle-enabled suspend-off && options="$options\n󰒲  Suspend"
-          options="$options\n󰍃  Logout\n󰜉  Restart\n󰐥  Shutdown"
-
+          local options="󱄄  Screensaver\n󰌾  Lock\n󰒲  Suspend"
+          leenix-hibernation-available 2>/dev/null && options="$options\n󰤁  Hibernate"
+          options="$options\n󰍃  Logout\n󰜉  Reboot\n󰐥  Shutdown"
           case $(menu "System" "$options") in
-          *Rebuild*) present_terminal leenix-rebuild ;;
-          *Hibernate*) systemctl hibernate ;;
+          *Screensaver*) leenix-launch-screensaver force ;;
           *Lock*) leenix-system-lock ;;
           *Suspend*) systemctl suspend ;;
+          *Hibernate*) systemctl hibernate ;;
           *Logout*) leenix-system-logout ;;
-          *Restart*) leenix-system-reboot ;;
+          *Reboot*) leenix-system-reboot ;;
           *Shutdown*) leenix-system-shutdown ;;
           *) back_to show_main_menu ;;
           esac
         }
 
-        # ---------------------------------------------------------------- Main
+        # ------------------------------------------------------------ MAIN
         show_main_menu() {
-          go_to_menu "$(menu "Go" "󰀻  Desktop\n󰛧  Hardware\n󰇫  Network\n󰂻  Locale\n󰓦  Tools\n  Setup\n󰍉  About\n󰤆  System")"
+          go_to_menu "$(menu "LEENIX" "󰣩  Apps\n󰘦  Toggles\n󰇫  Network\n󰾲  Capture\n󰧑  Style\n󰒓  Setup\n󰐥  Power\n󰜼  About\n󰤆  System")"
         }
 
         go_to_menu() {
           case "''${1,,}" in
-          *desktop*) show_desktop_menu ;;
-          *hardware*) show_hardware_menu ;;
+          *apps*) leenix-launch-walker >/dev/null 2>&1 &
+            exit 0
+            ;;
+          *toggles*|*hardware*) show_toggles_menu ;;
+          *theme*|*style*) show_style_menu ;;
           *network*) show_network_menu ;;
-          *locale*) show_locale_menu ;;
-          *tools*) show_tools_menu ;;
+          *capture*) show_capture_menu ;;
+          *screenrecord*) show_screenrecord_menu ;;
           *setup*) show_setup_menu ;;
+          *power*) show_power_menu ;;
           *about*) leenix-launch-about ;;
           *system*) show_system_menu ;;
+          *share*) leenix-menu-share file ;;
+          *reminder*set*) leenix-reminder set ;;
+          *)
+            # Escape on the MAIN menu returns an empty/CNCLD selection: close the
+            # menu instead of re-opening it. (Submenus return to their parent via
+            # their own `back_to <parent>` default cases.)
+            [[ -z ''${1:-} || ''${1,,} == "cncld" ]] && exit 0
+            back_to show_main_menu
+            ;;
           esac
         }
 
-        # Allow user extensions and overrides
         USER_EXTENSIONS="$HOME/.config/leenix/extensions/menu.sh"
         [[ -f $USER_EXTENSIONS ]] && source "$USER_EXTENSIONS"
 

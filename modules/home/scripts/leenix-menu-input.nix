@@ -5,6 +5,10 @@
     (pkgs.writeShellApplication {
       name = "leenix-menu-input";
 
+      runtimeInputs = with pkgs; [
+        walker
+      ];
+
       text = ''
         #!/bin/bash
 
@@ -25,7 +29,10 @@
           shift
         fi
 
-        leenix-launch-walker --dmenu --inputonly --width 295 --minheight 1 --maxheight 1 -p "$prompt…" "$@" 2>/dev/null
+        # Scoped compact theme + -e: closes after Enter/Escape, no service use.
+        # Width from prompt + the MIN floor (keeps a usable typing field).
+        width=$(printf '%s\n' "$prompt…" | leenix-menu-width 2>/dev/null || echo 400)
+        walker --dmenu -t leenix-menu --inputonly --width "$width" --minheight 1 --maxheight 1 -e -p "$prompt…" "$@" 2>/dev/null
       '';
     })
   ];

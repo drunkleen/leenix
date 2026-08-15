@@ -19,6 +19,12 @@
     ./leenix-menu-select.nix
     ./leenix-menu-share.nix
     ./leenix-menu.nix
+    ./leenix-menu-width.nix
+    ./leenix-camera.nix
+    ./leenix-desktop-state-apply.nix
+    # Interactive Tailscale Send File UX: Walker device selector + file picker.
+    # Tailscale status/up/down/ip stay in the base group (headless-safe).
+    ./leenix-tailscale-send.nix
     ./leenix-reminder.nix
     ./leenix-restart-app.nix
     ./leenix-restart-btop.nix

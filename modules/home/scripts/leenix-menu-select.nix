@@ -5,6 +5,10 @@
     (pkgs.writeShellApplication {
       name = "leenix-menu-select";
 
+      runtimeInputs = with pkgs; [
+        walker
+      ];
+
       text = ''
         #!/bin/bash
 
@@ -47,7 +51,11 @@
           exit 1
         fi
 
-        printf '%s\n' "''${options[@]}" | leenix-launch-walker --dmenu --width 295 --minheight 1 --maxheight 300 -p "$prompt…" "''${walker_args[@]}" 2>/dev/null
+        # Scoped compact theme + -e (exit after this dmenu call): the picker
+        # closes after a selection or Escape and never touches the persistent
+        # app-launcher service. Width is content-sized from prompt + options.
+        width=$(printf '%s\n' "$prompt…" "''${options[@]}" | leenix-menu-width 2>/dev/null || echo 400)
+        printf '%s\n' "''${options[@]}" | walker --dmenu -t leenix-menu --width "$width" --minheight 1 --maxheight 300 -e -p "$prompt…" "''${walker_args[@]}" 2>/dev/null
       '';
     })
   ];
