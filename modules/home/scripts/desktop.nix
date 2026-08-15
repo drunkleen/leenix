@@ -21,6 +21,7 @@
     ./leenix-menu.nix
     ./leenix-menu-width.nix
     ./leenix-camera.nix
+    ./leenix-camera-privileged.nix
     ./leenix-desktop-state-apply.nix
     # Interactive Tailscale Send File UX: Walker device selector + file picker.
     # Tailscale status/up/down/ip stay in the base group (headless-safe).
