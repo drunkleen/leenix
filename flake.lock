@@ -40,6 +40,22 @@
         "type": "github"
       }
     },
+    "leenfetch": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1783950787,
+        "narHash": "sha256-S5oIIrF7D86i/bVQgmgY25G+7zjC++RmhAtMp8wzyXg=",
+        "owner": "drunkleen",
+        "repo": "leenfetch",
+        "rev": "05a3a7b32f5e868b475b02c4236af23d220f0e8e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "drunkleen",
+        "repo": "leenfetch",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1785967620,
@@ -60,6 +76,7 @@
       "inputs": {
         "disko": "disko",
         "home-manager": "home-manager",
+        "leenfetch": "leenfetch",
         "nixpkgs": "nixpkgs"
       }
     }

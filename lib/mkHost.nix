@@ -4,6 +4,7 @@
   nixpkgs,
   inputs,
   hostPath,
+  overlays ? [ ],
 }:
 
 let
@@ -39,6 +40,7 @@ nixpkgs.lib.nixosSystem {
   };
 
   modules = [
+    { nixpkgs.overlays = overlays; }
     inputs.disko.nixosModules.disko
     inputs.home-manager.nixosModules.home-manager
 

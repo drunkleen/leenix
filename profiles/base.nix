@@ -70,7 +70,7 @@ in
 
     security.sudo = {
       enable = true;
-      wheelNeedsPassword = true;
+      wheelNeedsPassword = !config.leenix.security.passwordlessSudo;
     };
 
     # Canonical universal terminal/CLI binaries, guaranteed by NixOS base even
@@ -97,6 +97,9 @@ in
       btop
       htop
       openssh
+      # LEENIX About tool (github:drunkleen/leenfetch), built from the pinned
+      # flake input via the nixpkgs overlay.
+      leenfetch
       tree
       file
       rsync

@@ -13,11 +13,17 @@
       url = "github:nix-community/disko";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    leenfetch = {
+      url = "github:drunkleen/leenfetch";
+      flake = false;
+    };
   };
 
   outputs =
     inputs@{
       nixpkgs,
+      leenfetch,
       ...
     }:
 
@@ -25,14 +31,30 @@
       leenixLib = import ./lib {
         inherit (nixpkgs) lib;
       };
+
+      # LEENIX package overlay: makes pkgs.leenfetch available to every profile
+      # and module (base About tool, home scripts, etc.).
+      leenixOverlay = final: prev: {
+        leenfetch = final.callPackage ./packages/leenfetch.nix {
+          src = leenfetch;
+        };
+      };
     in
     {
       formatter.x86_64-linux = nixpkgs.legacyPackages.x86_64-linux.nixfmt;
+
+      nixpkgs.overlays = [ leenixOverlay ];
+
+      packages.x86_64-linux.leenfetch =
+        nixpkgs.legacyPackages.x86_64-linux.callPackage ./packages/leenfetch.nix {
+          src = leenfetch;
+        };
 
       nixosConfigurations = {
         tuf-f15 = leenixLib.mkHost {
           inherit nixpkgs inputs;
           hostPath = ./hosts/tuf-f15;
+          overlays = [ leenixOverlay ];
         };
       };
     };
