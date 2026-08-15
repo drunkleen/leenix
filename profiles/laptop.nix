@@ -13,6 +13,7 @@
     ../modules/nixos/hardware/nvidia.nix
     ../modules/nixos/hardware/bluetooth.nix
     ../modules/nixos/hardware/power-profiles.nix
+    ../modules/nixos/hardware/camera.nix
 
     ../modules/nixos/memory/zram.nix
   ];

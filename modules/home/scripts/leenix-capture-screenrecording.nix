@@ -44,11 +44,14 @@
         # users can attach a log when reporting capture failures.
 
         [[ -f ~/.config/user-dirs.dirs ]] && source ~/.config/user-dirs.dirs
-        OUTPUT_DIR="''${LEENIX_SCREENRECORD_DIR:-''${XDG_VIDEOS_DIR:-$HOME/Videos/screenrecord}}"
+        # Recordings live in a `screenrecord` subdir of the user's XDG Videos
+        # directory (created on demand, like leenix-capture-screenshot does for
+        # Pictures). Never abort merely because the directory is absent.
+        OUTPUT_DIR="''${LEENIX_SCREENRECORD_DIR:-''${XDG_VIDEOS_DIR:-$HOME/Videos}/screenrecord}"
 
         if [[ ! -d $OUTPUT_DIR ]]; then
-          notify-send "Screen recording directory does not exist: $OUTPUT_DIR" -u critical -t 3000
-          exit 1
+          mkdir -p "$OUTPUT_DIR"
+          notify-send "Created screen recording directory: $OUTPUT_DIR" -u normal -t 2000
         fi
 
         DESKTOP_AUDIO="false"
@@ -79,6 +82,20 @@
             WEBCAM_DEVICE=$(v4l2-ctl --list-devices 2>/dev/null | grep -m1 "^[[:space:]]*/dev/video" | tr -d '\t')
             if [[ -z $WEBCAM_DEVICE ]]; then
               notify-send "No webcam devices found" -u critical -t 3000
+              return 1
+            fi
+          fi
+
+          # Honor LEENIX camera privacy: never silently bypass a camera that is
+          # deauthorized (declarative udev policy or runtime leenix-camera off).
+          # Fail with an actionable message instead.
+          if command -v leenix-camera >/dev/null 2>&1; then
+            local cam_state
+            cam_state=$(leenix-camera status "$WEBCAM_DEVICE" 2>/dev/null | sed -n 's/^effective: //p')
+            if [[ $cam_state == "off" || $cam_state == "unknown" ]]; then
+              notify-send "Camera is disabled by LEENIX privacy policy" \
+                "Authorize it first: leenix-camera enable $(basename "$WEBCAM_DEVICE")" \
+                -u critical -t 6000
               return 1
             fi
           fi
