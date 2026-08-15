@@ -359,12 +359,12 @@ in
           else
             action="󰁰  Connect"
           fi
-          case $(menu "Tailscale" "󰵮  Status\n󰣹  Send File\n$action\n󰈀  Node Info") in
+          case $(menu "Tailscale" "󰵮  Status\n󰣹  Send File\n$action\n󰊤  Nodes List") in
           *Status*) present_terminal "leenix-network-tailscale status" ;;
           *"Send File"*) present_terminal "leenix-tailscale-send" ;;
           *Disconnect*) leenix-network-tailscale down ;;
           *Connect*) present_terminal "leenix-network-tailscale up" ;;
-          *"Node Info"*) present_terminal "leenix-network-tailscale ip" ;;
+          *"Nodes List"*) present_terminal "leenix-network-tailscale nodes" ;;
           *) back_to show_network_menu ;;
           esac
         }
@@ -520,12 +520,12 @@ in
 
         # ------------------------------------------------------------ MAIN
         show_main_menu() {
-          go_to_menu "$(menu "LEENIX" "󰣩  Apps\n󰘦  Toggles\n󰇫  Network\n󰾲  Capture\n󰧑  Style\n󰒓  Setup\n󰐥  Power\n󰜼  About\n󰤆  System")"
+          go_to_menu "$(menu "LEENIX" "󰣩  Applications\n󰘦  Toggles\n󰇫  Network\n󰾲  Capture\n󰧑  Style\n󰒓  Setup\n󰐥  Power Modes\n󰜼  About\n󰤆  System")"
         }
 
         go_to_menu() {
           case "''${1,,}" in
-          *apps*) leenix-launch-walker >/dev/null 2>&1 &
+          *applications*) leenix-launch-walker >/dev/null 2>&1 &
             exit 0
             ;;
           *toggles*|*hardware*) show_toggles_menu ;;
