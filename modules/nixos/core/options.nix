@@ -240,6 +240,16 @@ in
       nvidia.enable = mkEnableOption "NVIDIA hardware support";
       bluetooth.enable = mkEnableOption "Bluetooth support";
       power-profiles.enable = mkEnableOption "power-profiles-daemon";
+
+      # Camera privacy is DECLARATIVE host policy: when enabled, USB video-class
+      # devices (UVC cameras) are deauthorized at the udev level so they are
+      # physically unavailable. The runtime leenix-camera command re-authorizes a
+      # camera for the current session; the next boot follows this policy again.
+      camera.privacy = mkOption {
+        type = types.bool;
+        default = true;
+        description = "Deauthorize USB video devices (cameras) at the udev level. LEENIX default: privacy ON (camera disabled).";
+      };
     };
 
     disk = {
@@ -261,7 +271,20 @@ in
 
     networking = {
       iwd.enable = mkEnableOption "iwd";
-      tailscale.enable = mkEnableOption "Tailscale client";
+
+      tailscale = {
+        enable = mkEnableOption "Tailscale client";
+
+        # LEENIX DNS policy is authoritative. acceptDns=false means the client
+        # rejects tailnet/MagicDNS settings so they can never hijack the
+        # resolver; a host may explicitly opt into true.
+        acceptDns = mkOption {
+          type = types.bool;
+          default = false;
+          description = "Accept tailnet DNS (MagicDNS) settings from the Tailscale control plane.";
+        };
+      };
+
       dns = mkOption {
         type = types.submodule {
           options = {
@@ -287,6 +310,12 @@ in
 
     security = {
       pam.enable = mkEnableOption "PAM";
+
+      passwordlessSudo = mkOption {
+        type = types.bool;
+        default = false;
+        description = "Allow passwordless sudo for members of the wheel group (declarative host/local policy).";
+      };
 
       fido2 = {
         enable = mkEnableOption "FIDO2 authentication";

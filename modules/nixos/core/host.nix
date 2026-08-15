@@ -92,6 +92,10 @@ in
       nvidia.enable = variables.hardware.nvidia.enable;
       bluetooth.enable = variables.hardware.bluetooth;
       power-profiles.enable = variables.hardware.power-profiles;
+
+      # LEENIX default camera privacy is ON (declarative deauthorization) unless
+      # a host explicitly opts out via variables.hardware.camera.privacy = false.
+      camera.privacy = attrByPath [ "hardware" "camera" "privacy" ] true variables;
     };
 
     disk = {
@@ -121,6 +125,9 @@ in
       # base-using host inherits the default without setting anything.
       tailscale.enable = lib.mkIf (attrByPath [ "networking" "tailscale" ] null variables != null)
         (attrByPath [ "networking" "tailscale" ] false variables);
+      # LEENIX DNS policy is authoritative: acceptDns defaults to false unless
+      # the host explicitly opts in (variables.networking.tailscale.acceptDns).
+      tailscale.acceptDns = attrByPath [ "networking" "tailscale" "acceptDns" ] false variables;
       dns = variables.networking.dns;
       # Declarative VPN profiles. Empty when the host configures none; secrets
       # are file references (privateKeyFile / authUserPassFile), never inline.
@@ -137,6 +144,7 @@ in
 
     security = {
       pam.enable = variables.security.pam.enable;
+      passwordlessSudo = attrByPath [ "security" "passwordlessSudo" ] false variables;
 
       fido2 = {
         enable = variables.security.fido2.enable;
