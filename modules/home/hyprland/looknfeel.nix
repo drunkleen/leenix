@@ -117,6 +117,9 @@ let
     };
 
     animations = {
+      # LEENIX default: animations ON, owned only by the declarative Nix
+      # Hyprland config. (The control-center runtime animations toggle was
+      # removed; there is no animations state file anymore.)
       enabled = true;
     };
 
