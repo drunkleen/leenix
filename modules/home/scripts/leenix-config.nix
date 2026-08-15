@@ -507,12 +507,12 @@ EXPR
             [[ -n ''${2:-} ]] || die "usage: leenix-config unset <key>"
             cmd_unset "$2"
             ;;
-          dns) shift; cmd_dns "$@" ;;
-          locale) shift; cmd_locale "$@" ;;
-          sudo-passwordless) shift; cmd_sudo_passwordless "$@" ;;
+          dns) shift; export LEENIX_TITLE="Apply DNS settings"; cmd_dns "$@" ;;
+          locale) shift; export LEENIX_TITLE="Apply language & region"; cmd_locale "$@" ;;
+          sudo-passwordless) shift; export LEENIX_TITLE="Apply sudo policy"; cmd_sudo_passwordless "$@" ;;
           overrides) cmd_overrides ;;
-          rebuild) cmd_rebuild ;;
-          switch) cmd_switch ;;
+          rebuild) export LEENIX_TITLE="LEENIX Rebuild"; cmd_rebuild ;;
+          switch) export LEENIX_TITLE="Switch configuration"; cmd_switch ;;
           *)
             echo "Usage: leenix-config <get|set|unset|dns|locale|sudo-passwordless|overrides|rebuild|switch> [key] [value]" >&2
             echo "  keys: timezone | locale.language | locale.region | networking.dns[.mode|.servers]" >&2
