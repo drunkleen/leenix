@@ -22,7 +22,9 @@
         STATE_CONF="$HOME/.local/state/leenix/toggles/hypr/touchpad-disabled.conf"
 
         NO_OSD=false
-        [[ $1 == "--no-osd" ]] && { NO_OSD=true; shift; }
+        # Guard against nounset: the XF86TouchpadToggle binding calls this with
+        # NO arguments, so $1 may be unset.
+        [[ ''${1:-} == "--no-osd" ]] && { NO_OSD=true; shift; }
 
         # Discover the touchpad anchor device. Many HID touchpads expose TWO
         # Hyprland pointer devices with the same base name: a "-mouse" sibling
