@@ -1,0 +1,91 @@
+diff --git a/hyprland.go b/hyprland.go
+index 00cda1c..0b2cc3b 100644
+--- a/hyprland.go
++++ b/hyprland.go
+@@ -737,7 +737,13 @@ func writeLuaConfig(configPath string, monitors []Monitor) error {
+ 		return fmt.Errorf("failed to read lua config: %w", err)
+ 	}
+ 
+-	if err == nil {
++	mainConfig := ensureHyprmonLuaRequire(string(input))
++
++	// Only rewrite the main config when the managed include actually changed.
++	// When the include already exists the contents are identical, so the
++	// backup and the write are skipped entirely — immutable (e.g. nix-managed)
++	// main configs are never touched.
++	if mainConfig != string(input) {
+ 		backupPath := fmt.Sprintf("%s.bak.%d", configPath, time.Now().Unix())
+ 		if err := os.WriteFile(backupPath, input, backupFileMode); err != nil {
+ 			return fmt.Errorf("failed to create backup: %w", err)
+@@ -749,9 +755,10 @@ func writeLuaConfig(configPath string, monitors []Monitor) error {
+ 		return fmt.Errorf("failed to write lua monitor config: %w", err)
+ 	}
+ 
+-	mainConfig := ensureHyprmonLuaRequire(string(input))
+-	if err := os.WriteFile(configPath, []byte(mainConfig), configFileMode); err != nil {
+-		return fmt.Errorf("failed to write lua config include: %w", err)
++	if mainConfig != string(input) {
++		if err := os.WriteFile(configPath, []byte(mainConfig), configFileMode); err != nil {
++			return fmt.Errorf("failed to write lua config include: %w", err)
++		}
+ 	}
+ 
+ 	return nil
+diff --git a/hyprland_test.go b/hyprland_test.go
+index 6903c00..10a822d 100644
+--- a/hyprland_test.go
++++ b/hyprland_test.go
+@@ -538,3 +538,53 @@ func TestEnsureHyprmonLuaRequireIgnoresCommentedRequire(t *testing.T) {
+ 		t.Fatalf("expected managed require block:\n%s", got)
+ 	}
+ }
++
++func TestWriteLuaConfigSkipsMainRewriteWhenRequirePresent(t *testing.T) {
++	dir := t.TempDir()
++	luaPath := filepath.Join(dir, "hyprland.lua")
++	input := strings.Join([]string{
++		"-- user config",
++		"-- hyprmon: managed monitor profile include",
++		`require("hyprmon")`,
++	}, "\n")
++	if err := os.WriteFile(luaPath, []byte(input), 0600); err != nil {
++		t.Fatal(err)
++	}
++	// Simulate an immutable/nix-managed main config: any write attempt fails.
++	if err := os.Chmod(luaPath, 0400); err != nil {
++		t.Fatal(err)
++	}
++	t.Setenv("HYPRLAND_CONFIG", luaPath)
++
++	monitors := []Monitor{{Name: "eDP-1", Active: false}}
++
++	if err := writeConfig(monitors); err != nil {
++		t.Fatalf("writeConfig() with existing require on read-only main config = %v", err)
++	}
++
++	mainData, err := os.ReadFile(luaPath)
++	if err != nil {
++		t.Fatal(err)
++	}
++	if string(mainData) != input {
++		t.Fatalf("main config was rewritten despite existing require:\n%s", mainData)
++	}
++
++	entries, err := os.ReadDir(dir)
++	if err != nil {
++		t.Fatal(err)
++	}
++	for _, entry := range entries {
++		if strings.Contains(entry.Name(), ".bak.") {
++			t.Fatalf("unexpected backup %q created when main config unchanged", entry.Name())
++		}
++	}
++
++	sidecarData, err := os.ReadFile(filepath.Join(dir, "hyprmon.lua"))
++	if err != nil {
++		t.Fatal(err)
++	}
++	if !strings.Contains(string(sidecarData), `output = "eDP-1", disabled = true`) {
++		t.Fatalf("hyprmon.lua sidecar was not updated:\n%s", sidecarData)
++	}
++}

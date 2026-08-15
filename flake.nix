@@ -38,6 +38,12 @@
         leenfetch = final.callPackage ./packages/leenfetch.nix {
           src = leenfetch;
         };
+        # Patched HyprMon: skip rewriting the (possibly immutable, nix-managed)
+        # main hyprland.lua when the managed `require("hyprmon")` include already
+        # exists. See packages/hyprmon/skip-unchanged-config-write.patch.
+        hyprmon = prev.hyprmon.overrideAttrs (old: {
+          patches = (old.patches or [ ]) ++ [ ./packages/hyprmon/skip-unchanged-config-write.patch ];
+        });
       };
     in
     {
