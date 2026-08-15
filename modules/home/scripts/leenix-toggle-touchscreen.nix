@@ -22,7 +22,7 @@
         STATE_CONF="$HOME/.local/state/leenix/toggles/hypr/touchscreen-disabled.conf"
 
         NO_OSD=false
-        [[ $1 == "--no-osd" ]] && { NO_OSD=true; shift; }
+        [[ ''${1:-} == "--no-osd" ]] && { NO_OSD=true; shift; }
 
         # Touchscreens are reported by Hyprland under .touch and .tablets.
         # Group siblings by the device prefix, mirroring the touchpad logic.
