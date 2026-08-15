@@ -4,6 +4,7 @@
   home.packages = [
     (pkgs.writeShellApplication {
       name = "leenix-hyprland-monitor-internal-mirror";
+      excludeShellChecks = [ "SC2086" ];
 
       runtimeInputs = with pkgs; [
         hyprland
@@ -19,56 +20,81 @@
 
         # leenix:args=<on|off|toggle|recover>
 
-        TOGGLE="internal-monitor-mirror"
-        TOGGLE_FLAG="$HOME/.local/state/leenix/toggles/hypr/$TOGGLE.conf"
-        DISABLE_TOGGLE="internal-monitor-disable"
+        # Mirroring is a monitor runtime property owned by HyprMon's hyprmon.lua
+        # (mirror = "<source>"). Persistent changes go through the single
+        # canonical locked writer `leenix-hyprmon-edit`; live application uses
+        # the Hyprland Lua API immediately, so the mirror survives logout/login.
 
-        # Get names dynamically
+        internal_monitor() {
+          hyprctl monitors all -j 2>/dev/null | jq -r '.[] | select(.name | test("^(eDP|LVDS|DSI)-")) | .name' | head -1
+        }
 
-        INTERNAL=$(hyprctl monitors -j | jq -r '.[] | select(.name | contains("eDP")).name' | head -n 1)
+        external_monitor() {
+          hyprctl monitors all -j 2>/dev/null | jq -r --arg i "$1" '.[] | select(.name != $i and .name != "FALLBACK") | .name' | head -1
+        }
 
-        # Get the first available external monitor
+        # Persist `mirror = <source>` on the target monitor rule in hyprmon.lua
+        # via the single canonical locked writer (leenix-hyprmon-edit).
+        persist_mirror() {
+          leenix-hyprmon-edit mirror "$1" "$2"
+        }
 
-        EXTERNAL=$(hyprctl monitors -j | jq -r '.[] | select(.name | contains("eDP") | not).name' | head -n 1)
+        # Remove any mirror on the target monitor (restore extended mode).
+        persist_unmirror() {
+          leenix-hyprmon-edit unmirror "$1"
+        }
 
         enable() {
-          if [[ -z "$EXTERNAL" ]]; then
+          local internal external
+          internal=$(internal_monitor)
+          external=$(external_monitor "$internal")
+          if [[ -z $external ]]; then
             notify-send -u low "󰍹    No external monitors found for mirror"
             exit 1
           fi
-
-          if [[ -z "$INTERNAL" ]]; then
+          if [[ -z $internal ]]; then
             notify-send -u low "󰍹    No laptop monitor found to mirror"
             exit 1
           fi
-
-          if leenix-hyprland-toggle-enabled "$DISABLE_TOGGLE"; then
-            leenix-hyprland-toggle "$DISABLE_TOGGLE"
-          fi
-
-          if leenix-hyprland-toggle-disabled "$TOGGLE"; then
-            echo "monitor=$EXTERNAL, preferred, auto, 1, mirror, $INTERNAL" > "$TOGGLE_FLAG"
-            notify-send -u low "󰍹    Mirroring enabled ($EXTERNAL)"
-            hyprctl reload
-          fi
+          persist_mirror "$external" "$internal"
+          hyprctl eval "hl.monitor({ output = \"$external\", disabled = false, mirror = \"$internal\" })" >/dev/null 2>&1
+          notify-send -u low "󰍹    Mirroring enabled ($external ← $internal)"
         }
 
         disable() {
-          if leenix-hyprland-toggle-enabled "$TOGGLE"; then
-            leenix-hyprland-toggle --disabled-notification "󰍹    Extended mode restored" "$TOGGLE"
-          fi
+          local internal external
+          internal=$(internal_monitor)
+          external=$(external_monitor "$internal")
+          [[ -n $external ]] || exit 0
+          persist_unmirror "$external"
+          hyprctl eval "hl.monitor({ output = \"$external\", disabled = false })" >/dev/null 2>&1
+          notify-send -u low "󰍹    Extended mode restored"
+        }
+
+        mirror_enabled() {
+          local external
+          external=$(external_monitor "$(internal_monitor)")
+          [[ -n $external ]] || return 1
+          hyprctl monitors all -j 2>/dev/null | jq -e --arg n "$external" '.[] | select(.name == $n) | .mirror != ""' >/dev/null 2>&1
         }
 
         recover() {
-          if ! leenix-hw-external-monitors && leenix-hyprland-toggle-enabled "$TOGGLE"; then
-            leenix-hyprland-toggle "$TOGGLE"
+          # If the external display disappeared, ensure mirroring is dropped so
+          # the next reconnect starts in extended mode.
+          local external
+          external=$(external_monitor "$(internal_monitor)")
+          if [[ -z $external ]] && ! command -v leenix-hw-external-monitors >/dev/null 2>&1; then
+            : # no external known; nothing to recover
+          fi
+          if mirror_enabled && [[ -z $external ]]; then
+            disable
           fi
         }
 
         case "''${1:-}" in
           on) enable ;;
           off) disable ;;
-          toggle) if leenix-hyprland-toggle-enabled "$TOGGLE"; then disable; else enable; fi ;;
+          toggle) if mirror_enabled; then disable; else enable; fi ;;
           recover) recover ;;
           *)
             echo "Usage: $(basename "$0") {on|off|toggle|recover}" >&2

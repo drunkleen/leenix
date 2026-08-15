@@ -15,7 +15,7 @@
     ./leenix-hyprland-monitor-internal-mirror.nix
     ./leenix-hyprland-monitor-internal.nix
     ./leenix-hyprland-monitor-scaling-cycle.nix
-    ./leenix-hyprland-monitor-watch.nix
+    ./leenix-monitor-state-watch.nix
     ./leenix-hyprland-toggle-disabled.nix
     ./leenix-hyprland-toggle-enabled.nix
     ./leenix-hyprland-window-close-all.nix
@@ -31,6 +31,10 @@
     ./leenix-restart-hyprsunset.nix
     ./leenix-restart-waybar.nix
     ./leenix-screensaver.nix
+    ./leenix-capslock.nix
+    ./leenix-screensaver-text.nix
+    ./leenix-monitor.nix
+    ./leenix-hyprmon-edit.nix
     ./leenix-toggle-idle.nix
     ./leenix-toggle-nightlight.nix
     ./leenix-toggle-screensaver.nix

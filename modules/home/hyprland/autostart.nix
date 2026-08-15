@@ -8,11 +8,13 @@
 let
   autostart = [
     "hyprctl setcursor ${variables.cursor.theme} ${builtins.toString variables.cursor.size}"
-    "uwsm app -t service -- mako"
+    # mako runs as a canonical user service (systemd.user.services.mako,
+    # wanted by graphical-session.target) — no autostart line here.
     "uwsm app -t service -- fcitx5 --disable notificationitem"
     "uwsm app -t service -- ${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"
     "leenix-powerprofiles-init"
-    "uwsm app -t service -- leenix-hyprland-monitor-watch"
+    # Monitor topology reconciliation runs as a dedicated user systemd service
+    # (leenix-monitor-state-watch.service) in the hyprland capability group.
     # Slow app launch fix -- set systemd vars
     "systemctl --user import-environment $(env | cut -d'=' -f 1)"
     "dbus-update-activation-environment --systemd --all"
@@ -21,11 +23,9 @@ let
     "leenix-locale-env"
     # Run post-boot hooks after startup config has loaded
     "sleep 2 && leenix-hook post-boot"
-    # Reapply a persisted touchpad-disable across a new graphical session.
-    # Self-gating: only runs when the state file exists and the toggle is
-    # installed (laptop capability). Nix stays the config source of truth;
-    # this helper re-applies the runtime toggle after compositor start.
-    "command -v leenix-toggle-touchpad >/dev/null && [[ -f $HOME/.local/state/leenix/toggles/hypr/touchpad-disabled.conf ]] && leenix-toggle-touchpad off --no-osd"
+    # Reapply persistent desired runtime states (animations, touchpad, …).
+    # Self-gating; Nix stays the source of config truth.
+    "command -v leenix-desktop-state-apply >/dev/null && leenix-desktop-state-apply"
   ]
   ++ lib.optional variables.desktop.waybar "! leenix-toggle-enabled waybar-off && uwsm app -t service -- waybar";
 

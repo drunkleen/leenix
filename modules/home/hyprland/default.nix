@@ -15,6 +15,7 @@
     ./autostart.nix
     ./env.nix
     ./hyprland.nix
+    ./hyprmon.nix
     ./input.nix
     ./looknfeel.nix
     ./monitors.nix

@@ -19,43 +19,15 @@
 
         # leenix:args=<on|off|toggle|recover>
 
-        TOGGLE="internal-monitor-disable"
-        TOGGLE_FLAG="$HOME/.local/state/leenix/toggles/hypr/$TOGGLE.conf"
-        MIRROR_TOGGLE="internal-monitor-mirror"
-
-        # Get internal monitor name dynamically
-
-        INTERNAL=$(hyprctl monitors -j | jq -r '.[] | select(.name | contains("eDP")).name' | head -n 1)
-
-        enable() {
-          if leenix-hyprland-toggle-enabled "$TOGGLE"; then
-            leenix-hyprland-toggle --disabled-notification "󰍹    Laptop display enabled" "$TOGGLE"
-          fi
-        }
-
-        disable() {
-          if ! leenix-hw-external-monitors; then
-            notify-send -u low "󰍹    Can't disable the only active display"
-            exit 1
-          fi
-          if leenix-hyprland-toggle-disabled "$TOGGLE" && leenix-hyprland-toggle-disabled "$MIRROR_TOGGLE"; then
-            echo "monitor=$INTERNAL,disable" >"$TOGGLE_FLAG"
-            notify-send -u low "󰍹    Laptop display disabled"
-            hyprctl reload
-          fi
-        }
-
-        recover() {
-          if ! leenix-hw-external-monitors && leenix-hyprland-toggle-enabled "$TOGGLE"; then
-            leenix-hyprland-toggle "$TOGGLE"
-          fi
-        }
+        # Thin wrapper around the canonical leenix-monitor-laptop command, which
+        # owns the internal-panel desired state (via HyprMon's hyprmon.lua) and
+        # the zero-display safety model.
 
         case "''${1:-}" in
-          on) enable ;;
-          off) disable ;;
-          toggle) if leenix-hyprland-toggle-enabled "$TOGGLE"; then enable; else disable; fi ;;
-          recover) recover ;;
+          on) leenix-monitor-laptop enable ;;
+          off) leenix-monitor-laptop disable ;;
+          toggle) leenix-monitor-laptop toggle ;;
+          recover) leenix-monitor-laptop apply ;;
           *)
             echo "Usage: $(basename "$0") {on|off|toggle|recover}" >&2
             exit 1
