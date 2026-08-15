@@ -10,6 +10,7 @@
     ./media
     ./mime
     ./mousepad.nix
+    ./packages.nix
     ./waybar
   ];
 }
