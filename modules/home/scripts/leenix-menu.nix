@@ -92,9 +92,18 @@ in
           local extra=''${3:-}
           local preselect=''${4:-}
           read -r -a args <<<"$extra"
+
+          # Sanitize: Walker's dmenu reader STOPS at the first empty stdin line,
+          # so drop only truly blank/whitespace-only lines. Valid label content
+          # is never trimmed or normalized. The SAME sanitized set drives the
+          # preselect index, the dynamic width and Walker's stdin, so they can
+          # never diverge.
+          local sanitized
+          sanitized=$(printf '%b' "$options" | sed '/^[[:space:]]*$/d' || true)
+
           if [[ -n $preselect ]]; then
             local index
-            index=$(echo -e "$options" | grep -nxF "$preselect" | cut -d: -f1 || true)
+            index=$(printf '%s\n' "$sanitized" | grep -nxF "$preselect" | cut -d: -f1 || true)
             [[ -n $index ]] && args+=("-c" "$index")
           fi
           # Lifecycle: run walker directly — never start/stop the persistent
@@ -102,8 +111,8 @@ in
           # panel ALWAYS closes after a selection or Escape. Width is content-
           # sized per invocation from the longest label (leenix-menu-width).
           local width
-          width=$(printf '%b' "$options" | leenix-menu-width 2>/dev/null || echo 400)
-          echo -e "$options" | walker --dmenu -t leenix-menu --width "$width" --minheight 1 --maxheight 720 -e -p "$prompt…" "''${args[@]}" 2>/dev/null
+          width=$(printf '%s\n' "$sanitized" | leenix-menu-width 2>/dev/null || echo 400)
+          printf '%s\n' "$sanitized" | walker --dmenu -t leenix-menu --width "$width" --minheight 1 --maxheight 720 -e -p "$prompt…" "''${args[@]}" 2>/dev/null
         }
 
         terminal() {
@@ -191,7 +200,7 @@ in
         }
 
         show_displays_menu() {
-          local list="" monitors name desc action
+          local list="" first=1 monitors name desc action
           # `monitors all` includes physically-connected outputs that are
           # currently disabled, so disabled monitors can be re-enabled here.
           monitors=$(hyprctl monitors all -j | jq -r --arg f "FALLBACK" '.[] | select(.name != $f) | [.name, (.description // "")] | @tsv' 2>/dev/null)
@@ -199,9 +208,16 @@ in
             [[ -z $name ]] && continue
             action=$(leenix-monitor status "$name" 2>/dev/null | sed -n 's/^desired: //p')
             if [[ $action == "disabled" ]]; then
-              list="$list\n󰍹  Enable ''${desc:-''$name} · $name"
+              entry="󰍹  Enable ''${desc:-''$name} · $name"
             else
-              list="$list\n󰍹  Disable ''${desc:-''$name} · $name"
+              entry="󰍹  Disable ''${desc:-''$name} · $name"
+            fi
+            # Never emit a leading empty line (Walker stops at the first one).
+            if ((first == 1)); then
+              list="$entry"
+              first=0
+            else
+              list="$list\n$entry"
             fi
           done <<<"$monitors"
 
@@ -228,12 +244,18 @@ in
             back_to show_toggles_menu
             return
           fi
-          local max cur i opts=""
+          local max cur i opts="" first=1
           max=$(cat "/sys/class/leds/$dev/max_brightness" 2>/dev/null || echo 1)
           cur=$(cat "/sys/class/leds/$dev/brightness" 2>/dev/null || echo 0)
           for ((i = 0; i <= max; i++)); do
             if ((i == 0)); then label="Off"; elif ((i == max)); then label="Max"; else label="Step $i"; fi
-            opts="$opts\n󰌌  $label"
+            # Never emit a leading empty line (Walker stops at the first one).
+            if ((first == 1)); then
+              opts="󰌌  $label"
+              first=0
+            else
+              opts="$opts\n󰌌  $label"
+            fi
           done
           local curlabel="Off"
           [[ $cur -eq $max ]] && curlabel="Max"
@@ -256,31 +278,57 @@ in
         }
 
         show_cameras_menu() {
-          local cameras entries="" line node state display_name
+          local cameras entries="" first=1 line name
           cameras=$(leenix-camera list 2>/dev/null)
           if [[ -z $cameras ]]; then
             notify-send -u low "No cameras detected" 2>/dev/null
-            back_to show_toggles_menu
+            back_to show_devices_menu
             return
           fi
+          # One entry per physical camera (display name) + a general viewer.
           while IFS= read -r line; do
-            node=$(echo "$line" | awk '{print $1}')
-            state=$(echo "$line" | grep -oE '\((on|off|unknown)\)' | tr -d '()' || true)
-            display_name=$(echo "$line" | sed -E 's/^[^ ]+ +//; s/ *\((on|off|unknown)\)$//' || true)
-            if [[ $state == "on" ]]; then
-              entries="$entries\n󰁷  Disable ''${display_name:-''$node}"
+            [[ -z $line ]] && continue
+            name=$(echo "$line" | sed -E 's/^[^ ]+ +//; s/ *\((on|off|unknown)\)$//' || true)
+            [[ -n $name ]] || continue
+            if ((first == 1)); then
+              entries="󰁷  $name"
+              first=0
             else
-              entries="$entries\n󰁷  Enable ''${display_name:-''$node}"
+              entries="$entries\n󰁷  $name"
             fi
           done <<<"$cameras"
+          entries="$entries\n󰗃  Open Camera Viewer"
 
           local selection
           selection=$(menu "Cameras" "$entries")
-          case "$selection" in
-            *Disable*) leenix-camera disable "''${selection#*Disable }" ;;
-            *Enable*) leenix-camera enable "''${selection#*Enable }" ;;
-            *) back_to show_toggles_menu ;;
-          esac
+          if [[ -n $selection && $selection == *"Open Camera Viewer"* ]]; then
+            leenix-camera viewer
+          elif [[ -n $selection ]]; then
+            # Pure navigation: any other selection is a camera name; open its
+            # submenu (state is re-queried inside show_camera_menu).
+            show_camera_menu "$(echo "$selection" | sed -E 's/^[^ ]+ +//' || true)"
+          else
+            back_to show_devices_menu
+          fi
+        }
+
+        show_camera_menu() {
+          local name="$1"
+          [[ -n $name ]] || { back_to show_cameras_menu; return; }
+          local state
+          state=$(leenix-camera status "$name" 2>/dev/null | sed -n 's/^effective: //p')
+          if [[ $state == "on" ]]; then
+            case $(menu "$name" "󰭦  Preview\n󰁷  Disable") in
+            *Preview*) leenix-camera preview "$name" ;;
+            *Disable*) leenix-camera disable "$name" ;;
+            *) back_to show_cameras_menu ;;
+            esac
+          else
+            case $(menu "$name" "󰁷  Enable") in
+            *Enable*) leenix-camera enable "$name" ;;
+            *) back_to show_cameras_menu ;;
+            esac
+          fi
         }
 
         # ------------------------------------------------------------ NETWORK
