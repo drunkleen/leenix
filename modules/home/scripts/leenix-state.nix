@@ -8,39 +8,63 @@
       runtimeInputs = with pkgs; [
         coreutils
         findutils
+        jq
       ];
 
       text = ''
         #!/bin/bash
 
-        # leenix:summary=Manage persistent state files for Leenix toggles and settings.
+        # leenix:summary=Canonical LEENIX mutable runtime state helper (desired state).
 
-        # leenix:args=<set|clear>
+        # leenix:args=<get|set|clear> <relpath> [value]
 
         # leenix:hidden=true
 
-        STATE_DIR="$HOME/.local/state/leenix"
-        mkdir -p "$STATE_DIR"
+        # State root: ''${XDG_STATE_HOME:-$HOME/.local/state}/leenix
+        # Layout: toggles/ hardware/ network/ desktop/ monitors/
+        # Files use the .leenix suffix. Writes are atomic (tmp + mv).
+        # These files represent DESIRED persistent runtime state, never a
+        # substitute for the effective state of a real service/hardware.
 
-        COMMAND=''${1:-}
-        STATE_NAME=''${2:-}
+        ROOT="''${XDG_STATE_HOME:-$HOME/.local/state}/leenix"
 
-        if [[ -z $COMMAND ]]; then
-          echo "Usage: leenix-state <set|clear> <state-name>"
+        CMD=''${1:-}
+        REL=''${2:-}
+        VALUE=''${3:-}
+
+        [[ -z $CMD || -z $REL ]] && {
+          echo "Usage: leenix-state <get|set|clear> <relpath> [value]" >&2
           exit 1
-        fi
+        }
 
-        if [[ -z $STATE_NAME ]]; then
-          echo "Usage: leenix-state $COMMAND <state-name>"
-          exit 1
-        fi
+        # Prevent escaping the state root
+        case "$REL" in
+          /*|*..*) echo "invalid state path: $REL" >&2; exit 1 ;;
+        esac
 
-        case "$COMMAND" in
+        FILE="$ROOT/$REL"
+        [[ $FILE != *.leenix ]] && FILE="$FILE.leenix"
+
+        case "$CMD" in
+          get)
+            [[ -f $FILE ]] && cat "$FILE" || exit 1
+            ;;
           set)
-            touch "$STATE_DIR/$STATE_NAME"
+            mkdir -p "$(dirname "$FILE")"
+            tmp="$FILE.tmp.$$"
+            if [[ -n $VALUE ]]; then
+              printf '%s\n' "$VALUE" > "$tmp"
+            else
+              : > "$tmp"
+            fi
+            mv -f "$tmp" "$FILE"
             ;;
           clear)
-            find "$STATE_DIR" -maxdepth 1 -type f -name "$STATE_NAME" -delete
+            rm -f "$FILE"
+            ;;
+          *)
+            echo "Usage: leenix-state <get|set|clear> <relpath> [value]" >&2
+            exit 1
             ;;
         esac
       '';

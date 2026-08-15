@@ -29,12 +29,13 @@
         }
 
         # Canonical logo is the single source of truth. A user-custom
-        # screensaver.txt (created by `leenix-branding-screensaver image|text`)
-        # overrides it when present.
+        # screensaver text (set via leenix-screensaver-text) overrides it.
         logo="''${XDG_DATA_HOME:-$HOME/.local/share}/leenix/logo.txt"
-        custom="''${XDG_CONFIG_HOME:-$HOME/.config}/leenix/branding/screensaver.txt"
+        custom="''${XDG_STATE_HOME:-$HOME/.local/state}/leenix/desktop/screensaver-text.leenix"
+        legacy="''${XDG_CONFIG_HOME:-$HOME/.config}/leenix/branding/screensaver.txt"
         input_file="$logo"
         [[ -f $custom ]] && input_file="$custom"
+        [[ -f $legacy ]] && input_file="$legacy"
 
         saved_stty=$(stty -g 2>/dev/null || true)
         tte_pid=""

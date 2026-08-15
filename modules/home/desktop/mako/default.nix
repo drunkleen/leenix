@@ -1,4 +1,6 @@
 {
+  lib,
+  pkgs,
   variables,
   ...
 }:
@@ -67,5 +69,28 @@
         border-color = "#4c6a6f";
       };
     };
+  };
+
+  # Canonical systemd ownership for the notification daemon: a real user
+  # service bound to the graphical session, started exactly once, restarted on
+  # failure. The legacy autostart line (`uwsm app -t service -- mako`) is
+  # removed so there is a single owner and mako cannot be missed by scripts that
+  # inspect process state.
+  systemd.user.services.mako = lib.mkIf variables.desktop.waybar {
+    Unit = {
+      Description = "Mako notification daemon";
+      PartOf = [ "graphical-session.target" ];
+      After = [ "graphical-session.target" ];
+    };
+
+    Service = {
+      Type = "dbus";
+      BusName = "org.freedesktop.Notifications";
+      ExecStart = "${pkgs.mako}/bin/mako";
+      Restart = "on-failure";
+      RestartSec = 2;
+    };
+
+    Install.WantedBy = [ "graphical-session.target" ];
   };
 }

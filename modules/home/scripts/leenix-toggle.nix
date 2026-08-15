@@ -39,13 +39,20 @@
         FLAG_NAME="$1"
         FLAG="$HOME/.local/state/leenix/toggles/$FLAG_NAME"
 
+        # Never exit non-zero just because a notification is optional: the
+        # trailing `if`/`fi` keeps the command's exit status 0 so callers under
+        # `set -e` (e.g. leenix-toggle-waybar) are not aborted.
         if [[ -f $FLAG ]]; then
           rm "$FLAG"
-          [[ -n $DISABLED_NOTIFICATION ]] && notify-send -u low "$DISABLED_NOTIFICATION"
+          if [[ -n $DISABLED_NOTIFICATION ]]; then
+            notify-send -u low "$DISABLED_NOTIFICATION"
+          fi
         else
           mkdir -p "$(dirname "$FLAG")"
           touch "$FLAG"
-          [[ -n $ENABLED_NOTIFICATION ]] && notify-send -u low "$ENABLED_NOTIFICATION"
+          if [[ -n $ENABLED_NOTIFICATION ]]; then
+            notify-send -u low "$ENABLED_NOTIFICATION"
+          fi
         fi
       '';
     })

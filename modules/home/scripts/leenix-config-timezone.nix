@@ -22,7 +22,7 @@
         current=$(leenix-config get timezone 2>/dev/null || true)
         mapfile -t zones < <(timedatectl list-timezones)
 
-        index=$(printf '%s\n' "''${zones[@]}" | grep -nxF "$current" | cut -d: -f1)
+        index=$(printf '%s\n' "''${zones[@]}" | grep -nxF "$current" | cut -d: -f1 || true)
         args=()
         [[ -n $index ]] && args+=("-c" "$index")
 

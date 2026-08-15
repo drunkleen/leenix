@@ -34,7 +34,7 @@
 
         # Query the current temperature
 
-        CURRENT_TEMP=$(hyprctl hyprsunset temperature 2>/dev/null | grep -oE '[0-9]+')
+        CURRENT_TEMP=$(hyprctl hyprsunset temperature 2>/dev/null | grep -oE '[0-9]+' || true)
 
         restart_nightlighted_waybar() {
           if grep -q "custom/nightlight" ~/.config/waybar/config.jsonc; then

@@ -70,6 +70,7 @@
           OV_timezone=$(sed -n 's/^  timezone = "\(.*\)";$/\1/p' "$LOCAL" | head -1)
           OV_locale_lang=$(sed -n 's/^    language = "\(.*\)";$/\1/p' "$LOCAL" | head -1)
           OV_locale_region=$(sed -n 's/^    region = "\(.*\)";$/\1/p' "$LOCAL" | head -1)
+          OV_passwordless_sudo=$(sed -n 's/^    passwordlessSudo = \(true\|false\);$/\1/p' "$LOCAL" | head -1)
 
           # Legacy locale schema (`default = "X";` + LC_* extra): migrate to the
           # two-dimension model deterministically (language = region = old value).
@@ -126,19 +127,24 @@
               echo "  networking = {"
               echo "    dns = {"
               echo "      mode = \"$OV_dns_mode\";"
-              if [[ ''${#OV_dns_servers[@]} -gt 0 ]]; then
-                echo "      servers = ["
-                for s in "''${OV_dns_servers[@]}"; do
-                  echo "        \"$s\""
-                done
-                echo "      ];"
-              fi
-              echo "    };"
-              echo "  };"
+            if [[ ''${#OV_dns_servers[@]} -gt 0 ]]; then
+              echo "      servers = ["
+              for s in "''${OV_dns_servers[@]}"; do
+                echo "        \"$s\""
+              done
+              echo "      ];"
             fi
-            echo "}"
-          } > "$tmp"
-          if grep -qE 'timezone =|locale =|networking =' "$tmp"; then
+            echo "    };"
+            echo "  };"
+          fi
+          if [[ -n $OV_passwordless_sudo ]]; then
+            echo "  security = {"
+            echo "    passwordlessSudo = $OV_passwordless_sudo;"
+            echo "  };"
+          fi
+          echo "}"
+        } > "$tmp"
+        if grep -qE 'timezone =|locale =|networking =|security =' "$tmp"; then
             mv "$tmp" "$LOCAL"
           else
             rm -f "$tmp"
@@ -455,6 +461,38 @@ EXPR
           leenix-system-apply
         }
 
+        cmd_sudo_passwordless() {
+          local action=''${1:-}
+          require_src
+          case "$action" in
+            on|enable)
+              if [[ -f $LOCAL ]]; then cp -a "$LOCAL" "$LOCAL.leenix-backup"; fi
+              read_overrides
+              OV_passwordless_sudo=true
+              write_local
+              transaction
+              echo "leenix-config: passwordless sudo enabled"
+              ;;
+            off|disable)
+              if [[ -f $LOCAL ]]; then cp -a "$LOCAL" "$LOCAL.leenix-backup"; fi
+              read_overrides
+              OV_passwordless_sudo=""
+              write_local
+              transaction
+              echo "leenix-config: passwordless sudo disabled"
+              ;;
+            status)
+              require_src
+              local val
+              val=$(sed -n 's/^    passwordlessSudo = \(true\|false\);$/\1/p' "$LOCAL" 2>/dev/null | head -1)
+              if [[ $val == true ]]; then echo enabled; else echo disabled; fi
+              ;;
+            *)
+              die "usage: leenix-config sudo-passwordless <on|off|status>"
+              ;;
+          esac
+        }
+
         case "''${1:-}" in
           get)
             [[ -n ''${2:-} ]] || die "usage: leenix-config get <key>"
@@ -471,14 +509,16 @@ EXPR
             ;;
           dns) shift; cmd_dns "$@" ;;
           locale) shift; cmd_locale "$@" ;;
+          sudo-passwordless) shift; cmd_sudo_passwordless "$@" ;;
           overrides) cmd_overrides ;;
           rebuild) cmd_rebuild ;;
           switch) cmd_switch ;;
           *)
-            echo "Usage: leenix-config <get|set|unset|dns|locale|overrides|rebuild|switch> [key] [value]" >&2
+            echo "Usage: leenix-config <get|set|unset|dns|locale|sudo-passwordless|overrides|rebuild|switch> [key] [value]" >&2
             echo "  keys: timezone | locale.language | locale.region | networking.dns[.mode|.servers]" >&2
             echo "  dns: leenix-config dns <system|reset|preset <name>|custom <ip...>|show>" >&2
             echo "  locale: leenix-config locale <language <locale>|region <locale>|show|reset <language|region>>" >&2
+            echo "  sudo-passwordless: leenix-config sudo-passwordless <on|off|status>" >&2
             exit 1
             ;;
         esac
