@@ -1,11 +1,15 @@
 # LEENIX Plymouth Theme Script
 #
-# After the LUKS password clears, an indeterminate LEENIUM loading animation is
-# shown: a short accent segment travels smoothly across the track and loops.
-# The segment's position represents activity only — never a completion
-# percentage. Plymouth's time-based BootProgress model assumes a ~60 s boot and
-# therefore carries no honest determinate signal on a ~20 s NixOS boot, so no
-# determinate/fake progress is used.
+# After the LUKS password clears, a minimal LEENIUM "Arc Pulse" spinner is
+# shown: two short asymmetric arcs (primary + secondary) rotate smoothly while a
+# faint trail arc counter-rotates behind them. The motion conveys activity only
+# - never a completion percentage. Plymouth's time-based BootProgress model
+# assumes a ~60 s boot and therefore carries no honest determinate signal on a
+# ~20 s NixOS boot, so no determinate/fake progress is used.
+#
+# The arcs are composed of small elongated tick sprites positioned along a ring
+# with Math.Cos/Math.Sin; sprites are created once and only moved per refresh
+# (no per-frame image allocation, no Image._Rotate).
 
 Window.SetBackgroundTopColor(0.043, 0.067, 0.075);
 Window.SetBackgroundBottomColor(0.043, 0.067, 0.075);
@@ -16,36 +20,103 @@ logo.sprite.SetX(Window.GetWidth() / 2 - logo.image.GetWidth() / 2);
 logo.sprite.SetY(Window.GetHeight() / 2 - logo.image.GetHeight() / 2);
 logo.sprite.SetOpacity(1);
 
-# Loading animation timing (script plugin refreshes at 50 FPS).
-global.refresh_rate = 50.0;
-global.segment_fraction = 0.2;  # segment width as a fraction of the track
-global.animation_duration = 3.0;  # seconds for one full travel loop
-global.loop_frames = Math.Int(global.animation_duration * global.refresh_rate);
-global.animation_frame = 0;
-global.loading_active = 0;  # whether the indeterminate animation is running
-global.password_shown = 0;  # whether the LUKS dialog has been shown
+#----------------------------------------- Arc Pulse Spinner --------------------------------
+# Arc ticks: 10x3 px elongated segments, rounded caps, top-left anchored. The
+# spinner is centred where the old loading track used to sit (vertically centred
+# on the password entry), preserving the overall LEENIUM layout.
+
+global.pi = 3.141592653589793;
+global.deg = global.pi / 180.0;
+
+global.spinner.active = 0;
+global.spinner.frame = 0;
+global.spinner.period_frames = 70;        # 1.4 s primary/secondary revolution @ 50 FPS
+global.spinner.trail_period_frames = 100; # 2.0 s faint trail counter-revolution
+global.spinner.radius = 14.0;
+global.spinner.tick_w = 10.0;
+global.spinner.tick_h = 3.0;
+global.spinner.cx = 0.0;
+global.spinner.cy = 0.0;
+
+# group: 0 = primary arc, 1 = secondary arc, 2 = faint trail.
+global.spinner.group = [ 0, 0, 0, 0,  1, 1, 1,  2, 2 ];
+# Per-tick angular offset (deg) within its arc, spread so adjacent ticks
+# overlap into a continuous-looking arc band.
+global.spinner.tick_deg = [
+  -37.5, -12.5, 12.5, 37.5,
+  -20.0, 0.0, 20.0,
+  -9.0, 9.0
+];
+# Fixed per-tick opacity: arc ends slightly softer, trail uniformly faint.
+global.spinner.tick_opacity = [
+  0.70, 1.0, 1.0, 0.70,
+  0.70, 1.0, 0.70,
+  0.33, 0.33
+];
+global.spinner.tick_sprites = [];
+global.spinner.image_primary = Image("arc_tick_primary.png");
+global.spinner.image_secondary = Image("arc_tick_secondary.png");
+
+fun spinner_init() {
+  global.spinner.cx = Window.GetWidth() / 2;
+  global.spinner.cy = entry.y + entry.image.GetHeight() / 2;
+
+  for (index = 0; index < 9; index++) {
+    img = global.spinner.image_secondary;
+    if (global.spinner.group[index] == 0)
+      img = global.spinner.image_primary;
+
+    sprite = Sprite(img);
+    sprite.SetPosition(0, 0, 1000);
+    sprite.SetOpacity(0);
+    global.spinner.tick_sprites[index] = sprite;
+  }
+}
+
+fun spinner_update() {
+  global.spinner.frame++;
+  primary = (global.spinner.frame % global.spinner.period_frames) / global.spinner.period_frames * 360.0;
+  trail = (global.spinner.frame % global.spinner.trail_period_frames) / global.spinner.trail_period_frames * 360.0;
+
+  for (index = 0; index < 9; index++) {
+    group = global.spinner.group[index];
+
+    if (group == 2)
+      angle_deg = (60.0 - trail + global.spinner.tick_deg[index]) * global.deg;
+    else if (group == 1)
+      angle_deg = (primary + 150.0 + global.spinner.tick_deg[index]) * global.deg;
+    else
+      angle_deg = (primary + global.spinner.tick_deg[index]) * global.deg;
+
+    x = global.spinner.cx + Math.Cos(angle_deg) * global.spinner.radius - global.spinner.tick_w / 2;
+    y = global.spinner.cy + Math.Sin(angle_deg) * global.spinner.radius - global.spinner.tick_h / 2;
+    global.spinner.tick_sprites[index].SetX(x);
+    global.spinner.tick_sprites[index].SetY(y);
+  }
+}
+
+fun show_spinner() {
+  global.spinner.frame = 0;
+  global.spinner.active = 1;
+  for (index = 0; index < 9; index++)
+    global.spinner.tick_sprites[index].SetOpacity(global.spinner.tick_opacity[index]);
+}
+
+fun hide_spinner() {
+  global.spinner.active = 0;
+  for (index = 0; index < 9; index++)
+    global.spinner.tick_sprites[index].SetOpacity(0);
+}
 
 fun refresh_callback() {
-  global.animation_frame++;
-
-  if (global.loading_active == 1) {
-    update_loading_animation();
+  if (global.spinner.active == 1) {
+    spinner_update();
   }
 }
 
 Plymouth.SetRefreshFunction(refresh_callback);
 
 #----------------------------------------- Helper Functions --------------------------------
-
-fun show_progress_bar() {
-  progress_box.sprite.SetOpacity(1);
-  progress_bar.sprite.SetOpacity(1);
-}
-
-fun hide_progress_bar() {
-  progress_box.sprite.SetOpacity(0);
-  progress_bar.sprite.SetOpacity(0);
-}
 
 fun show_password_dialog() {
   lock.sprite.SetOpacity(1);
@@ -59,26 +130,6 @@ fun hide_password_dialog() {
   for (index = 0; bullet.sprites[index]; index++) {
     bullet.sprites[index].SetOpacity(0);
   }
-}
-
-fun start_loading_animation() {
-  global.animation_frame = 0;
-  global.loading_active = 1;
-}
-
-fun stop_loading_animation() {
-  global.loading_active = 0;
-}
-
-# Move the accent segment across the track, looping once it has fully exited
-# the right edge. The wrap happens while the segment is entirely outside the
-# track, so there is no visible jump.
-fun update_loading_animation() {
-  track_width = progress_box.image.GetWidth();
-  travel = track_width + progress_bar.segment_width;
-  phase = (global.animation_frame % global.loop_frames) / global.loop_frames;
-  pos = (phase * travel) - progress_bar.segment_width;
-  progress_bar.sprite.SetX(progress_box.x + pos);
 }
 
 #----------------------------------------- Dialogue --------------------------------
@@ -115,19 +166,17 @@ fun display_normal_callback() {
   # Get current mode
   mode = Plymouth.GetMode();
 
-  # After LUKS, show the indeterminate loading animation for boot and resume modes
+  # After LUKS, show the Arc Pulse spinner for boot and resume modes
   if ((mode == "boot" || mode == "resume") && global.password_shown == 1) {
-    show_progress_bar();
-    start_loading_animation();
+    show_spinner();
   }
 }
 
 fun display_password_callback(prompt, bullets) {
   global.password_shown = 1;  # Mark that password dialog has been shown
 
-  # Stop the loading animation while the password dialog is up
-  stop_loading_animation();
-  hide_progress_bar();
+  # Hide the spinner while the password dialog is up
+  hide_spinner();
   show_password_dialog();
 
   # Clear all bullets first
@@ -159,28 +208,8 @@ fun display_password_callback(prompt, bullets) {
 Plymouth.SetDisplayNormalFunction(display_normal_callback);
 Plymouth.SetDisplayPasswordFunction(display_password_callback);
 
-#----------------------------------------- Loading Track --------------------------------
-
-progress_box.image = Image("progress_box.png");
-progress_box.sprite = Sprite(progress_box.image);
-
-progress_box.x = Window.GetWidth() / 2 - progress_box.image.GetWidth() / 2;
-progress_box.y = entry.y + entry.image.GetHeight() / 2 - progress_box.image.GetHeight() / 2;
-progress_box.sprite.SetPosition(progress_box.x, progress_box.y, 0);
-progress_box.sprite.SetOpacity(0);
-
-# Short accent segment that travels across the track (activity, not completion).
-progress_bar.original_image = Image("progress_bar.png");
-progress_bar.sprite = Sprite();
-progress_bar.segment_width = Math.Int(progress_box.image.GetWidth() * global.segment_fraction);
-if (progress_bar.segment_width < 1) progress_bar.segment_width = 1;
-progress_bar.image = progress_bar.original_image.Scale(progress_bar.segment_width, progress_bar.original_image.GetHeight());
-
-progress_bar.x = progress_box.x;
-progress_bar.y = progress_box.y + (progress_box.image.GetHeight() - progress_bar.image.GetHeight()) / 2;
-progress_bar.sprite.SetImage(progress_bar.image);
-progress_bar.sprite.SetPosition(progress_bar.x, progress_bar.y, 1);
-progress_bar.sprite.SetOpacity(0);
+# Build the spinner sprites (after entry geometry is known).
+spinner_init();
 
 #----------------------------------------- Message --------------------------------
 
