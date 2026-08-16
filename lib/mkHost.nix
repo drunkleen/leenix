@@ -8,7 +8,13 @@
 }:
 
 let
-  defaultVariables = import "${hostPath}/variables.nix";
+  hostName = baseNameOf hostPath;
+
+  # Import the host's variables.nix from the flake SOURCE tree (resolved
+  # relative to this module, which lives in lib/) rather than from the isolated
+  # `hostPath` store copy, so that variables.nix's own relative imports
+  # (lib/mergeHostvariables.nix) resolve correctly in pure evaluation.
+  defaultVariables = import ../hosts/${hostName}/variables.nix;
 
   # Machine-local declarative policy overrides (menu-editable: timezone,
   # locale, DNS). Optional, gitignored, persists across reboot, and is merged
@@ -20,7 +26,6 @@ let
   # used. leenix-config / leenix-rebuild run with --impure and
   # export LEENIX_SRC so the override is applied at build time.
   srcPath = builtins.getEnv "LEENIX_SRC";
-  hostName = baseNameOf hostPath;
   localPath = if srcPath == "" then "" else "${srcPath}/hosts/${hostName}/local.nix";
 
   localOverride =

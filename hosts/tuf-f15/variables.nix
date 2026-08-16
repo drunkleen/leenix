@@ -1,184 +1,29 @@
-{
-  architecture = "x86_64-linux";
-
-  host = {
-    hostname = "tuf-f15";
-  };
-
-  user = {
-    username = "snape";
-    homeDirectory = "/home/snape";
-
-    extraGroups = [
-      "wheel"
-      "video"
-      "audio"
-      "input"
-      "gamemode"
-    ];
-  };
-
-  git = {
-    name = "DrunkLeen";
-    email = "snape@drunkleen.com";
-    branch = "master";
-  };
-
-  timezone = "Europe/Berlin";
-
-  locale = {
-    language = "en_US.UTF-8";
-    region = "de_DE.UTF-8";
-  };
-
-  keyboard = {
-    layouts = [
-      "us"
-      "ir"
-    ];
-
-    options = [
-      "grp:alt_shift_toggle"
-    ];
-  };
-
-  cursor = {
-    theme = "capitaine-cursors";
-    size = 36;
-  };
-
-  profiles = {
-    base = true;
-    desktop = true;
-    laptop = true;
-
-    gaming = true;
-    development = false;
-    hardened = false;
-    server = false;
-  };
-
-  bootstrap = {
-    enable = true;
-
-    editor = "vscode";
-
-    wifi = "impala";
-    bluetooth = "bluetui";
-    audio = "wiremix";
-  };
-
-  desktop = {
-    environment = "hyprland";
-
-    autologin = {
-      enable = true;
-    };
-
-    uwsm = {
-      enable = true;
-    };
-
-    hyprland = true;
-    waybar = true;
-    hyprlock = true;
-    hypridle = true;
-    hyprsunset = true;
-
-    browser = "firefox";
-    mediaPlayer = "mpv";
-    imageViewer = "imv";
-    documentViewer = "zathura";
-    musicPlayer = "cliamp";
-  };
-
-  theme = {
-    mode = "dark";
-  };
-
-  boot = {
-    plymouth = {
-      enable = true;
-    };
-  };
-
-  hardware = {
-    asus = true;
-    intel = true;
-
-    nvidia = {
-      enable = true;
-    };
-
-    bluetooth = true;
-
-    power-profiles = true;
-  };
-
-  disk = {
-    device = "/dev/nvme0n1";
-    layout = "laptop-luks-btrfs";
-  };
-
-  memory = {
-    zram = true;
-    hibernate = false;
-  };
-
-  networking = {
-    iwd = true;
-
-    ssh = {
-      enable = true;
-      autoStart = false;
-      port = 22;
-
-      passwordAuthentication = true;
-      keyboardInteractiveAuthentication = false;
-      permitRootLogin = "no";
-
-      allowedUsers = [ "snape" ];
-
-      publicKeys = [
-        "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIPDUHKfH8eRMUlbQg4CKDo2cS3zFL+M03tRrFs/5fF4LAAAABHNzaDo= snape@drunkleen.com"
-      ];
-    };
-
-    dns = {
-      mode = "system";
-      servers = [ ];
-    };
-  };
-
-  security = {
-    pam = {
-      enable = true;
-    };
-
-    fido2 = {
-      enable = false;
-      userPresence = true;
-      userVerification = false;
-      pinVerification = true;
-    };
-
-    firewall = {
-      enable = true;
-
-      rules = [
-        {
-          name = "ssh-lan";
-          protocol = "tcp";
-          ports = [ 22 ];
-          sources = [ "10.42.0.0/24" ];
-        }
-        {
-          name = "ssh-tailscale";
-          protocol = "tcp";
-          ports = [ 22 ];
-          interfaces = [ "tailscale0" ];
-        }
-      ];
-    };
-  };
-}
+# Canonical LEENIX host-policy entrypoint.
+#
+# The tracked default policy is split by responsibility across variables/*.nix
+# and merged here (collision-safe) into ONE effective host-policy attrset that
+# exactly matches the historical single-file schema. Nothing outside this
+# entrypoint needs to know the policy is physically split.
+#
+# Pipeline:
+#   variables.nix/*.nix  ->  variables.nix  ->  mkHost  ->  host.nix
+#
+# mkHost (lib/mkHost.nix) imports this file with NO arguments and then applies
+# the machine-local, gitignored hosts/<host>/local.nix overrides on top via
+# `lib.recursiveUpdate`. leenix-config reads the same files (impure).
+let
+  mergeHostVariables = import ../../lib/mergeHostVariables.nix;
+in
+mergeHostVariables [
+  { file = "variables/boot.nix"; value = import ./variables/boot.nix; }
+  { file = "variables/desktop.nix"; value = import ./variables/desktop.nix; }
+  { file = "variables/development.nix"; value = import ./variables/development.nix; }
+  { file = "variables/hardware.nix"; value = import ./variables/hardware.nix; }
+  { file = "variables/identity.nix"; value = import ./variables/identity.nix; }
+  { file = "variables/locale.nix"; value = import ./variables/locale.nix; }
+  { file = "variables/memory.nix"; value = import ./variables/memory.nix; }
+  { file = "variables/networking.nix"; value = import ./variables/networking.nix; }
+  { file = "variables/profiles.nix"; value = import ./variables/profiles.nix; }
+  { file = "variables/security.nix"; value = import ./variables/security.nix; }
+  { file = "variables/storage.nix"; value = import ./variables/storage.nix; }
+]
