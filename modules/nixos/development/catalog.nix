@@ -74,7 +74,7 @@
     heaptrack = { description = "heaptrack"; kind = "debugger"; classification = "A"; packages = pkgs: [ pkgs.heaptrack ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = false; heavy = false; };
     hotspot   = { description = "Hotspot"; kind = "debugger"; classification = "A"; packages = pkgs: [ pkgs.hotspot ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = false; heavy = false; };
     lldb      = { description = "LLDB"; kind = "debugger"; classification = "A"; packages = pkgs: [ pkgs.lldb ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = false; heavy = false; };
-    perf      = { description = "perf"; kind = "debugger"; classification = "A"; packages = pkgs: [ pkgs.linuxPackages.perf ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = false; heavy = false; };
+    perf      = { description = "perf"; kind = "debugger"; classification = "A"; packages = pkgs: [ pkgs.perf ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = false; heavy = false; };
     rr        = { description = "rr"; kind = "debugger"; classification = "A"; packages = pkgs: [ pkgs.rr ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = false; heavy = false; };
     strace    = { description = "strace"; kind = "debugger"; classification = "A"; packages = pkgs: [ pkgs.strace ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = false; heavy = false; };
     valgrind  = { description = "Valgrind"; kind = "debugger"; classification = "A"; packages = pkgs: [ pkgs.valgrind ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = false; heavy = false; };
@@ -123,7 +123,7 @@
     libadwaita = { description = "libadwaita"; kind = "gui-framework"; classification = "A"; packages = pkgs: [ pkgs.libadwaita ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = false; heavy = false; };
     qt5        = { description = "Qt5"; kind = "gui-framework"; classification = "A"; packages = pkgs: [ pkgs.qt5.qtbase ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = false; heavy = false; };
     qt6        = { description = "Qt6"; kind = "gui-framework"; classification = "A"; packages = pkgs: [ pkgs.qt6.qtbase ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = false; heavy = false; };
-    wxwidgets  = { description = "wxWidgets"; kind = "gui-framework"; classification = "A"; packages = pkgs: [ pkgs.wxGTK32 ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = false; heavy = false; };
+    wxwidgets  = { description = "wxWidgets"; kind = "gui-framework"; classification = "A"; packages = pkgs: [ pkgs.wxwidgets_3_2 ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = false; heavy = false; };
   };
   languages = {
     ada        = { description = "Ada (GNAT)"; kind = "toolchain"; classification = "A"; packages = pkgs: [ pkgs.gnat ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = false; heavy = false; };
@@ -134,8 +134,8 @@
     csharp     = { description = "C# / F# (.NET SDK)"; kind = "toolchain"; classification = "A"; packages = pkgs: [ pkgs.dotnet-sdk ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = false; heavy = true; };
     d          = { description = "D (LDC)"; kind = "toolchain"; classification = "A"; packages = pkgs: [ pkgs.ldc ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = false; heavy = false; };
     dart       = { description = "Dart"; kind = "toolchain"; classification = "A"; packages = pkgs: [ pkgs.dart ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = false; heavy = false; };
-    elixir     = { description = "Elixir (Erlang via dependency)"; kind = "toolchain"; classification = "A"; packages = pkgs: [ pkgs.elixir ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = false; heavy = false; };
-    erlang     = { description = "Erlang/OTP"; kind = "toolchain"; classification = "A"; packages = pkgs: [ pkgs.erlang ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = false; heavy = false; };
+    elixir     = { description = "Elixir (Erlang via dependency)"; kind = "toolchain"; classification = "A"; packages = pkgs: [ pkgs.beamPackages.elixir ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = false; heavy = false; };
+    erlang     = { description = "Erlang/OTP"; kind = "toolchain"; classification = "A"; packages = pkgs: [ pkgs.beamPackages.erlang ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = false; heavy = false; };
     fortran    = { description = "Fortran (gfortran)"; kind = "toolchain"; classification = "A"; packages = pkgs: [ pkgs.gfortran ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = false; heavy = false; };
     go         = { description = "Go"; kind = "toolchain"; classification = "A"; packages = pkgs: [ pkgs.go ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = false; heavy = false; };
     haskell    = { description = "Haskell (GHC + cabal-install)"; kind = "toolchain"; classification = "A"; packages = pkgs: [ pkgs.ghc pkgs.cabal-install ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = false; heavy = false; };
