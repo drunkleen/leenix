@@ -43,6 +43,7 @@
     ./leenix-swayosd-kbd-brightness.nix
     ./leenix-theme-list.nix
     ./leenix-toggle-notification-silencing.nix
+    ./leenix-waybar-state.nix
     ./leenix-voxtype-config.nix
     ./leenix-voxtype-model.nix
     ./leenix-voxtype-status.nix

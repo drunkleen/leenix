@@ -39,5 +39,6 @@
     ./leenix-toggle-nightlight.nix
     ./leenix-toggle-screensaver.nix
     ./leenix-toggle-waybar.nix
+    ./leenix-waybar-state.nix
   ];
 }

@@ -28,12 +28,7 @@ let
       command = "leenix-launch-browser --private";
     }
     {
-      keys = "SUPER + M";
-      description = "Music";
-      command = "leenix-launch-or-focus spotify";
-    }
-    {
-      keys = "SUPER + ALT + M";
+      keys = "SUPER + SHIFT + M";
       description = "Music TUI";
       command = "leenix-launch-or-focus-tui cliamp";
     }
@@ -52,12 +47,6 @@ let
       description = "Signal";
       command = ''leenix-launch-or-focus ^signal$ "uwsm-app -- signal-desktop"'';
     }
-    {
-      keys = "SUPER + SLASH";
-      description = "Bitwarden";
-      command = "uwsm-app -- bitwarden";
-    }
-
     {
       keys = "SUPER + Z";
       description = "Zoom";

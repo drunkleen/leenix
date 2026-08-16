@@ -27,7 +27,10 @@
     };
 
     hyprland = true;
-    waybar = true;
+    waybar = {
+      enable = true;
+      defaultVisible = true;
+    };
     hyprlock = true;
     hypridle = true;
     hyprsunset = true;

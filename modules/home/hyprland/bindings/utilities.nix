@@ -19,13 +19,8 @@ let
       command = "leenix-menu capture";
     }
     {
-      keys = "SUPER + CTRL + O";
-      description = "Toggle menu";
-      command = "leenix-menu toggle";
-    }
-    {
       keys = "SUPER + CTRL + H";
-      description = "Hardware menu";
+      description = "Toggle menu";
       command = "leenix-menu hardware";
     }
     {
@@ -57,7 +52,7 @@ let
     # UI / appearance
     {
       keys = "SUPER + SHIFT + SPACE";
-      description = "Toggle top bar";
+      description = "Toggle Waybar";
       command = "leenix-toggle-waybar";
     }
     {
@@ -67,7 +62,7 @@ let
     }
     {
       keys = "SUPER + SHIFT + CTRL + SPACE";
-      description = "Theme menu";
+      description = "Style menu";
       command = "leenix-menu theme";
     }
     {

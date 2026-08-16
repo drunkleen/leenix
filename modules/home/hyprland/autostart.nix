@@ -23,11 +23,10 @@ let
     "leenix-locale-env"
     # Run post-boot hooks after startup config has loaded
     "sleep 2 && leenix-hook post-boot"
-    # Reapply persistent desired runtime states (animations, touchpad, …).
-    # Self-gating; Nix stays the source of config truth.
-    "command -v leenix-desktop-state-apply >/dev/null && leenix-desktop-state-apply"
-  ]
-  ++ lib.optional variables.desktop.waybar "! leenix-toggle-enabled waybar-off && uwsm app -t service -- waybar";
+    # Persistent desktop states (animations, touchpad, Waybar visibility, …)
+    # are reapplied by the graphical-session-bound oneshot
+    # leenix-desktop-state-apply.service — not from Hyprland exec-once.
+  ];
 
   execlines = lib.concatMapStringsSep "\n" (cmd: "hl.exec_cmd(${builtins.toJSON cmd})") autostart;
 in

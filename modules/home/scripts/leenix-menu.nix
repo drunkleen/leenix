@@ -179,7 +179,22 @@ in
             options="$options\n󰍁  Automatic Lock"
             options="$options\n󰛨  Night Light"
             options="$options\n󰂚  Notifications"
-            options="$options\n󰍜  Waybar"
+            if command -v leenix-waybar-state >/dev/null 2>&1; then
+              wb_desired=$(leenix-waybar-state | sed -n 's/^desired: //p')
+              wb_effective=$(leenix-waybar-state | sed -n 's/^effective: //p')
+              if [[ $wb_desired == "enabled" && $wb_effective == "running" ]]; then
+                options="$options\n󰍜  Disable Waybar"
+              elif [[ $wb_desired == "disabled" && $wb_effective == "stopped" ]]; then
+                options="$options\n󰍜  Enable Waybar"
+              elif [[ $wb_desired == "enabled" ]]; then
+                # desired=ON but not running: degraded, do NOT call it Off.
+                options="$options\n󰍜  Waybar (down)"
+              else
+                options="$options\n󰍜  Enable Waybar"
+              fi
+            else
+              options="$options\n󰍜  Waybar"
+            fi
             options="$options\n󱂬  Workspace Layout"
             options="$options\n  Window Gaps"
             options="$options\n󰄖  1-Window Ratio"
@@ -190,7 +205,7 @@ in
           *Automatic*Lock*) leenix-toggle-idle ;;
           *Night*Light*) leenix-toggle-nightlight ;;
           *Notifications*) leenix-toggle-notification-silencing ;;
-          *Waybar*) leenix-toggle-waybar ;;
+          *Waybar*) leenix-toggle-waybar toggle ;;
           *Workspace*Layout*) leenix-hyprland-workspace-layout-toggle ;;
           *Window*Gaps*) leenix-hyprland-window-gaps-toggle ;;
           *1-Window*Ratio*) leenix-hyprland-window-single-square-aspect-toggle ;;
