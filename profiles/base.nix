@@ -106,6 +106,9 @@ in
       zip
       unzip
       p7zip
+
+      lazydocker
+      lazygit
     ];
 
     programs.zsh.enable = true;
