@@ -78,6 +78,11 @@ in
 
     boot = {
       plymouth.enable = variables.boot.plymouth.enable;
+
+      kernel = {
+        channel = attrByPath [ "boot" "kernel" "channel" ] "default" variables;
+        version = attrByPath [ "boot" "kernel" "version" ] null variables;
+      };
     };
 
     profiles = {

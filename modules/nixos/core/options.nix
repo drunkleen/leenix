@@ -120,6 +120,25 @@ in
 
     boot = {
       plymouth.enable = mkEnableOption "Plymouth boot splash screen";
+
+      kernel = {
+        channel = mkOption {
+          type = types.enum [
+            "default"
+            "stable"
+            "latest"
+            "version"
+          ];
+          default = "default";
+          description = "Kernel ownership policy. default: no boot.kernelPackages assignment (NixOS default or a specialized hardware module owns the kernel). stable: pkgs.linuxPackages. latest: pkgs.linuxPackages_latest. version: a specific series (e.g. \"6.18\") selected from the pinned nixpkgs.";
+        };
+
+        version = mkOption {
+          type = types.nullOr types.str;
+          default = null;
+          description = "Kernel series (e.g. \"6.18\") used when channel = \"version\". Exact patch versions are rejected; nixpkgs controls the patch release.";
+        };
+      };
     };
 
     profiles = {

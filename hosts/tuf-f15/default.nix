@@ -17,6 +17,7 @@
     ../../profiles/gaming.nix
     ../../profiles/laptop.nix
 
+    ../../modules/nixos/boot/kernel.nix
     ../../modules/nixos/boot/limine
     ../../modules/nixos/boot/plymouth.nix
     ../../modules/nixos/disk/default.nix
