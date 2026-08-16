@@ -11,9 +11,9 @@
       autoconf = false;
       automake = false;
       bazel = false;
-      cmake = false;
+      cmake = true;
       libtool = false;
-      meson = false;
+      meson = true;
       ninja = false;
       pkg-config = false;
       premake = false;
@@ -111,7 +111,7 @@
     };
     languages = {
       ada = false;
-      c = false;
+      c = true;
       clojure = false;
       cpp = false;
       crystal = false;
@@ -126,7 +126,7 @@
       java = false;
       julia = false;
       kotlin = false;
-      lua = false;
+      lua = true;
       nim = false;
       node = false;
       ocaml = false;
@@ -134,11 +134,11 @@
       pascal = false;
       perl = false;
       php = false;
-      python = false;
+      python = true;
       r = false;
       racket = false;
       ruby = false;
-      rust = false;
+      rust = true;
       scala = false;
       scheme = false;
       swift = false;
@@ -169,21 +169,21 @@
       zstd = false;
     };
     linters = {
-      black = false;
-      eslint = false;
-      nixfmt = false;
-      prettier = false;
+      black = true;
+      eslint = true;
+      nixfmt = true;
+      prettier = true;
       ruff = false;
       shellcheck = false;
       shfmt = false;
     };
     lsp = {
-      gopls = false;
-      lua-language-server = false;
+      gopls = true;
+      lua-language-server = true;
       nil = false;
       nixd = false;
-      pyright = false;
-      rust-analyzer = false;
+      pyright = true;
+      rust-analyzer = true;
       typescript-language-server = false;
     };
     mobile = {
@@ -223,10 +223,10 @@
       playwright = false;
     };
     virtualization = {
-      libvirt = false;
+      libvirt = true;
       qemu = false;
       vagrant = false;
-      virt-manager = false;
+      virt-manager = true;
     };
     web = {
       angular = false;

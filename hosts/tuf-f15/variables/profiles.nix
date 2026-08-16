@@ -5,7 +5,7 @@
     laptop = true;
 
     gaming = true;
-    development = false;
+    development = true;
     hardened = false;
     server = false;
   };
