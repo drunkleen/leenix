@@ -21,6 +21,7 @@
     ./leenix-notification-dismiss.nix
     ./leenix-notification-send.nix
     ./leenix-npx-install.nix
+    ./leenix-packages-audit.nix
     ./leenix-rebuild.nix
     ./leenix-show-done.nix
     ./leenix-show-logo.nix
