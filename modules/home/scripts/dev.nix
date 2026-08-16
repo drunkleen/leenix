@@ -7,5 +7,6 @@
     ./leenix-dev-add-migration.nix
     ./leenix-dev-benchmark.nix
     ./leenix-dev-bin-metadata.nix
+    ./leenix-dev-scaffold.nix
   ];
 }

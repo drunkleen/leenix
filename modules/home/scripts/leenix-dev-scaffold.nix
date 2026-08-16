@@ -50,9 +50,11 @@ in
         declare -A FRAMEWORK_CMD FRAMEWORK_BEFORE FRAMEWORK_AFTER
 ${specLines}
 
+        ENABLED="${enabledList}"
+
         usage() {
           echo "Usage: leenix-dev-scaffold <framework> <directory>"
-          echo "Enabled frameworks: ${enabledList:-<none>}"
+          echo "Enabled frameworks: ''${ENABLED:-<none>}"
         }
 
         name=''${1:-}

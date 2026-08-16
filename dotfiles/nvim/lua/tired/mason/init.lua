@@ -1,7 +1,16 @@
 local M = {}
 local masonames = require "tired.mason.names"
 local pkgs = require("tiredconfig").mason.pkgs
-local skipped = require("tiredconfig").mason.skip
+local skipped = vim.deepcopy(require("tiredconfig").mason.skip)
+
+-- LEENIX ownership reconciliation: LSPs/linters owned by LEENIX development
+-- policy are Nix-installed. Mason must not install them again, so the
+-- generated lua/leenix/mason-skip.lua (built from enabled development.lsp.* /
+-- development.linters.* leaves) is merged into the explicit skip list.
+local leenix_ok, leenix_skip = pcall(require, "leenix.mason-skip")
+if leenix_ok and type(leenix_skip) == "table" and type(leenix_skip.skip) == "table" then
+  vim.list_extend(skipped, leenix_skip.skip)
+end
 
 M.get_pkgs = function()
   local tools = {}
