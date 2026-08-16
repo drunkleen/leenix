@@ -17,6 +17,28 @@ let
         leaves)
       devCatalog
   );
+
+  # Cybersecurity catalog wiring (same pattern).
+  cybCatalog = import ../cybersecurity/catalog.nix;
+
+  cybWiring = lib.mkIf (attrByPath [ "cybersecurity" ] null variables != null) (
+    builtins.mapAttrs (cat: leaves:
+      builtins.mapAttrs (leaf: _:
+        { enable = attrByPath [ "cybersecurity" cat leaf ] false variables; })
+        leaves)
+      cybCatalog
+  );
+
+  # AI catalog wiring (same pattern).
+  aiCatalog = import ../ai/catalog.nix;
+
+  aiWiring = lib.mkIf (attrByPath [ "ai" ] null variables != null) (
+    builtins.mapAttrs (cat: leaves:
+      builtins.mapAttrs (leaf: _:
+        { enable = attrByPath [ "ai" cat leaf ] false variables; })
+        leaves)
+      aiCatalog
+  );
 in
 
 {
@@ -66,6 +88,8 @@ in
       development.enable = variables.profiles.development;
       hardened.enable = variables.profiles.hardened;
       server.enable = variables.profiles.server;
+      cybersecurity.enable = attrByPath [ "profiles" "cybersecurity" ] false variables;
+      ai.enable = attrByPath [ "profiles" "ai" ] false variables;
     };
 
     bootstrap = {
@@ -176,5 +200,11 @@ in
 
     # Generated development catalog wiring (absent values -> false).
     development = devWiring;
+
+    # Generated cybersecurity catalog wiring (absent values -> false).
+    cybersecurity = cybWiring;
+
+    # Generated AI catalog wiring (absent values -> false).
+    ai = aiWiring;
   };
 }

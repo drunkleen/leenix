@@ -15,6 +15,14 @@ in
     ../development/options.nix
     ../development/assertions.nix
     ../development/checks.nix
+    # Cybersecurity catalog: same always-loaded pattern.
+    ../cybersecurity/options.nix
+    ../cybersecurity/assertions.nix
+    ../cybersecurity/checks.nix
+    # AI catalog: same always-loaded pattern.
+    ../ai/options.nix
+    ../ai/assertions.nix
+    ../ai/checks.nix
   ];
 
   options.leenix = {
@@ -122,6 +130,8 @@ in
       development.enable = mkEnableOption "development profile";
       hardened.enable = mkEnableOption "hardened profile";
       server.enable = mkEnableOption "server profile";
+      cybersecurity.enable = mkEnableOption "cybersecurity profile";
+      ai.enable = mkEnableOption "AI profile";
     };
 
     bootstrap = {

@@ -8,5 +8,7 @@
     development = true;
     hardened = false;
     server = false;
+    cybersecurity = true;
+    ai = false;
   };
 }

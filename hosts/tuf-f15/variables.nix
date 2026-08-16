@@ -15,7 +15,9 @@ let
   mergeHostVariables = import ../../lib/mergeHostVariables.nix;
 in
 mergeHostVariables [
+  { file = "variables/ai.nix"; value = import ./variables/ai.nix; }
   { file = "variables/boot.nix"; value = import ./variables/boot.nix; }
+  { file = "variables/cybersecurity.nix"; value = import ./variables/cybersecurity.nix; }
   { file = "variables/desktop.nix"; value = import ./variables/desktop.nix; }
   { file = "variables/development.nix"; value = import ./variables/development.nix; }
   { file = "variables/hardware.nix"; value = import ./variables/hardware.nix; }

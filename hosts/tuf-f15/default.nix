@@ -9,7 +9,9 @@
     ../../modules/nixos/core/options.nix
     ../../modules/nixos/core/host.nix
 
+    ../../profiles/ai.nix
     ../../profiles/base.nix
+    ../../profiles/cybersecurity.nix
     ../../profiles/desktop.nix
     ../../profiles/development.nix
     ../../profiles/gaming.nix

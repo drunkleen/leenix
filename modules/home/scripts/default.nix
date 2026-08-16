@@ -8,6 +8,7 @@ let
   desktopCap = variables.profiles.desktop or false;
   laptopCap = variables.profiles.laptop or false;
   devCap = variables.profiles.development or false;
+  cyberCap = variables.profiles.cybersecurity or false;
   hyprlandCap = variables.desktop.hyprland or false;
   asusModel = (variables.hardware or { }).asus.model or null;
   wifiCap = variables.networking.iwd or false;
@@ -27,6 +28,7 @@ in
   #   WireGuard/OpenVPN → + network-vpn (only when profiles are configured)
   #   desktop profile   → + desktop, hardware
   #   development       → + dev
+  #   cybersecurity     → + cybersecurity (wordlists + external-tool helpers)
   #   Hyprland cap      → + hyprland
   #   laptop profile    → + laptop
   #   ASUS model cap    → + only the detector matching hardware.asus.model
@@ -41,6 +43,7 @@ in
     ++ lib.optionals (desktopCap || laptopCap) [ ./hardware.nix ]
     ++ lib.optionals desktopCap [ ./desktop.nix ]
     ++ lib.optionals devCap [ ./dev.nix ]
+    ++ lib.optionals cyberCap [ ./cybersecurity.nix ]
     ++ lib.optionals hyprlandCap [ ./hyprland.nix ]
     ++ lib.optionals laptopCap [ ./laptop.nix ]
     ++ lib.optional (asusModel == "rog") ./leenix-hw-asus-rog.nix
