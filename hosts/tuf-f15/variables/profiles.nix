@@ -9,6 +9,6 @@
     hardened = false;
     server = false;
     cybersecurity = true;
-    ai = false;
+    ai = true;
   };
 }

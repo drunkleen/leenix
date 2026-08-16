@@ -8,7 +8,7 @@
 {
   ai = {
     codingAgents = {
-      claudeCode = true;
+      claudeCode = false;
       codex = true;
       geminiCli = false;
       goose = false;
