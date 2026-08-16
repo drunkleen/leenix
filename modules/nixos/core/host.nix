@@ -39,6 +39,17 @@ let
         leaves)
       aiCatalog
   );
+
+  # Applications catalog wiring (same pattern).
+  appCatalog = import ../applications/catalog.nix;
+
+  appWiring = lib.mkIf (attrByPath [ "applications" ] null variables != null) (
+    builtins.mapAttrs (cat: leaves:
+      builtins.mapAttrs (leaf: _:
+        { enable = attrByPath [ "applications" cat leaf ] false variables; })
+        leaves)
+      appCatalog
+  );
 in
 
 {
@@ -98,6 +109,7 @@ in
       server.enable = variables.profiles.server;
       cybersecurity.enable = attrByPath [ "profiles" "cybersecurity" ] false variables;
       ai.enable = attrByPath [ "profiles" "ai" ] false variables;
+      applications.enable = attrByPath [ "profiles" "applications" ] false variables;
     };
 
     bootstrap = {
@@ -112,7 +124,8 @@ in
       environment = variables.desktop.environment;
 
       hyprland.enable = variables.desktop.hyprland;
-      waybar.enable = variables.desktop.waybar;
+      waybar.enable = variables.desktop.waybar.enable;
+      waybar.defaultVisible = variables.desktop.waybar.defaultVisible;
       hyprlock.enable = variables.desktop.hyprlock;
       hypridle.enable = variables.desktop.hypridle;
       hyprsunset.enable = variables.desktop.hyprsunset;
@@ -215,5 +228,8 @@ in
 
     # Generated AI catalog wiring (absent values -> false).
     ai = aiWiring;
+
+    # Generated applications catalog wiring (absent values -> false).
+    applications = appWiring;
   };
 }

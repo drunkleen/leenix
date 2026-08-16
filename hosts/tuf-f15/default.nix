@@ -10,6 +10,7 @@
     ../../modules/nixos/core/host.nix
 
     ../../profiles/ai.nix
+    ../../profiles/applications.nix
     ../../profiles/base.nix
     ../../profiles/cybersecurity.nix
     ../../profiles/desktop.nix

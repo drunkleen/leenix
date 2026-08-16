@@ -23,6 +23,10 @@ in
     ../ai/options.nix
     ../ai/assertions.nix
     ../ai/checks.nix
+    # Applications catalog: same always-loaded pattern.
+    ../applications/options.nix
+    ../applications/assertions.nix
+    ../applications/checks.nix
   ];
 
   options.leenix = {
@@ -165,6 +169,7 @@ in
       server.enable = mkEnableOption "server profile";
       cybersecurity.enable = mkEnableOption "cybersecurity profile";
       ai.enable = mkEnableOption "AI profile";
+      applications.enable = mkEnableOption "applications profile";
     };
 
     bootstrap = {
@@ -202,7 +207,14 @@ in
       };
 
       hyprland.enable = mkEnableOption "Hyprland";
-      waybar.enable = mkEnableOption "Waybar";
+      waybar = {
+        enable = mkEnableOption "Waybar";
+        defaultVisible = mkOption {
+          type = types.bool;
+          default = true;
+          description = "Default Waybar visibility when no persisted user preference exists. The runtime preference (toggles/waybar) overrides this only for visibility, never for whether the Waybar capability is installed.";
+        };
+      };
       hyprlock.enable = mkEnableOption "Hyprlock";
       hypridle.enable = mkEnableOption "Hypridle";
       hyprsunset.enable = mkEnableOption "Hyprsunset";

@@ -10,5 +10,6 @@
     server = false;
     cybersecurity = true;
     ai = true;
+    applications = true;
   };
 }
