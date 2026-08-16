@@ -30,5 +30,6 @@
     ./leenix-toggle.nix
     ./leenix-toggle-enabled.nix
     ./leenix-tz-select.nix
+    ./leenix-uname.nix
   ];
 }
