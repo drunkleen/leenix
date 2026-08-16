@@ -24,7 +24,7 @@ let
 
   # Guarded leaves: defensive package selection — skip any package that is
   # missing from the pinned nixpkgs for this platform or is not available on it.
-  leafPkgs = x:
+  rawLeafPkgs = x:
     if x.meta.guarded then
       let
         attempt = builtins.tryEval (x.meta.packages pkgs);
@@ -35,6 +35,23 @@ let
         [ ]
     else
       x.meta.packages pkgs;
+
+  # Native-library leaves (library/sdk/numerical-lib/gui-framework) also expose
+  # their `.dev` outputs so pkg-config metadata + headers are discoverable via
+  # the system profile (sw/lib/pkgconfig) — the Nix-native model, no global
+  # CPATH/PKG_CONFIG_PATH hacks. Headers are referenced by the .pc files
+  # directly. project-local devShells remain the reproducible path.
+  devOutputKinds = [ "library" "sdk" "numerical-lib" "gui-framework" ];
+
+  leafPkgs = x:
+    let
+      base = rawLeafPkgs x;
+      devs = if builtins.elem x.meta.kind devOutputKinds then
+        builtins.filter (p: p != null) (map (p: p.dev or null) base)
+      else
+        [ ];
+    in
+    base ++ devs;
 
   packages =
     builtins.concatLists (map leafPkgs aEnabled)

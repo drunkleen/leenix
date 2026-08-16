@@ -9,6 +9,14 @@ let
 in
 
 {
+  imports = [
+    # Development catalog: generated typed options, always-loaded assertions
+    # (profile gate / unfree / platform) and derived consistency checks.
+    ../development/options.nix
+    ../development/assertions.nix
+    ../development/checks.nix
+  ];
+
   options.leenix = {
     host = {
       hostname = mkOption {

@@ -2,6 +2,21 @@
 
 let
   inherit (lib) attrByPath;
+
+  # Development catalog keys drive the generated host wiring below. The merged
+  # host variables expose variables.development.<category>.<leaf>; absent values
+  # safely default to false (no `or true`). Hosts that declare any development
+  # policy must import profiles/development.nix so the options/assertions are
+  # active.
+  devCatalog = import ../development/catalog.nix;
+
+  devWiring = lib.mkIf (attrByPath [ "development" ] null variables != null) (
+    builtins.mapAttrs (cat: leaves:
+      builtins.mapAttrs (leaf: _:
+        { enable = attrByPath [ "development" cat leaf ] false variables; })
+        leaves)
+      devCatalog
+  );
 in
 
 {
@@ -158,5 +173,8 @@ in
     # Only overridden when the host explicitly declares the variable.
     services.podman.enable = lib.mkIf (attrByPath [ "services" "podman" ] null variables != null)
       (attrByPath [ "services" "podman" ] false variables);
+
+    # Generated development catalog wiring (absent values -> false).
+    development = devWiring;
   };
 }

@@ -104,7 +104,7 @@
   };
   graphics = {
     epoxy       = { description = "libepoxy"; kind = "library"; classification = "A"; packages = pkgs: [ pkgs.libepoxy ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = false; heavy = false; };
-    glfw        = { description = "GLFW"; kind = "library"; classification = "A"; packages = pkgs: [ pkgs.glfw ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = false; heavy = false; };
+    glfw        = { description = "GLFW (OpenGL windowing; GL headers as implementation dependency)"; kind = "library"; classification = "A"; packages = pkgs: [ pkgs.glfw pkgs.libGL ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = false; heavy = false; };
     glm         = { description = "GLM"; kind = "library"; classification = "A"; packages = pkgs: [ pkgs.glm ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = false; heavy = false; };
     glslang     = { description = "glslang (shader compiler)"; kind = "library"; classification = "A"; packages = pkgs: [ pkgs.glslang ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = false; heavy = false; };
     opengl      = { description = "OpenGL/EGL/GLES dev environment (libglvnd)"; kind = "library"; classification = "A"; packages = pkgs: [ pkgs.libGL ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = false; heavy = false; };
