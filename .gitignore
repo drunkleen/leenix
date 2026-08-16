@@ -2,3 +2,4 @@
 hosts/*/local.nix
 hosts/*/local.nix.leenix-backup
 hosts/*/local.nix.tmp
+.vscode
