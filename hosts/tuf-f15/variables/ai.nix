@@ -8,12 +8,12 @@
 {
   ai = {
     codingAgents = {
-      claudeCode = false;
-      codex = false;
+      claudeCode = true;
+      codex = true;
       geminiCli = false;
       goose = false;
       openclaw = false;
-      opencode = false;
+      opencode = true;
       qwenCode = false;
     };
     localRuntimes = {
