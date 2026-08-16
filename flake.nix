@@ -44,6 +44,14 @@
         hyprmon = prev.hyprmon.overrideAttrs (old: {
           patches = (old.patches or [ ]) ++ [ ./packages/hyprmon/skip-unchanged-config-write.patch ];
         });
+        # Patched Limine: demote the two Linux-loader progress messages
+        # ("linux: Loading kernel/module") to verbose-only output so the LEENIUM
+        # menu stays visible and the menu -> Plymouth transition is clean, while
+        # panics, warnings, menu, timeout, and boot semantics stay untouched.
+        # See packages/limine/loading-messages-printv.patch.
+        limine = prev.limine.overrideAttrs (old: {
+          patches = (old.patches or [ ]) ++ [ ./packages/limine/loading-messages-printv.patch ];
+        });
       };
     in
     {
