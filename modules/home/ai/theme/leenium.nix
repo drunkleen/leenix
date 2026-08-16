@@ -1,35 +1,12 @@
-# LEENIUM AI theme palette — canonical source for AI-application theming.
+# LEENIUM AI theme — semantic mappings for AI-application theming.
 #
-# AI-scoped: this palette is NOT the global LEENIX theme. It owns the exact
-# LEENIUM defs + semantic mappings (OpenCode theme schema) so generated theme
-# artifacts (e.g. ~/.config/opencode/themes/leenium.json) are reproducible and
-# byte/semantically faithful. Other LEENIX consumers (Waybar, Neovim, Limine,
-# Plymouth, GTK/Qt, Hyprland, Rofi, Mako, Kitty, SwayOSD) are NOT changed.
+# The canonical LEENIUM color palette lives in lib/leenium.nix (single shared
+# source); this module re-exports `defs` from it and adds the OpenCode theme
+# semantic mappings so generated artifacts (e.g.
+# ~/.config/opencode/themes/leenium.json) stay reproducible and faithful.
+
 {
-  defs = {
-    bg = "#0B1113";
-    sidebar = "#0E1518";
-    panel = "#11191C";
-    card = "#141E21";
-    popup = "#182326";
-    floating = "#1D2A2D";
-    hover = "#223033";
-    active = "#304144";
-    selection = "#365156";
-    text = "#D8E3E0";
-    muted = "#718688";
-    accent = "#33B8A8";
-    cyan = "#59D6C5";
-    sea = "#4DBA7A";
-    seaBright = "#67CF94";
-    type = "#71E4D8";
-    warn = "#D9C76B";
-    warnBright = "#EFD45E";
-    orange = "#F4A259";
-    error = "#E16F73";
-    errorSoft = "#F08787";
-    blue = "#5E9BFF";
-  };
+  defs = (import ../../../../lib/leenium.nix).defs;
 
   theme = {
     primary = { dark = "accent"; light = "accent"; };

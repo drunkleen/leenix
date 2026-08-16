@@ -79,6 +79,9 @@ in
     boot = {
       plymouth.enable = variables.boot.plymouth.enable;
 
+      visual.enable = attrByPath [ "boot" "visual" "enable" ] true variables;
+      visual.verbose = attrByPath [ "boot" "visual" "verbose" ] false variables;
+
       kernel = {
         channel = attrByPath [ "boot" "kernel" "channel" ] "default" variables;
         version = attrByPath [ "boot" "kernel" "version" ] null variables;
@@ -114,7 +117,8 @@ in
       hypridle.enable = variables.desktop.hypridle;
       hyprsunset.enable = variables.desktop.hyprsunset;
 
-      autologin.enable = variables.desktop.autologin.enable;
+      sddm.enable = attrByPath [ "desktop" "sddm" "enable" ] false variables;
+      sddm.autologin = attrByPath [ "desktop" "sddm" "autologin" ] true variables;
 
       uwsm.enable = variables.desktop.uwsm.enable;
 

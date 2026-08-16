@@ -1,0 +1,34 @@
+LEENIX focused Limine patch (v12.5.2).
+
+LEENIX intentionally demotes these two Linux-loader progress messages to
+verbose-only output so the LEENIUM menu remains visible while the
+menu -> Plymouth transition stays clean.
+
+- Normal boot (verbose=false): the two "linux: Loading ..." lines are hidden.
+- VERBOSE=yes: they are shown again via printv().
+- Panics, warnings, errors, menu rendering, timeout, editor policy, and boot
+  semantics are untouched: only the two informational Linux x86 loader
+  messages change from print() to printv().
+
+diff --git a/common/protos/linux_x86.c b/common/protos/linux_x86.c
+index a05d8b1..1ec1caf 100644
+--- a/common/protos/linux_x86.c
++++ b/common/protos/linux_x86.c
+@@ -308,7 +308,7 @@ noreturn void linux_load(char *config, char *cmdline) {
+         panic(true, "linux: Kernel path not specified");
+     }
+ 
+-    print("linux: Loading kernel `%#`...\n", kernel_path);
++    printv("linux: Loading kernel `%#`...\n", kernel_path);
+ 
+     if ((kernel_file = uri_open(kernel_path, MEMMAP_BOOTLOADER_RECLAIMABLE,
+ #if defined (__i386__)
+@@ -476,7 +476,7 @@ noreturn void linux_load(char *config, char *cmdline) {
+         if (module_path == NULL)
+             break;
+ 
+-        print("linux: Loading module `%#`...\n", module_path);
++        printv("linux: Loading module `%#`...\n", module_path);
+ 
+         struct file_handle *module;
+         if ((module = uri_open(module_path, MEMMAP_BOOTLOADER_RECLAIMABLE,

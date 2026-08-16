@@ -29,6 +29,5 @@
   ]
   ++ lib.optional variables.desktop.hypridle ./hypridle.nix
   ++ lib.optional variables.desktop.hyprlock ./hyprlock.nix
-  ++ lib.optional variables.desktop.hyprsunset ./hyprsunset.nix
-  ++ lib.optional (variables.desktop.environment == "hyprland") ./login.nix;
+  ++ lib.optional variables.desktop.hyprsunset ./hyprsunset.nix;
 }

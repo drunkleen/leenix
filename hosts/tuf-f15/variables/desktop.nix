@@ -17,8 +17,9 @@
   desktop = {
     environment = "hyprland";
 
-    autologin = {
+    sddm = {
       enable = true;
+      autologin = true;
     };
 
     uwsm = {

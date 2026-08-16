@@ -10,7 +10,7 @@
     ../modules/nixos/desktop/bootstrap.nix
     ../modules/nixos/desktop/file-manager.nix
     ../modules/nixos/desktop/uwsm.nix
-    ../modules/nixos/desktop/autologin.nix
+    ../modules/nixos/desktop/sddm.nix
     ../modules/nixos/desktop/swayosd.nix
     ../modules/nixos/hardware/camera.nix
     ../modules/nixos/security/pam.nix

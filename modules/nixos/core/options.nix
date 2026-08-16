@@ -121,6 +121,20 @@ in
     boot = {
       plymouth.enable = mkEnableOption "Plymouth boot splash screen";
 
+      visual = {
+        enable = mkOption {
+          type = types.bool;
+          default = true;
+          description = "Seamless boot visuals: quiet normal boot, keep Plymouth visible until the graphical session is ready, and bounded fallback reveal.";
+        };
+
+        verbose = mkOption {
+          type = types.bool;
+          default = false;
+          description = "Verbose/recovery boot: full console output and visible systemd status (loglevel 7). Off by default.";
+        };
+      };
+
       kernel = {
         channel = mkOption {
           type = types.enum [
@@ -193,7 +207,15 @@ in
       hypridle.enable = mkEnableOption "Hypridle";
       hyprsunset.enable = mkEnableOption "Hyprsunset";
 
-      autologin.enable = mkEnableOption "automatic login on tty1";
+      sddm = {
+        enable = mkEnableOption "SDDM display manager (Wayland greeter)";
+
+        autologin = mkOption {
+          type = types.bool;
+          default = true;
+          description = "Automatically log in the configured LEENIX user via SDDM into the default UWSM Hyprland session (LUKS stays the boot password).";
+        };
+      };
 
       uwsm.enable = mkEnableOption "UWSM-managed Wayland session";
 
