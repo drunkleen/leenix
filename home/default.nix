@@ -11,6 +11,7 @@ in
 
 {
   imports = [
+    ../modules/home/ai
     ../modules/home/cli
     ../modules/home/git
     ../modules/home/nvim
