@@ -86,6 +86,20 @@
     pandoc   = { description = "Pandoc"; kind = "cli"; classification = "A"; packages = pkgs: [ pkgs.pandoc ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = false; heavy = false; };
     sphinx   = { description = "Sphinx"; kind = "cli"; classification = "A"; packages = pkgs: [ pkgs.sphinx ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = false; heavy = false; };
   };
+  editors = {
+    emacs = { description = "Emacs (extensible editor)"; kind = "gui"; classification = "A"; packages = pkgs: [ pkgs.emacs ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = false; heavy = false; };
+    geany = { description = "Geany (lightweight IDE-ish editor)"; kind = "gui"; classification = "A"; packages = pkgs: [ pkgs.geany ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = false; heavy = false; };
+    gnomeBuilder = { description = "GNOME Builder (GNOME IDE)"; kind = "gui"; classification = "A"; packages = pkgs: [ pkgs.gnome-builder ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = false; heavy = true; };
+    kate = { description = "Kate (KDE advanced text editor)"; kind = "gui"; classification = "A"; packages = pkgs: [ pkgs.kdePackages.kate ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = false; heavy = false; };
+    lapce = { description = "Lapce (Rust code editor)"; kind = "gui"; classification = "A"; packages = pkgs: [ pkgs.lapce ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = false; heavy = false; };
+    liteXl = { description = "Lite XL (lightweight editor)"; kind = "gui"; classification = "A"; packages = pkgs: [ pkgs.lite-xl ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = false; heavy = false; };
+    neovide = { description = "Neovide (Neovim GUI client)"; kind = "gui"; classification = "A"; packages = pkgs: [ pkgs.neovide ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = false; heavy = false; };
+    pulsar = { description = "Pulsar (Atom-derived editor)"; kind = "gui"; classification = "A"; packages = pkgs: [ pkgs.pulsar ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = false; heavy = true; };
+    sublimeText = { description = "Sublime Text 4 (proprietary editor)"; kind = "gui"; classification = "A"; packages = pkgs: [ pkgs.sublime4 ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = true; heavy = false; };
+    vscode = { description = "Visual Studio Code (single owner: desktop default via profiles.desktop, tri-state host policy)"; kind = "gui"; classification = "A"; packages = pkgs: [ pkgs.vscode ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = true; heavy = true; };
+    vscodium = { description = "VSCodium (open-source VS Code build)"; kind = "gui"; classification = "A"; packages = pkgs: [ pkgs.vscodium ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = false; heavy = true; };
+    zed = { description = "Zed (high-performance editor)"; kind = "gui"; classification = "A"; packages = pkgs: [ pkgs.zed-editor ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = false; heavy = true; };
+  };
   embedded = {
     avrdude        = { description = "AVRDUDE (AVR flashing)"; kind = "toolchain"; classification = "A"; packages = pkgs: [ pkgs.avrdude ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = false; heavy = false; };
     dfu-util       = { description = "dfu-util"; kind = "toolchain"; classification = "A"; packages = pkgs: [ pkgs.dfu-util ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = false; heavy = false; };
@@ -124,6 +138,31 @@
     qt5        = { description = "Qt5"; kind = "gui-framework"; classification = "A"; packages = pkgs: [ pkgs.qt5.qtbase ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = false; heavy = false; };
     qt6        = { description = "Qt6"; kind = "gui-framework"; classification = "A"; packages = pkgs: [ pkgs.qt6.qtbase ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = false; heavy = false; };
     wxwidgets  = { description = "wxWidgets"; kind = "gui-framework"; classification = "A"; packages = pkgs: [ pkgs.wxwidgets_3_2 ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = false; heavy = false; };
+  };
+  ides = {
+    arduinoIde = { description = "Arduino IDE 2.x (x86_64-only)"; kind = "gui"; classification = "A"; packages = pkgs: [ pkgs.arduino-ide ]; platforms = [ "x86_64-linux" ]; guarded = true; unfree = false; heavy = true; };
+    clion = { description = "CLion (JetBrains C/C++ IDE)"; kind = "gui"; classification = "A"; packages = pkgs: [ pkgs.jetbrains.clion ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = true; heavy = true; };
+    codeBlocks = { description = "Code::Blocks (C/C++ IDE)"; kind = "gui"; classification = "A"; packages = pkgs: [ pkgs.codeblocks ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = false; heavy = false; };
+    datagrip = { description = "DataGrip (JetBrains database IDE)"; kind = "gui"; classification = "A"; packages = pkgs: [ pkgs.jetbrains.datagrip ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = true; heavy = true; };
+    dataspell = { description = "DataSpell (JetBrains data science IDE)"; kind = "gui"; classification = "A"; packages = pkgs: [ pkgs.jetbrains.dataspell ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = true; heavy = true; };
+    dbeaver = { description = "DBeaver (universal database IDE)"; kind = "gui"; classification = "A"; packages = pkgs: [ pkgs.dbeaver-bin ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = false; heavy = false; };
+    eclipse = { description = "Eclipse IDE for Java"; kind = "gui"; classification = "A"; packages = pkgs: [ pkgs.eclipses.eclipse-java ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = false; heavy = true; };
+    goland = { description = "GoLand (JetBrains Go IDE)"; kind = "gui"; classification = "A"; packages = pkgs: [ pkgs.jetbrains.goland ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = true; heavy = true; };
+    idea = { description = "IntelliJ IDEA (unified JetBrains IDE)"; kind = "gui"; classification = "A"; packages = pkgs: [ pkgs.jetbrains.idea ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = true; heavy = true; };
+    ideaCommunity = { description = "IntelliJ IDEA Community Edition (OSS build)"; kind = "gui"; classification = "A"; packages = pkgs: [ pkgs.jetbrains.idea-oss ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = false; heavy = true; };
+    jetbrainsToolbox = { description = "JetBrains Toolbox (IDE manager; alternative to individual IDE leaves)"; kind = "gui"; classification = "A"; packages = pkgs: [ pkgs.jetbrains-toolbox ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = true; heavy = false; };
+    kdevelop = { description = "KDevelop (KDE IDE)"; kind = "gui"; classification = "A"; packages = pkgs: [ pkgs.kdePackages.kdevelop ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = false; heavy = true; };
+    netbeans = { description = "Apache NetBeans (Java IDE)"; kind = "gui"; classification = "A"; packages = pkgs: [ pkgs.netbeans ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = false; heavy = true; };
+    phpstorm = { description = "PhpStorm (JetBrains PHP IDE)"; kind = "gui"; classification = "A"; packages = pkgs: [ pkgs.jetbrains.phpstorm ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = true; heavy = true; };
+    pycharm = { description = "PyCharm (unified JetBrains Python IDE)"; kind = "gui"; classification = "A"; packages = pkgs: [ pkgs.jetbrains.pycharm ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = true; heavy = true; };
+    pycharmCommunity = { description = "PyCharm Community Edition (OSS build)"; kind = "gui"; classification = "A"; packages = pkgs: [ pkgs.jetbrains.pycharm-oss ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = false; heavy = true; };
+    qtCreator = { description = "Qt Creator (Qt/C++ IDE)"; kind = "gui"; classification = "A"; packages = pkgs: [ pkgs.qtcreator ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = false; heavy = true; };
+    rider = { description = "Rider (JetBrains .NET IDE)"; kind = "gui"; classification = "A"; packages = pkgs: [ pkgs.jetbrains.rider ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = true; heavy = true; };
+    rstudio = { description = "RStudio (R IDE)"; kind = "gui"; classification = "A"; packages = pkgs: [ pkgs.rstudio ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = false; heavy = true; };
+    rubyMine = { description = "RubyMine (JetBrains Ruby IDE)"; kind = "gui"; classification = "A"; packages = pkgs: [ pkgs.jetbrains.ruby-mine ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = true; heavy = true; };
+    rustRover = { description = "RustRover (JetBrains Rust IDE)"; kind = "gui"; classification = "A"; packages = pkgs: [ pkgs.jetbrains.rust-rover ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = true; heavy = true; };
+    spyder = { description = "Spyder (Python IDE)"; kind = "gui"; classification = "A"; packages = pkgs: [ pkgs.spyder ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = false; heavy = false; };
+    webstorm = { description = "WebStorm (JetBrains JS/TS IDE)"; kind = "gui"; classification = "A"; packages = pkgs: [ pkgs.jetbrains.webstorm ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = true; heavy = true; };
   };
   languages = {
     ada        = { description = "Ada (GNAT)"; kind = "toolchain"; classification = "A"; packages = pkgs: [ pkgs.gnat ]; platforms = [ "x86_64-linux" "aarch64-linux" ]; guarded = false; unfree = false; heavy = false; };

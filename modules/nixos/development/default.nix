@@ -1,7 +1,8 @@
 { config, lib, pkgs, ... }:
 
 # Package composition for the development catalog. Imported by
-# profiles/development.nix. Only `environment.systemPackages` is touched:
+# profiles/development.nix and profiles/desktop.nix (editors/IDEs are
+# desktop-capable). Only `environment.systemPackages` is touched:
 # no services, daemons, drivers, firewall, database servers, or allowUnfree.
 #
 #   A leaves  -> enabled leaves add their Nix-owned packages
@@ -58,7 +59,7 @@ let
     ++ lib.optionals (eEnabled != [ ]) [ pkgs.nodejs pkgs.pnpm ];
 in
 {
-  config = lib.mkIf config.leenix.profiles.development.enable {
+  config = lib.mkIf (config.leenix.profiles.development.enable || config.leenix.profiles.desktop.enable) {
     environment.systemPackages = packages;
   };
 }

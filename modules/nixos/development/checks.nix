@@ -30,29 +30,46 @@ let
     "development.cloud.terraform"
     "development.compute.cuda"
     "development.databases.mongodb"
+    "development.editors.sublimeText"
+    "development.editors.vscode"
+    "development.ides.clion"
+    "development.ides.datagrip"
+    "development.ides.dataspell"
+    "development.ides.goland"
+    "development.ides.idea"
+    "development.ides.jetbrainsToolbox"
+    "development.ides.phpstorm"
+    "development.ides.pycharm"
+    "development.ides.rider"
+    "development.ides.rubyMine"
+    "development.ides.rustRover"
+    "development.ides.webstorm"
     "development.mobile.android"
   ];
   frozenGuarded = [
     "development.compute.cuda"
     "development.compute.rocm"
+    "development.ides.arduinoIde"
     "development.languages.swift"
     "development.mobile.android"
   ];
 
   checks = [
-    { name = "category count == 24"; ok = builtins.length devLib.cats == 24; }
-    { name = "leaf count == 198"; ok = builtins.length devLib.all == 198; }
-    { name = "A classification count == 188"; ok = builtins.length aLeaves == 188; }
+    { name = "category count == 26"; ok = builtins.length devLib.cats == 26; }
+    { name = "leaf count == 233"; ok = builtins.length devLib.all == 233; }
+    { name = "A classification count == 223"; ok = builtins.length aLeaves == 223; }
     { name = "E classification count == 10"; ok = builtins.length eLeaves == 10; }
+    { name = "editors category count == 12"; ok = builtins.length (devLib.leavesOf "editors") == 12; }
+    { name = "ides category count == 23"; ok = builtins.length (devLib.leavesOf "ides") == 23; }
     { name = "categories alphabetically ordered"; ok = catOrderOk; }
     { name = "leaves alphabetically ordered per category"; ok = leafOrderOk; }
     { name = "exactly one of packages/support per leaf"; ok = oneOfOk; }
     { name = "classification is only A or E"; ok = classOk; }
     { name = "every A leaf has a package implementation"; ok = aPackagesOk; }
     { name = "every E leaf has a non-empty support implementation"; ok = eSupportOk; }
-    { name = "unfree set matches the 4 frozen leaves"; ok = builtins.sort builtins.lessThan (map devLib.path unfreeLeaves) == frozenUnfree; }
-    { name = "guarded set matches the 4 frozen leaves"; ok = builtins.sort builtins.lessThan (map devLib.path guardedLeaves) == frozenGuarded; }
-    { name = "heavy count matches frozen catalog"; ok = builtins.length heavyLeaves == 17; }
+    { name = "unfree set matches the 18 frozen leaves"; ok = builtins.sort builtins.lessThan (map devLib.path unfreeLeaves) == builtins.sort builtins.lessThan frozenUnfree; }
+    { name = "guarded set matches the 5 frozen leaves"; ok = builtins.sort builtins.lessThan (map devLib.path guardedLeaves) == builtins.sort builtins.lessThan frozenGuarded; }
+    { name = "heavy count matches frozen catalog (41)"; ok = builtins.length heavyLeaves == 41; }
   ];
 in
 {

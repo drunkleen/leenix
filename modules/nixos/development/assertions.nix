@@ -1,7 +1,8 @@
 { config, lib, ... }:
 
 # Always-loaded assertions for the development catalog:
-#   - profiles.development master gate (any enabled leaf with the profile off)
+#   - per-category profile gate (editors/ides allowed by desktop OR development;
+#     all other categories still require profiles.development)
 #   - unfree policy (never silently allowed; never mutates allowUnfree)
 #   - platform guards (fails only when an unsupported leaf is explicitly enabled)
 let
@@ -14,12 +15,17 @@ let
   enabled = builtins.filter (x: isEnabled x) devLib.all;
   onPlatform = x: builtins.elem arch x.meta.platforms;
 
-  profileGate = if (!config.leenix.profiles.development.enable) then (
-    map (x: {
-      assertion = false;
-      message = "LEENIX ${devLib.path x} is enabled, but profiles.development is disabled. Enable profiles.development, or set ${devLib.path x} = false.";
-    }) enabled
-  ) else [ ];
+  # editors/ides are desktop-capable categories: permitted by the desktop OR the
+  # development profile. Every other category requires profiles.development.
+  leafAllowed = x:
+    if builtins.elem x.cat [ "editors" "ides" ]
+    then (config.leenix.profiles.desktop.enable || config.leenix.profiles.development.enable)
+    else config.leenix.profiles.development.enable;
+
+  profileGate = map (x: {
+    assertion = leafAllowed x;
+    message = "LEENIX ${devLib.path x} is enabled, but neither profiles.desktop nor profiles.development is enabled for this ${x.cat} capability. Enable the relevant profile, or set ${devLib.path x} = false.";
+  }) enabled;
 
   unfreeGate = map (x: {
     assertion = (config.nixpkgs.config.allowUnfree or false) == true;
