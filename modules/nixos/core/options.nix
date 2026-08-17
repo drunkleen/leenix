@@ -175,11 +175,6 @@ in
     bootstrap = {
       enable = mkEnableOption "bootstrap desktop environment";
 
-      editor = mkOption {
-        type = types.str;
-        default = "vscode";
-      };
-
       wifi = mkOption {
         type = types.str;
         default = "impala";

@@ -52,6 +52,45 @@
       redis = false;
       sqlite = false;
     };
+    editors = {
+      emacs = false;
+      geany = false;
+      gnomeBuilder = false;
+      kate = false;
+      lapce = false;
+      liteXl = false;
+      neovide = false;
+      pulsar = false;
+      sublimeText = false;
+      vscode = null; # inherit: desktop => true via profiles.desktop mkDefault; non-desktop => false
+      vscodium = false;
+      zed = true;
+    };
+    ides = {
+      arduinoIde = false;
+      clion = false;
+      codeBlocks = false;
+      datagrip = false;
+      dataspell = false;
+      dbeaver = false;
+      eclipse = false;
+      goland = false;
+      idea = false;
+      ideaCommunity = false;
+      jetbrainsToolbox = false;
+      kdevelop = false;
+      netbeans = false;
+      phpstorm = false;
+      pycharm = false;
+      pycharmCommunity = false;
+      qtCreator = false;
+      rider = false;
+      rstudio = false;
+      rubyMine = false;
+      rustRover = false;
+      spyder = false;
+      webstorm = false;
+    };
     debugging = {
       bpftrace = false;
       gdb = false;

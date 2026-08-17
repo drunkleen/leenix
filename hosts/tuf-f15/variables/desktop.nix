@@ -7,8 +7,6 @@
   bootstrap = {
     enable = true;
 
-    editor = "vscode";
-
     wifi = "impala";
     bluetooth = "bluetui";
     audio = "wiremix";

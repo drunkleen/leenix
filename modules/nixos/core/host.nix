@@ -5,15 +5,17 @@ let
 
   # Development catalog keys drive the generated host wiring below. The merged
   # host variables expose variables.development.<category>.<leaf>; absent values
-  # safely default to false (no `or true`). Hosts that declare any development
-  # policy must import profiles/development.nix so the options/assertions are
-  # active.
+  # inherit (null -> no definition, so composition defaults such as the desktop
+  # mkDefault for editors.vscode apply), while explicit true/false are written
+  # at normal priority. Hosts that declare any development policy must import
+  # profiles/development.nix so the options/assertions are active.
   devCatalog = import ../development/catalog.nix;
 
   devWiring = lib.mkIf (attrByPath [ "development" ] null variables != null) (
     builtins.mapAttrs (cat: leaves:
       builtins.mapAttrs (leaf: _:
-        { enable = attrByPath [ "development" cat leaf ] false variables; })
+        { enable = lib.mkIf (attrByPath [ "development" cat leaf ] null variables != null)
+            (attrByPath [ "development" cat leaf ] false variables); })
         leaves)
       devCatalog
   );
@@ -114,7 +116,6 @@ in
 
     bootstrap = {
       enable = variables.bootstrap.enable;
-      editor = variables.bootstrap.editor;
       wifi = variables.bootstrap.wifi;
       bluetooth = variables.bootstrap.bluetooth;
       audio = variables.bootstrap.audio;
