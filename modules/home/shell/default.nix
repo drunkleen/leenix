@@ -3,7 +3,7 @@
 {
   imports = [
     ../terminal/kitty.nix
-    ../terminal/tmux.nix
+    ../terminal/tmux
     ../terminal/yazi.nix
     ./zsh.nix
     ./starship.nix

@@ -18,6 +18,7 @@
     ./leenix-menu-keybindings.nix
     ./leenix-menu-select.nix
     ./leenix-menu-share.nix
+    ./leenix-menu-tmux-keybindings.nix
     ./leenix-menu.nix
     ./leenix-menu-width.nix
     ./leenix-camera.nix
