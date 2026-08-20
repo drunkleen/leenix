@@ -82,19 +82,5 @@
           pkgs = nixpkgs.legacyPackages.x86_64-linux;
           lib = nixpkgs.lib;
         };
-
-      # Production instance: tuf-f15 built directly through mkInstance from the
-      # in-repo instance boundary (policy + machine + hardware-configuration).
-      # This mirrors the future external repo layout (~/leenix/hosts/tuf-f15/).
-      # The legacy mkHost/variables-adapter machinery was removed in Phase
-      # 9F.3B; reusable Core composition is injected by mkInstance.
-      nixosConfigurations.tuf-f15 = mkInstance {
-        system = "x86_64-linux";
-        modules = [
-          ./instances/tuf-f15/policy.nix
-          ./instances/tuf-f15/machine.nix
-          ./instances/tuf-f15/hardware-configuration.nix
-        ];
-      };
     };
 }
