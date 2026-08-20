@@ -1,13 +1,13 @@
 {
   lib,
   pkgs,
-  variables,
+  leenix,
   ...
 }:
 
 let
   autostart = [
-    "hyprctl setcursor ${variables.cursor.theme} ${builtins.toString variables.cursor.size}"
+    "hyprctl setcursor ${leenix.cursor.theme} ${builtins.toString leenix.cursor.size}"
     # mako runs as a canonical user service (systemd.user.services.mako,
     # wanted by graphical-session.target) — no autostart line here.
     "uwsm app -t service -- fcitx5 --disable notificationitem"

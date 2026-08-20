@@ -1,4 +1,4 @@
-{ pkgs, variables, ... }:
+{ pkgs, leenix, ... }:
 
 # LEENIX wordlist discovery helper (cybersecurity profile).
 #
@@ -14,10 +14,10 @@
 # DATA only; nothing is ever auto-fed into a cracker/scanner.
 let
   catalog = import ../../nixos/cybersecurity/catalog.nix;
-  wlPolicy = variables.cybersecurity.wordlists or { };
+  wlPolicy = leenix.cybersecurity.wordlists;
   known = builtins.attrNames catalog.wordlists;
   enabled = builtins.sort builtins.lessThan (
-    builtins.filter (n: (wlPolicy.${n} or false)) known
+    builtins.filter (n: wlPolicy.${n}.enable) known
   );
   wlEntry = n: "  WL[${n}]=/run/current-system/sw/${catalog.wordlists.${n}.resourcePath}";
   wlLines = builtins.concatStringsSep "\n" (map wlEntry enabled);

@@ -1,4 +1,4 @@
-{ lib, ... }:
+{ config, lib, ... }:
 
 let
   inherit (lib)
@@ -48,6 +48,27 @@ in
       };
     };
 
+    instance = {
+      # Runtime instance metadata for management tooling (rebuild/apply/config/
+      # snapshot). Instance-owned values; Core never infers them from hostname,
+      # directory layout, or the source checkout path. The future installer
+      # emits these for each new instance.
+      configurationName = mkOption {
+        type = types.str;
+        description = "The nixosConfigurations attribute name for this installed machine. Runtime metadata; distinct from the machine hostname (they often match, but never conflate them).";
+      };
+
+      flakePath = mkOption {
+        type = types.str;
+        description = "Filesystem path to the flake checkout managed by runtime tools. An editable checkout path, never a Nix store path. The future instance repo must set this explicitly (e.g. /home/<user>/leenix).";
+      };
+
+      policyPath = mkOption {
+        type = types.str;
+        description = "Filesystem path to the editable typed policy file for this instance (e.g. .../hosts/<name>/policy.nix). Distinct from flakePath; the future installer emits it. Tools never infer it from the configuration name.";
+      };
+    };
+
     user = {
       username = mkOption {
         type = types.str;
@@ -81,6 +102,16 @@ in
         type = types.str;
         default = "master";
         description = "Default Git branch.";
+      };
+
+      # SSH commit-signing allowed-signers record, e.g.
+      # "<email> <public-key [comment]>". Null disables the allowed_signers
+      # entry (no SSH signing configured). Personal public-key content is
+      # instance policy, never a Core-owned file path.
+      allowedSigners = mkOption {
+        type = types.nullOr types.str;
+        default = null;
+        description = "Git SSH signing allowed-signers record (email + public key [+ comment]).";
       };
     };
 
@@ -123,13 +154,33 @@ in
     };
 
     boot = {
+      # Canonical bootloader selection. Exactly one backend may be active;
+      # each backend module gates its implementation on this value.
+      loader = mkOption {
+        type = types.enum [
+          "none"
+          "systemd-boot"
+          "limine"
+        ];
+        default = "none";
+        description = "Bootloader backend. none: no LEENIX-assigned loader (NixOS default applies). systemd-boot: systemd-boot. limine: Limine (recommended desktop bootloader).";
+      };
+
+      limine = {
+        extraEntries = mkOption {
+          type = types.nullOr types.str;
+          default = null;
+          description = "Extra Limine menu entries appended to the generated config (e.g. chainloaded operating systems). Instance-owned content; must not reference Core-internal paths.";
+        };
+      };
+
       plymouth.enable = mkEnableOption "Plymouth boot splash screen";
 
       visual = {
         enable = mkOption {
           type = types.bool;
-          default = true;
-          description = "Seamless boot visuals: quiet normal boot, keep Plymouth visible until the graphical session is ready, and bounded fallback reveal.";
+          default = false;
+          description = "Seamless boot visuals: quiet normal boot, keep Plymouth visible until the graphical session is ready, and bounded fallback reveal. Opt-in; instances that want quiet visuals set this explicitly.";
         };
 
         verbose = mkOption {
@@ -320,13 +371,21 @@ in
 
     disk = {
       device = mkOption {
-        type = types.str;
-        description = "Target disk.";
+        type = types.nullOr types.str;
+        default = null;
+        description = "Target disk device (required when an install layout is selected).";
       };
 
+      # Public install-layout registry. A `null` layout means "no Disko install
+      # layout" (a system that does not use a Core install layout). Invalid
+      # identifiers fail here with an actionable option error instead of silently
+      # producing an empty Disko configuration.
       layout = mkOption {
-        type = types.str;
-        description = "Disk layout identifier.";
+        type = types.nullOr (types.enum [
+          "laptop-luks-btrfs"
+        ]);
+        default = null;
+        description = "Disk install layout identifier (null = no Disko install layout). Supported: laptop-luks-btrfs.";
       };
     };
 
@@ -406,5 +465,22 @@ in
     services = {
       podman.enable = mkEnableOption "Podman container baseline";
     };
+  };
+
+  # Single-user identity contract. Fails clearly BEFORE any consumer builds a
+  # malformed `users.users.""/home-manager.users.""` attrset. Kept as focused
+  # assertions (rather than a restrictive regex) so all valid NixOS usernames
+  # remain accepted.
+  config = {
+    assertions = [
+      {
+        assertion = (config.leenix.user.username or "") != "";
+        message = "LEENIX: leenix.user.username must be a non-empty username.";
+      }
+      {
+        assertion = builtins.match "/.*" (config.leenix.user.homeDirectory or "/") != null;
+        message = "LEENIX: leenix.user.homeDirectory must be set to an absolute path (e.g. /home/\\<username\\>).";
+      }
+    ];
   };
 }

@@ -1,4 +1,4 @@
-{ pkgs, lib, variables, ... }:
+{ pkgs, lib, leenix, ... }:
 
 # Thin integration launchers for E-classification (external/commercial)
 # cybersecurity tools. For every ENABLED E leaf a `leenix-<leaf>` launcher is
@@ -11,14 +11,14 @@
 # activation/licensing or cracks software.
 let
   catalog = import ../../nixos/cybersecurity/catalog.nix;
-  cybPolicy = variables.cybersecurity or { };
+  cybPolicy = leenix.cybersecurity;
   allLeaves = builtins.concatLists (map (cat: map (leaf: {
     inherit cat leaf;
     meta = catalog.${cat}.${leaf};
   }) (builtins.attrNames catalog.${cat})) (builtins.attrNames catalog));
   eEnabled = builtins.sort builtins.lessThan (
     map (x: x.leaf) (builtins.filter (x:
-      x.meta.classification == "E" && (((cybPolicy.${x.cat} or { }).${x.leaf} or false))
+      x.meta.classification == "E" && cybPolicy.${x.cat}.${x.leaf}.enable
     ) allLeaves)
   );
   leafToCat = builtins.listToAttrs (map (x: { name = x.leaf; value = x.cat; }) allLeaves);

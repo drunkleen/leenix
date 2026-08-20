@@ -22,54 +22,79 @@
 
   outputs =
     inputs@{
+      self,
       nixpkgs,
+      home-manager,
+      disko,
       leenfetch,
       ...
     }:
 
     let
-      leenixLib = import ./lib {
-        inherit (nixpkgs) lib;
+      # Canonical LEENIX package overlay (see overlays/default.nix).
+      leenixOverlay = (import ./overlays/default.nix) { inherit leenfetch; };
+
+      # Public external-instance constructor, closed over Core's own inputs.
+      mkInstance = import ./lib/mkInstance.nix {
+        inherit nixpkgs home-manager disko;
+        overlay = leenixOverlay;
       };
 
-      # LEENIX package overlay: makes pkgs.leenfetch available to every profile
-      # and module (base About tool, home scripts, etc.).
-      leenixOverlay = final: prev: {
-        leenfetch = final.callPackage ./packages/leenfetch.nix {
-          src = leenfetch;
-        };
-        # Patched HyprMon: skip rewriting the (possibly immutable, nix-managed)
-        # main hyprland.lua when the managed `require("hyprmon")` include already
-        # exists. See packages/hyprmon/skip-unchanged-config-write.patch.
-        hyprmon = prev.hyprmon.overrideAttrs (old: {
-          patches = (old.patches or [ ]) ++ [ ./packages/hyprmon/skip-unchanged-config-write.patch ];
-        });
-        # Patched Limine: demote the two Linux-loader progress messages
-        # ("linux: Loading kernel/module") to verbose-only output so the LEENIUM
-        # menu stays visible and the menu -> Plymouth transition is clean, while
-        # panics, warnings, menu, timeout, and boot semantics stay untouched.
-        # See packages/limine/loading-messages-printv.patch.
-        limine = prev.limine.overrideAttrs (old: {
-          patches = (old.patches or [ ]) ++ [ ./packages/limine/loading-messages-printv.patch ];
-        });
+      # Public library: the canonical mkInstance constructor.
+      leenixLib = import ./lib {
+        lib = nixpkgs.lib;
+        inherit mkInstance;
       };
     in
     {
       formatter.x86_64-linux = nixpkgs.legacyPackages.x86_64-linux.nixfmt;
 
-      nixpkgs.overlays = [ leenixOverlay ];
+      # Public library: mkInstance (external path, closed over Core's own inputs so
+      # callers pass only instance concerns). The legacy mkHost adapter was
+      # removed in Phase 9F.3B; every instance is built through mkInstance.
+      lib = leenixLib;
+
+      # Canonical overlay output (replaces the former non-standard `nixpkgs`
+      # output; nothing consumed `nixpkgs.overlays` directly).
+      overlays.default = leenixOverlay;
+
+      # Public composed modules for advanced/composable consumers and testing.
+      # The normal generated instance uses leenix.lib.mkInstance instead and
+      # sets typed leenix.* options; these modules are constructor internals
+      # exposed for advanced use.
+      nixosModules = {
+        options = { ... }: { imports = [ ./modules/nixos/core/options.nix ]; };
+        profiles = { ... }: { imports = [ ./modules/nixos/profiles.nix ]; };
+        homeManager = { ... }: { imports = [ ./modules/nixos/home-manager.nix ]; };
+        diskoIntegration = { ... }: { imports = [ ./modules/nixos/disk/default.nix ]; };
+      };
 
       packages.x86_64-linux.leenfetch =
         nixpkgs.legacyPackages.x86_64-linux.callPackage ./packages/leenfetch.nix {
           src = leenfetch;
         };
 
-      nixosConfigurations = {
-        tuf-f15 = leenixLib.mkHost {
-          inherit nixpkgs inputs;
-          hostPath = ./hosts/tuf-f15;
-          overlays = [ leenixOverlay ];
+      # External-consumer fixture public-contract check. Evaluates the neutral
+      # fixture policy through mkInstance (avoids a Core <-> fixture recursion).
+      checks."x86_64-linux"."generated-desktop" =
+        import ./tests/fixtures/generated-desktop/check.nix {
+          inherit mkInstance;
+          pkgs = nixpkgs.legacyPackages.x86_64-linux;
+          lib = nixpkgs.lib;
         };
+
+      # Production instance: tuf-f15 built directly through mkInstance from the
+      # in-repo instance boundary (policy + machine + hardware-configuration).
+      # This mirrors the future external repo layout (~/leenix/hosts/tuf-f15/).
+      # The legacy mkHost/variables-adapter machinery was removed in Phase
+      # 9F.3B; reusable Core composition is injected by mkInstance.
+      nixosConfigurations.tuf-f15 = mkInstance {
+        system = "x86_64-linux";
+        modules = [
+          ./instances/tuf-f15/policy.nix
+          ./instances/tuf-f15/machine.nix
+          ./instances/tuf-f15/hardware-configuration.nix
+        ];
       };
     };
 }

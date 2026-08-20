@@ -1,4 +1,4 @@
-{ pkgs, variables, ... }:
+{ pkgs, leenix, ... }:
 
 # LEENIX web framework scaffolding helper.
 #
@@ -10,9 +10,9 @@
 # time); only the generic Nix-owned runtime (nodejs + pnpm) is installed.
 let
   catalog = import ../../nixos/development/catalog.nix;
-  webDev = variables.development.web or { };
+  webDev = leenix.development.web;
   enabledFrameworks = builtins.sort builtins.lessThan (
-    builtins.filter (f: (catalog.web.${f} or { }).classification or null == "E" && (webDev.${f} or false))
+    builtins.filter (f: (catalog.web.${f} or { }).classification or null == "E" && webDev.${f}.enable)
       (builtins.attrNames webDev)
   );
   scaffoldOf = f: (catalog.web.${f}).support.scaffold;

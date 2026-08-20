@@ -1,12 +1,12 @@
 {
   lib,
-  variables,
+  leenix,
   ...
 }:
 
 let
-  desktopCap = variables.profiles.desktop or false;
-  hyprlandCap = variables.desktop.hyprland or false;
+  desktopCap = leenix.profiles.desktop.enable;
+  hyprlandCap = leenix.desktop.hyprland.enable;
 in
 
 {
@@ -35,8 +35,10 @@ in
     ../modules/home/hyprland
   ];
 
-  home.username = variables.user.username;
-  home.homeDirectory = variables.user.homeDirectory;
+  # User identity derives from the typed LEENIX policy (typed leenix.* policy ->
+  # config.leenix -> HM specialArg `leenix`), never from raw host variables.
+  home.username = leenix.user.username;
+  home.homeDirectory = leenix.user.homeDirectory;
 
   home.stateVersion = "26.05";
 

@@ -1,7 +1,7 @@
-{ lib, themeMode, ... }:
+{ lib, leenix, ... }:
 
 assert lib.assertMsg (
-  themeMode == "dark" || themeMode == "light"
+  leenix.theme.mode == "dark" || leenix.theme.mode == "light"
 ) "leenix.theme.mode must be 'dark' or 'light'";
 
 {

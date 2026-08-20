@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, leenix, ... }:
 
 {
   home.packages = [
@@ -15,12 +15,11 @@
       text = ''
         #!/bin/bash
 
-        # leenix:summary=Build the current LEENIX system exactly once and activate that exact result.
+        # leenix:summary=Build the configured LEENIX system exactly once and activate that exact result.
 
         # leenix:hidden=true
 
-        # Builds config.system.build.toplevel as the normal user (with
-        # LEENIX_SRC visible so hosts/<host>/local.nix applies), captures the
+        # Builds config.system.build.toplevel as the normal user, captures the
         # deterministic store path, then activates THAT exact closure as root.
         # There is exactly ONE evaluation/build; the root step never re-evaluates.
         #
@@ -39,9 +38,10 @@
         set -uo pipefail
         set +e
 
-        LEENIX_SRC=''${LEENIX_SRC:-$HOME/nix-config}
-        export LEENIX_SRC
-        HOST=''${LEENIX_HOST:-$(hostname)}
+        # Canonical instance metadata (baked from the typed leenix.instance.* tree
+        # passed via the Home Manager bridge).
+        FLAKE="${leenix.instance.flakePath}"
+        CONFIG_NAME="${leenix.instance.configurationName}"
         TITLE=''${LEENIX_TITLE:-LEENIX Rebuild}
         VERBOSE=''${LEENIX_DEBUG:-}
 
@@ -83,15 +83,11 @@
           stage_begin "Preflight"
           local rc=0 warn=""
           {
-            [[ -d $LEENIX_SRC && -f $LEENIX_SRC/flake.nix ]] || {
-              echo "Source checkout not found: $LEENIX_SRC"
+            [[ -d $FLAKE && -f $FLAKE/flake.nix ]] || {
+              echo "Instance checkout not found: $FLAKE"
               rc=1
             }
-            [[ -n $HOST ]] || {
-              echo "Could not determine host name"
-              rc=1
-            }
-            if [[ $rc -eq 0 ]] && git -C "$LEENIX_SRC" status --porcelain 2>/dev/null | grep -q .; then
+            if [[ $rc -eq 0 ]] && git -C "$FLAKE" status --porcelain 2>/dev/null | grep -q .; then
               warn="Git working tree is dirty"
             fi
           } >"$cap" 2>&1
@@ -120,7 +116,7 @@
               --no-link \
               --print-out-paths \
               --extra-experimental-features 'nix-command flakes' \
-              "$LEENIX_SRC#nixosConfigurations.$HOST.config.system.build.toplevel" \
+              "$FLAKE#nixosConfigurations.$CONFIG_NAME.config.system.build.toplevel" \
               2> >(tee -a "$LOG_FILE" >&2) | tail -1 >"$pathf"; then
               system=$(cat "$pathf")
             else
@@ -132,7 +128,7 @@
               --no-link \
               --print-out-paths \
               --extra-experimental-features 'nix-command flakes' \
-              "$LEENIX_SRC#nixosConfigurations.$HOST.config.system.build.toplevel" \
+              "$FLAKE#nixosConfigurations.$CONFIG_NAME.config.system.build.toplevel" \
               2>"$cap" | tail -1 >"$pathf"; then
               system=$(cat "$pathf")
               cat "$cap" >>"$LOG_FILE"

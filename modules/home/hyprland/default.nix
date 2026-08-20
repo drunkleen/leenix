@@ -1,7 +1,7 @@
 {
   lib,
   pkgs,
-  variables,
+  leenix,
   ...
 }:
 
@@ -27,7 +27,7 @@
     ./bindings/tiling.nix
     ./bindings/utilities.nix
   ]
-  ++ lib.optional variables.desktop.hypridle ./hypridle.nix
-  ++ lib.optional variables.desktop.hyprlock ./hyprlock.nix
-  ++ lib.optional variables.desktop.hyprsunset ./hyprsunset.nix;
+  ++ lib.optional leenix.desktop.hypridle.enable ./hypridle.nix
+  ++ lib.optional leenix.desktop.hyprlock.enable ./hyprlock.nix
+  ++ lib.optional leenix.desktop.hyprsunset.enable ./hyprsunset.nix;
 }

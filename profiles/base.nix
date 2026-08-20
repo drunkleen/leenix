@@ -61,7 +61,10 @@ in
       options = builtins.concatStringsSep "," config.leenix.keyboard.options;
     };
 
-    users.users.${user.username} = {
+    # Guard: never build users.users."" for an empty/incomplete username. The
+    # LEENIX identity assertion (core/options.nix) surfaces the actionable error
+    # instead of a malformed NixOS attrset.
+    users.users.${user.username} = lib.mkIf (user.username != "") {
       isNormalUser = true;
       home = user.homeDirectory;
       extraGroups = user.extraGroups;

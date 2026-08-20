@@ -8,28 +8,26 @@
 
       runtimeInputs = with pkgs; [
         coreutils
-        gnugrep
-        systemd
       ];
 
       text = ''
         #!/bin/bash
 
-        # leenix:summary=Pick a timezone and apply it through the Nix configuration transaction.
+        # leenix:summary=Configure the timezone policy in the editor (or show the effective value).
 
         set -euo pipefail
 
-        current=$(leenix-config get timezone 2>/dev/null || true)
-        mapfile -t zones < <(timedatectl list-timezones)
+        selected=$(leenix-menu-select "Timezone" "󰵮  Show Current Timezone\n󰥔  Edit Timezone Policy") || true
+        [[ -n $selected ]] || exit 0
 
-        index=$(printf '%s\n' "''${zones[@]}" | grep -nxF "$current" | cut -d: -f1 || true)
-        args=()
-        [[ -n $index ]] && args+=("-c" "$index")
-
-        selected=$(leenix-menu-select "Timezone" "''${zones[@]}" -- "''${args[@]}") || true
-        [[ -n $selected && $selected != "$current" ]] || exit 0
-
-        leenix-launch-floating-terminal-with-presentation leenix-config set timezone "$selected"
+        case "$selected" in
+          *"Show Current Timezone"*)
+            leenix-launch-floating-terminal-with-presentation leenix-config get timezone
+            ;;
+          *"Edit Timezone Policy"*)
+            leenix-launch-floating-terminal-with-presentation leenix-config edit timezone
+            ;;
+        esac
       '';
     })
   ];

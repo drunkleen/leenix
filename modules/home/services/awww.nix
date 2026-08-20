@@ -1,7 +1,7 @@
 {
   lib,
   pkgs,
-  variables,
+  leenix,
   ...
 }:
 
@@ -313,7 +313,7 @@ assert lib.assertMsg
   (lib.pathExists ./wallpapers/crowned.png)
   "modules/home/services/wallpapers/crowned.png is missing (required default LEENIUM wallpaper)";
 {
-  config = lib.mkIf variables.desktop.hyprland {
+  config = lib.mkIf leenix.desktop.hyprland.enable {
     home.packages = with pkgs; [
       awww
       leenix-wallpaper-set

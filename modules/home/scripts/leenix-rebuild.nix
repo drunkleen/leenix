@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, leenix, ... }:
 
 {
   home.packages = [
@@ -14,7 +14,7 @@
       text = ''
         #!/bin/bash
 
-        # leenix:summary=Rebuild and activate the current LEENIX checkout (no git update).
+        # leenix:summary=Rebuild and activate the configured LEENIX instance (no git update).
 
         set -uo pipefail
 
@@ -32,11 +32,15 @@
           esac
         done
 
-        LEENIX_SRC=''${LEENIX_SRC:-$HOME/nix-config}
-        export LEENIX_SRC
+        # Canonical instance metadata (baked from the typed leenix.instance.* tree
+        # passed via the Home Manager bridge). CONFIG_NAME is consumed by
+        # leenix-system-apply; this wrapper only locates the checkout.
+        FLAKE="${leenix.instance.flakePath}"
+        export FLAKE
+
         export LEENIX_TITLE=''${LEENIX_TITLE:-LEENIX Rebuild}
 
-        cd "$LEENIX_SRC"
+        cd "$FLAKE" || { echo "Instance checkout not found: $FLAKE" >&2; exit 1; }
 
         leenix-system-apply
         rc=$?
@@ -46,8 +50,7 @@
           exit "$rc"
         fi
 
-        printf '\nSystem activated successfully.\n'
-        notify-send -u normal "LEENIX rebuilt and switched"
+        printf '\nSystem rebuilt and activated.\n'
       '';
     })
   ];

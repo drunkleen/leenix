@@ -1,13 +1,13 @@
 {
   lib,
   pkgs,
-  variables,
+  leenix,
   ...
 }:
 
 {
   services.mako = {
-    enable = variables.desktop.waybar.enable;
+    enable = leenix.desktop.waybar.enable;
 
     settings = {
       anchor = "top-right";
@@ -76,7 +76,7 @@
   # failure. The legacy autostart line (`uwsm app -t service -- mako`) is
   # removed so there is a single owner and mako cannot be missed by scripts that
   # inspect process state.
-  systemd.user.services.mako = lib.mkIf variables.desktop.waybar.enable {
+  systemd.user.services.mako = lib.mkIf leenix.desktop.waybar.enable {
     Unit = {
       Description = "Mako notification daemon";
       PartOf = [ "graphical-session.target" ];

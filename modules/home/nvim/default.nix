@@ -1,4 +1,4 @@
-{ pkgs, variables, ... }:
+{ pkgs, leenix, ... }:
 
 # Neovim config = static LEENIX dotfiles + a generated Mason-skip fragment.
 #
@@ -10,8 +10,10 @@
 # dotfiles/nvim/lua/tired/mason/init.lua. Explicit ownership, no PATH heuristics,
 # no broad Mason disable.
 let
-  dev = variables.development or { };
-  enabledIn = cat: leaf: ((dev.${cat} or { }).${leaf} or false);
+  dev = leenix.development;
+  enabledIn = cat: leaf:
+    if dev ? ${cat} && dev.${cat} ? ${leaf} then dev.${cat}.${leaf}.enable
+    else false;
 
   # LEENIX leaf -> mason package name(s). Verified against the existing
   # tired/mason/names.lua and conform/lint configs.

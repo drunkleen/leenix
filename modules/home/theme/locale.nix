@@ -1,19 +1,18 @@
 {
   lib,
   pkgs,
-  localeLanguage,
-  localeRegion,
+  leenix,
   ...
 }:
 
 let
-  # Canonical session locale derived from the two-dimension LEENIX policy
-  # (passed from the host after the variables.nix + local.nix merge).
+  # Canonical session locale derived from the typed LEENIX policy (typed
+  # leenix.* policy -> config.leenix -> HM specialArg `leenix`).
   # LANGUAGE drives LANG / LC_MESSAGES / LC_TIME; REGION drives regional LC_*.
   # LC_CTYPE and LC_COLLATE are deliberately left unset so they inherit from
   # LANG. LC_ALL is never set.
-  lang = localeLanguage;
-  region = localeRegion;
+  lang = leenix.locale.language;
+  region = leenix.locale.region;
 
   localeEnv = {
     LANG = lang;

@@ -1,4 +1,4 @@
-{ lib, variables, ... }:
+{ lib, leenix, ... }:
 
 # Home AI configuration ownership (non-secret only).
 #
@@ -11,8 +11,8 @@
 # Authentication / OAuth / sessions / caches / models remain mutable user/runtime
 # state. No secrets are ever stored here.
 let
-  aiPol = variables.ai or { };
-  enabled = cat: leaf: ((aiPol.${cat} or { }).${leaf} or false);
+  aiPol = leenix.ai;
+  enabled = cat: leaf: aiPol.${cat}.${leaf}.enable;
   leenium = import ./theme/leenium.nix;
 in
 {

@@ -1,7 +1,7 @@
 {
   lib,
   pkgs,
-  variables,
+  leenix,
   ...
 }:
 
@@ -49,7 +49,7 @@ let
   };
 in
 {
-  config = lib.mkIf variables.desktop.hyprland {
+  config = lib.mkIf leenix.desktop.hyprland.enable {
     home.packages = [
       pkgs.swayosd
       leenix-kbd-backlight-watch

@@ -1,9 +1,9 @@
-{ musicPlayer, ... }:
+{ leenix, ... }:
 
 {
   imports = [
     {
       cliamp = ./cliamp.nix;
-    }.${musicPlayer}
+    }.${leenix.desktop.musicPlayer}
   ];
 }

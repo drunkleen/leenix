@@ -1,9 +1,9 @@
-{ mediaPlayer, ... }:
+{ leenix, ... }:
 
 {
   imports = [
     {
       mpv = ./mpv.nix;
-    }.${mediaPlayer}
+    }.${leenix.desktop.mediaPlayer}
   ];
 }

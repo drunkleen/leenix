@@ -1,4 +1,4 @@
-{ browser, ... }:
+{ leenix, ... }:
 
 {
   imports = [
@@ -9,6 +9,6 @@
       brave = ./brave.nix;
       vivaldi = ./vivaldi.nix;
       librewolf = ./librewolf.nix;
-    }.${browser}
+    }.${leenix.desktop.browser}
   ];
 }

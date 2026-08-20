@@ -1,17 +1,17 @@
 {
   pkgs,
-  variables,
+  leenix,
   ...
 }:
 
 # LEENIX-branded system identity. The kernel release and hostname are queried
 # dynamically from the running system (never baked at build time). The kernel
-# POLICY channel (--policy) comes from the centrally passed merged host
-# variables (the same `variables` every home module already receives), so no
-# host-specific special argument is needed. Coreutils `uname` is untouched.
+# POLICY channel (--policy) comes from the typed LEENIX policy (typed
+  # leenix.* policy -> config.leenix -> HM specialArg `leenix`). Coreutils
+  # `uname` is untouched.
 
 let
-  kernelPolicy = ((variables.boot or { }).kernel or { }).channel or "default";
+  kernelPolicy = leenix.boot.kernel.channel;
 in
 
 {

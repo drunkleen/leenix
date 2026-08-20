@@ -1,9 +1,9 @@
-{ documentViewer, ... }:
+{ leenix, ... }:
 
 {
   imports = [
     {
       zathura = ./zathura.nix;
-    }.${documentViewer}
+    }.${leenix.desktop.documentViewer}
   ];
 }

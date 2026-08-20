@@ -1,20 +1,20 @@
 {
   lib,
-  variables,
+  leenix,
   ...
 }:
 
 let
-  desktopCap = variables.profiles.desktop or false;
-  laptopCap = variables.profiles.laptop or false;
-  devCap = variables.profiles.development or false;
-  cyberCap = variables.profiles.cybersecurity or false;
-  hyprlandCap = variables.desktop.hyprland or false;
-  asusModel = (variables.hardware or { }).asus.model or null;
-  wifiCap = variables.networking.iwd or false;
-  bluetoothCap = variables.hardware.bluetooth or false;
-  wireguardConfigured = ((variables.networking or { }).wireguard.interfaces or { }) != { };
-  openvpnConfigured = ((variables.networking or { }).openvpn.profiles or { }) != { };
+  desktopCap = leenix.profiles.desktop.enable;
+  laptopCap = leenix.profiles.laptop.enable;
+  devCap = leenix.profiles.development.enable;
+  cyberCap = leenix.profiles.cybersecurity.enable;
+  hyprlandCap = leenix.desktop.hyprland.enable;
+  asusModel = leenix.hardware.asus.model;
+  wifiCap = leenix.networking.iwd.enable;
+  bluetoothCap = leenix.hardware.bluetooth.enable;
+  wireguardConfigured = leenix.networking.wireguard.interfaces != { };
+  openvpnConfigured = leenix.networking.openvpn.profiles != { };
 in
 
 {

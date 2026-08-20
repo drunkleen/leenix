@@ -1,12 +1,12 @@
 {
   lib,
-  variables,
+  leenix,
   ...
 }:
 
 let
-  desktopCap = variables.profiles.desktop or false;
-  hyprlandCap = variables.desktop.hyprland or false;
+  desktopCap = leenix.profiles.desktop.enable;
+  hyprlandCap = leenix.desktop.hyprland.enable;
 in
 
 {

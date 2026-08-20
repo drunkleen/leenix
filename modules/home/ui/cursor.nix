@@ -1,4 +1,4 @@
-{ pkgs, variables, ... }:
+{ pkgs, leenix, ... }:
 
 {
   gtk.enable = true;
@@ -6,8 +6,8 @@
   home.pointerCursor = {
     enable = true;
     package = pkgs.capitaine-cursors;
-    name = variables.cursor.theme;
-    size = variables.cursor.size;
+    name = leenix.cursor.theme;
+    size = leenix.cursor.size;
 
     gtk.enable = true;
     x11.enable = true;

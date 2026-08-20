@@ -2,18 +2,14 @@
   lib,
   pkgs,
   config,
-  browser,
-  mediaPlayer,
-  imageViewer,
-  documentViewer,
-  musicPlayer,
+  leenix,
   ...
 }:
 
 # Central declarative XDG MIME / default-application policy. Owns ALL MIME
 # associations so app modules only install packages/launchers. Driven by the
-# LEENIX desktop role variables (host.nix -> extraSpecialArgs), so changing a
-# host variable automatically updates the associations.
+# typed LEENIX desktop policy (config.leenix -> HM specialArg `leenix`), so
+# changing host policy automatically updates the associations.
 let
   # Dolphin is the fixed LEENIX file manager (not host-selectable).
   fmId = "org.kde.dolphin.desktop";
@@ -41,11 +37,11 @@ let
     };
   };
 
-  browserId = desktopId.browser.${browser};
-  mediaId = desktopId.mediaPlayer.${mediaPlayer};
-  imageId = desktopId.imageViewer.${imageViewer};
-  docId = desktopId.documentViewer.${documentViewer};
-  musicId = desktopId.musicPlayer.${musicPlayer};
+  browserId = desktopId.browser.${leenix.desktop.browser};
+  mediaId = desktopId.mediaPlayer.${leenix.desktop.mediaPlayer};
+  imageId = desktopId.imageViewer.${leenix.desktop.imageViewer};
+  docId = desktopId.documentViewer.${leenix.desktop.documentViewer};
+  musicId = desktopId.musicPlayer.${leenix.desktop.musicPlayer};
 
   # Application MIME support lists (mirror the pinned packages' desktop MimeType).
   imageMimes = [

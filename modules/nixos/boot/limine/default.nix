@@ -1,23 +1,30 @@
-{ lib, ... }:
+{ config, lib, ... }:
 
 # LEENIX desktop bootloader: Limine (native NixOS module).
-# Replaces systemd-boot as the declaratively-managed NixOS bootloader.
-# NOTE: the old systemd-boot EFI files are intentionally left on the ESP as a
-# migration recovery path until Limine has booted successfully.
+#
+# Activation is gated on leenix.boot.loader == "limine"; importing this module
+# (via the boot composition layer) is inert for any other selection.
 {
   imports = [ ./theme.nix ];
 
-  boot.loader = {
-    # Exactly one active NixOS bootloader backend.
-    systemd-boot.enable = lib.mkDefault false;
-    efi.canTouchEfiVariables = lib.mkDefault true;
-    limine.enable = true;
-  };
+  config = lib.mkIf (config.leenix.boot.loader == "limine") {
+    boot.loader = {
+      # Exactly one active NixOS bootloader backend.
+      systemd-boot.enable = lib.mkDefault false;
+      efi.canTouchEfiVariables = lib.mkDefault true;
+      limine.enable = true;
 
-  boot.loader.limine = {
-    # Do not expose a boot-entry editor (would allow init=/bin/sh).
-    enableEditor = false;
-    # Keep a sensible number of generations on the ESP (~2 GiB).
-    maxGenerations = 10;
+      limine = {
+        # Do not expose a boot-entry editor (would allow init=/bin/sh).
+        enableEditor = false;
+        # Keep a sensible number of generations on the ESP (~2 GiB).
+        maxGenerations = 10;
+
+        # Instance-owned extra entries (chainloaded OSes, e.g. Windows),
+        # supplied via leenix.boot.limine.extraEntries.
+        extraEntries = lib.mkIf (config.leenix.boot.limine.extraEntries != null)
+          config.leenix.boot.limine.extraEntries;
+      };
+    };
   };
 }

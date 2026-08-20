@@ -1,14 +1,14 @@
 {
   lib,
   pkgs,
-  themeMode,
+  leenix,
   ...
 }:
 
 let
   inherit (lib) mkDefault;
 
-  dark = themeMode == "dark";
+  dark = leenix.theme.mode == "dark";
 
   schemeName = if dark then "BreezeDark" else "BreezeLight";
 

@@ -1,13 +1,13 @@
 {
   pkgs,
-  variables,
+  leenix,
   ...
 }:
 
 let
-  waybarCfg = variables.desktop.waybar or { };
-  capEnabled = waybarCfg.enable or false;
-  defaultVisible = waybarCfg.defaultVisible or true;
+  waybarCfg = leenix.desktop.waybar;
+  capEnabled = waybarCfg.enable;
+  defaultVisible = waybarCfg.defaultVisible;
 in
 {
   home.packages = [

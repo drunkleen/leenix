@@ -1,6 +1,7 @@
 {
   lib,
   pkgs,
+  leenix,
   ...
 }:
 
@@ -12,29 +13,31 @@
 
       runtimeInputs = with pkgs; [
         coreutils
-        gnused
-        gawk
         gnugrep
       ];
 
       text = ''
         #!/bin/bash
 
-        # leenix:summary=Manage LEENIX machine policy: local declarative overrides merged over host defaults, with build/switch transactions.
+        # leenix:summary=Inspect, edit, or apply the configured LEENIX instance policy.
 
-        # leenix:args=<get|set|unset|dns|overrides|rebuild|switch> [key] [value]
+        # leenix:args=<get|show|status|overrides|edit|set|unset|dns|locale|sudo-passwordless|rebuild|switch> [key] [value]
 
         # leenix:hidden=true
 
-        set -euo pipefail
+        # This tool is format-agnostic. It never parses or rewrites policy
+        # structure: it reads effective values from the evaluated configuration
+        # and lets you edit the typed policy file (leinix.instance.policyPath)
+        # in your editor. Applying changes is an explicit `rebuild`/`switch`.
 
-        # Canonical mutable LEENIX source checkout. Exported so the impure
-        # flake evaluation (--impure) can read hosts/<host>/local.nix.
-        LEENIX_SRC=''${LEENIX_SRC:-$HOME/nix-config}
-        export LEENIX_SRC
-        HOST=''${LEENIX_HOST:-$(hostname)}
-        VARS="$LEENIX_SRC/hosts/$HOST/variables.nix"
-        LOCAL="$LEENIX_SRC/hosts/$HOST/local.nix"
+        set -uo pipefail
+
+        # Canonical instance metadata (baked from the typed leenix.instance.*
+        # tree passed via the Home Manager bridge).
+        FLAKE="${leenix.instance.flakePath}"
+        CONFIG_NAME="${leenix.instance.configurationName}"
+        POLICY="${leenix.instance.policyPath}"
+        EDITOR_CMD=''${EDITOR:-vi}
 
         debug() {
           [[ -n ''${LEENIX_DEBUG:-} ]] && echo "leenix-config: $*" >&2 || true
@@ -45,447 +48,141 @@
           exit 1
         }
 
-        require_src() {
-          [[ -d $LEENIX_SRC ]] || die "source checkout not found: $LEENIX_SRC (set LEENIX_SRC to override)"
-          [[ -f $VARS ]] || die "host variables not found: $VARS (host '$HOST', set LEENIX_HOST to override)"
+        require_instance() {
+          [[ -d $FLAKE ]] || die "instance checkout not found: $FLAKE (edit leenix.instance.flakePath in policy to override)"
+          [[ -f $POLICY ]] || die "instance policy not found: $POLICY (edit leenix.instance.policyPath in policy to override)"
         }
 
-        # Current overrides held in the local policy file (controlled schema).
-        OV_timezone=""
-        OV_locale_lang=""
-        OV_locale_region=""
-        OV_dns_mode=""
-        OV_dns_servers=()
-
-        read_overrides() {
-          OV_timezone=""
-          OV_locale_lang=""
-          OV_locale_region=""
-          OV_dns_mode=""
-          OV_dns_servers=()
-
-          # Missing local.nix is the normal first-run state: no overrides.
-          [[ -f $LOCAL ]] || return 0
-
-          OV_timezone=$(sed -n 's/^  timezone = "\(.*\)";$/\1/p' "$LOCAL" | head -1)
-          OV_locale_lang=$(sed -n 's/^    language = "\(.*\)";$/\1/p' "$LOCAL" | head -1)
-          OV_locale_region=$(sed -n 's/^    region = "\(.*\)";$/\1/p' "$LOCAL" | head -1)
-          OV_passwordless_sudo=$(sed -n 's/^    passwordlessSudo = \(true\|false\);$/\1/p' "$LOCAL" | head -1)
-
-          # Legacy locale schema (`default = "X";` + LC_* extra): migrate to the
-          # two-dimension model deterministically (language = region = old value).
-          local legacy_default
-          legacy_default=$(sed -n 's/^    default = "\(.*\)";$/\1/p' "$LOCAL" | head -1)
-          if [[ -n $legacy_default ]]; then
-            [[ -z $OV_locale_lang ]] && OV_locale_lang="$legacy_default"
-            [[ -z $OV_locale_region ]] && OV_locale_region="$legacy_default"
-          fi
-
-          # New structured DNS block: networking.dns = { mode = ...; servers = [...]; }
-          if grep -qE '^    dns = \{' "$LOCAL"; then
-            OV_dns_mode=$(sed -n 's/^      mode = "\(.*\)";$/\1/p' "$LOCAL" | head -1)
-            mapfile -t OV_dns_servers < <(awk '
-              /^      servers = \[/ { in_servers = 1; next }
-              in_servers && /^      \];/ { in_servers = 0; next }
-              in_servers { gsub(/^        "/, ""); gsub(/"$/, ""); print }
-            ' "$LOCAL")
-            return 0
-          fi
-
-          # Legacy provider-string override (old schema): migrate it safely.
-          local legacy
-          legacy=$(sed -n 's/^    dns = "\(.*\)";$/\1/p' "$LOCAL" | head -1)
-          if [[ -n $legacy ]]; then
-            case "$legacy" in
-              system) : ;;
-              cloudflare) OV_dns_mode="custom"; OV_dns_servers=(1.1.1.1 1.0.0.1) ;;
-              quad9) OV_dns_mode="custom"; OV_dns_servers=(9.9.9.9 149.112.112.112) ;;
-              google) OV_dns_mode="custom"; OV_dns_servers=(8.8.8.8 8.8.4.4) ;;
-              adguard) OV_dns_mode="custom"; OV_dns_servers=(94.140.14.14 94.140.15.15) ;;
-              *)
-                die "legacy networking.dns override '$legacy' in $LOCAL is not recognized; run 'leenix-config dns system' to reset it"
-                ;;
-            esac
-          fi
-        }
-
-        # Regenerate the local override file from the current override map.
-        # Deterministic and small; only known menu-editable keys are managed.
-        write_local() {
-          mkdir -p "$(dirname "$LOCAL")"
-          local tmp="$LOCAL.tmp"
-          {
-            echo "{"
-            [[ -n $OV_timezone ]] && echo "  timezone = \"$OV_timezone\";"
-            if [[ -n $OV_locale_lang || -n $OV_locale_region ]]; then
-              echo "  locale = {"
-              [[ -n $OV_locale_lang ]] && echo "    language = \"$OV_locale_lang\";"
-              [[ -n $OV_locale_region ]] && echo "    region = \"$OV_locale_region\";"
-              echo "  };"
-            fi
-            if [[ -n $OV_dns_mode ]]; then
-              echo "  networking = {"
-              echo "    dns = {"
-              echo "      mode = \"$OV_dns_mode\";"
-            if [[ ''${#OV_dns_servers[@]} -gt 0 ]]; then
-              echo "      servers = ["
-              for s in "''${OV_dns_servers[@]}"; do
-                echo "        \"$s\""
-              done
-              echo "      ];"
-            fi
-            echo "    };"
-            echo "  };"
-          fi
-          if [[ -n $OV_passwordless_sudo ]]; then
-            echo "  security = {"
-            echo "    passwordlessSudo = $OV_passwordless_sudo;"
-            echo "  };"
-          fi
-          echo "}"
-        } > "$tmp"
-        if grep -qE 'timezone =|locale =|networking =|security =' "$tmp"; then
-            mv "$tmp" "$LOCAL"
-          else
-            rm -f "$tmp"
-            rm -f "$LOCAL"
-          fi
-        }
-
-        rollback_local() {
-          if [[ -f $LOCAL.leenix-backup ]]; then
-            mv "$LOCAL.leenix-backup" "$LOCAL"
-          else
-            rm -f "$LOCAL"
-          fi
-        }
-
-        # Effective value = host defaults recursively merged with local overrides.
+        # Read an effective value from the built config (no source-path inference).
         get_value() {
-          local key="$1" keypath joiner=""
-          case "$key" in
-            timezone) keypath="timezone" ;;
-            locale.language) keypath="locale.language" ;;
-            locale.region) keypath="locale.region" ;;
-            networking.dns | networking.dns.mode) keypath="networking.dns.mode" ;;
-            networking.dns.servers) keypath="networking.dns.servers"; joiner=" " ;;
-            *) die "unsupported key: $key (supported: timezone, locale.language, locale.region, networking.dns[.mode|.servers])" ;;
+          local keypath="$1"
+          case "$keypath" in
+            timezone) keypath="host.timezone" ;;
           esac
-
-          local expr
-          if [[ -n $joiner ]]; then
-            expr=$(
-              cat <<'EXPR'
-let
-  vars = import __VARS__;
-  local = if builtins.pathExists __LOCAL__ then import __LOCAL__ else {};
-  merge = a: b: a // builtins.mapAttrs (k: v: if builtins.isAttrs v && builtins.isAttrs (a.''${k} or {}) then merge a.''${k} v else v) b;
-in
-  builtins.concatStringsSep __SEP__ (merge vars local).__KEYPATH__
-EXPR
-            )
-            expr=''${expr//__SEP__/\"$joiner\"}
-          else
-            expr=$(
-              cat <<'EXPR'
-let
-  vars = import __VARS__;
-  local = if builtins.pathExists __LOCAL__ then import __LOCAL__ else {};
-  merge = a: b: a // builtins.mapAttrs (k: v: if builtins.isAttrs v && builtins.isAttrs (a.''${k} or {}) then merge a.''${k} v else v) b;
-in
-  (merge vars local).__KEYPATH__
-EXPR
-            )
-          fi
-          expr=''${expr//__VARS__/\"$VARS\"}
-          expr=''${expr//__LOCAL__/\"$LOCAL\"}
-          expr=''${expr//__KEYPATH__/$keypath}
-          nix eval --impure --raw --expr "$expr" 2>/dev/null
+          nix eval --impure --raw --expr "let f = builtins.getFlake \"$FLAKE\"; in f.nixosConfigurations.$CONFIG_NAME.config.leenix.$keypath" 2>/dev/null \
+            || die "unable to evaluate leenix.$keypath from the built instance config"
         }
 
-        transaction() {
-          # Validate the local override (absent = defaults only, nothing to validate).
-          if [[ -f $LOCAL ]] && ! nix eval --impure --file "$LOCAL" >/dev/null 2>&1; then
-            rollback_local
-            die "local override did not evaluate; previous state restored"
-          fi
-          # Build once as user (local policy visible), activate the exact
-          # result as root. leenix-system-apply: exit 1 = build failed
-          # (rollback), exit 2 = activation failed (keep new valid policy).
-          if ! leenix-system-apply; then
-            rc=$?
-            if [[ $rc -eq 2 ]]; then
-              rm -f "$LOCAL.leenix-backup"
-              die "build succeeded but activation failed; local override left at the new valid state"
+        # Open the policy file with $EDITOR. Best-effort navigation for a key:
+        # absent keys are normal in sparse policy and must never be an error.
+        open_editor() {
+          local key=''${1:-}
+          if [[ -n $key ]]; then
+            local line
+            line=$(grep -n -F "\"$key\"" "$POLICY" 2>/dev/null | head -1 | cut -d: -f1 || true)
+            if [[ -n $line ]]; then
+              case "$EDITOR_CMD" in
+                *vi*|*emacs*|*nano*)
+                  "$EDITOR_CMD" "+$line" "$POLICY" 2>/dev/null
+                  return
+                  ;;
+              esac
             fi
-            rollback_local
-            die "build failed; local override restored to previous state"
           fi
-          rm -f "$LOCAL.leenix-backup"
+          "$EDITOR_CMD" "$POLICY"
         }
 
-        cmd_set() {
-          local key="$1" value="$2"
-          require_src
-          [[ -n $value ]] || die "set requires a value"
-          if [[ -f $LOCAL ]]; then
-            cp -a "$LOCAL" "$LOCAL.leenix-backup"
-          fi
-          read_overrides
-          case "$key" in
-            timezone) OV_timezone="$value" ;;
-            locale.language)
-              rm -f "$LOCAL.leenix-backup"
-              die "use 'leenix-config locale language <locale>' for language"
-              ;;
-            locale.region)
-              rm -f "$LOCAL.leenix-backup"
-              die "use 'leenix-config locale region <locale>' for region"
-              ;;
-            networking.dns)
-              rm -f "$LOCAL.leenix-backup"
-              die "use 'leenix-config dns <system|preset <name>|custom <ip...>|show>' for DNS"
-              ;;
-            *) rm -f "$LOCAL.leenix-backup"; die "unsupported key: $key (supported: timezone)" ;;
+        cmd_status() {
+          require_instance
+          echo "configuration: $CONFIG_NAME"
+          echo "flake path:    $FLAKE"
+          echo "policy path:   $POLICY"
+          echo "timezone = $(get_value timezone 2>/dev/null || echo default)"
+          echo "locale.language = $(get_value locale.language 2>/dev/null || echo default)"
+          echo "locale.region = $(get_value locale.region 2>/dev/null || echo default)"
+          echo "networking.dns.mode = $(get_value networking.dns.mode 2>/dev/null || echo default)"
+          echo "networking.dns.servers = $(get_value networking.dns.servers 2>/dev/null || echo default)"
+          echo "security.passwordlessSudo = $(get_value security.passwordlessSudo 2>/dev/null || echo default)"
+        }
+
+        # Name-to-key mapping used by the editor wrappers to pick a sensible anchor.
+        key_for() {
+          case "$1" in
+            timezone) echo timezone ;;
+            language|locale.language) echo language ;;
+            region|locale.region) echo region ;;
+            dns|networking.dns|networking.dns.mode) echo dns ;;
+            sudo|passwordless|passwordlesssudo|security.passwordlessSudo) echo passwordlessSudo ;;
+            *) echo ""
           esac
-          write_local
-          debug "$key -> $value (local override)"
-          transaction
-          echo "leenix-config: $key is now '$value'"
+        }
+
+        cmd_edit() {
+          local key=''${1:-}
+          require_instance
+          if [[ -n $key ]]; then
+            open_editor "$key"
+          else
+            open_editor
+          fi
+        }
+
+        # Editor-first wrappers: they open the policy source for editing and
+        # explain the semantics. They never mutate values automatically.
+        cmd_set() {
+          local key="$1"
+          require_instance
+          local anchor
+          anchor=$(key_for "$key")
+          open_editor "$anchor"
+          echo "leenix-config: opened $POLICY. Edit the value for '$key' in the editor, save, then run 'leenix-config rebuild' (or 'leenix-config switch') to apply." >&2
         }
 
         cmd_unset() {
           local key="$1"
-          require_src
-          if [[ -f $LOCAL ]]; then
-            cp -a "$LOCAL" "$LOCAL.leenix-backup"
-          fi
-          read_overrides
-          case "$key" in
-            timezone) OV_timezone="" ;;
-            locale.language)
-              rm -f "$LOCAL.leenix-backup"
-              die "use 'leenix-config locale reset language' to reset language"
-              ;;
-            locale.region)
-              rm -f "$LOCAL.leenix-backup"
-              die "use 'leenix-config locale reset region' to reset region"
-              ;;
-            networking.dns)
-              rm -f "$LOCAL.leenix-backup"
-              die "use 'leenix-config dns system' to reset DNS"
-              ;;
-            *) rm -f "$LOCAL.leenix-backup"; die "unsupported key: $key" ;;
-          esac
-          write_local
-          debug "unset $key (falls back to host default)"
-          if [[ -f $LOCAL ]] || [[ -f $LOCAL.leenix-backup ]]; then
-            transaction
-          fi
-          echo "leenix-config: $key reset to host default"
-        }
-
-        valid_ip() {
-          local ip="$1"
-          if [[ $ip =~ ^[0-9]{1,3}(\.[0-9]{1,3}){3}$ ]]; then
-            local a b c d
-            IFS=. read -r a b c d <<<"$ip"
-            [[ $a -le 255 && $b -le 255 && $c -le 255 && $d -le 255 ]]
-          elif [[ $ip =~ ^[0-9a-fA-F:]+$ && $ip == *:* ]]; then
-            true
-          else
-            false
-          fi
-        }
-
-        # Write a custom DNS override (mode=custom + ordered servers) and run
-        # the transaction. $@ are the validated server addresses.
-        dns_set_custom() {
-          local -a srv=()
-          local s
-          [[ $# -ge 1 ]] || die "dns custom requires at least one address"
-          for s in "$@"; do
-            # valid_ip restricts to digits/dots/colons/hex, which are always
-            # safe as Nix string contents, so values serialize without escaping.
-            valid_ip "$s" || die "invalid DNS server address: '$s'"
-            srv+=("$s")
-          done
-          if [[ -f $LOCAL ]]; then
-            cp -a "$LOCAL" "$LOCAL.leenix-backup"
-          fi
-          read_overrides
-          OV_dns_mode="custom"
-          OV_dns_servers=("''${srv[@]}")
-          write_local
-          debug "dns -> custom (''${srv[*]})"
-          transaction
-          echo "leenix-config: DNS set to custom (''${srv[*]})"
-        }
-
-        cmd_dns_preset() {
-          local name="$1" srv=()
-          case "$name" in
-            cloudflare) srv=(1.1.1.1 1.0.0.1) ;;
-            quad9) srv=(9.9.9.9 149.112.112.112) ;;
-            google) srv=(8.8.8.8 8.8.4.4) ;;
-            adguard) srv=(94.140.14.14 94.140.15.15) ;;
-            *) die "unknown DNS preset: $name (cloudflare quad9 google adguard)" ;;
-          esac
-          dns_set_custom "''${srv[@]}"
+          require_instance
+          local anchor
+          anchor=$(key_for "$key")
+          open_editor "$anchor"
+          echo "leenix-config: opened $POLICY. To reset '$key', remove its line: an omitted option inherits the Core/profile default (sparse policy semantics)." >&2
         }
 
         cmd_dns() {
           local action=''${1:-}
-          require_src
+          require_instance
           case "$action" in
-            system | reset)
-              # Remove the DNS override entirely so the host default (System/DHCP) applies.
-              if [[ -f $LOCAL ]]; then
-                cp -a "$LOCAL" "$LOCAL.leenix-backup"
-              fi
-              read_overrides
-              OV_dns_mode=""
-              OV_dns_servers=()
-              write_local
-              debug "dns -> system (host default)"
-              if [[ -f $LOCAL ]] || [[ -f $LOCAL.leenix-backup ]]; then
-                transaction
-              fi
-              echo "leenix-config: DNS set to System/DHCP"
-              ;;
-            preset)
-              [[ -n ''${2:-} ]] || die "usage: leenix-config dns preset <cloudflare|quad9|google|adguard>"
-              cmd_dns_preset "$2"
-              ;;
-            custom)
-              shift
-              dns_set_custom "$@"
-              ;;
             show)
-              printf 'mode: %s\n' "$(get_value networking.dns.mode)"
-              printf 'servers: %s\n' "$(get_value networking.dns.servers)"
+              printf 'mode: %s\n' "$(get_value networking.dns.mode 2>/dev/null || echo default)"
+              printf 'servers: %s\n' "$(get_value networking.dns.servers 2>/dev/null || echo none)"
               ;;
             *)
-              die "usage: leenix-config dns <system|reset|preset <name>|custom <ip...>|show>"
+              open_editor dns
+              echo "leenix-config: opened $POLICY at networking DNS policy. Edit mode/servers in the editor, then run 'leenix-config rebuild' to apply." >&2
               ;;
           esac
-        }
-
-        cmd_overrides() {
-          require_src
-          read_overrides
-          [[ -n $OV_timezone ]] && echo "timezone = $OV_timezone"
-          [[ -n $OV_locale_lang ]] && echo "locale.language = $OV_locale_lang"
-          [[ -n $OV_locale_region ]] && echo "locale.region = $OV_locale_region"
-          if [[ -n $OV_dns_mode ]]; then
-            echo "networking.dns.mode = $OV_dns_mode"
-            echo "networking.dns.servers = ''${OV_dns_servers[*]}"
-          fi
-        }
-
-        # Set one locale dimension (language or region) and run the transaction.
-        locale_set_dimension() {
-          local which="$1" value="$2"
-          require_src
-          [[ -n $value ]] || die "usage: leenix-config locale $which <locale>"
-          if [[ -f $LOCAL ]]; then
-            cp -a "$LOCAL" "$LOCAL.leenix-backup"
-          fi
-          read_overrides
-          if [[ $which == "language" ]]; then
-            OV_locale_lang="$value"
-          else
-            OV_locale_region="$value"
-          fi
-          write_local
-          debug "locale.$which -> $value"
-          transaction
-          echo "leenix-config: locale.$which is now '$value'"
-          echo "Locale changed. Relogin required for the entire session to use the new locale."
         }
 
         cmd_locale() {
-          local action=''${1:-}
-          case "$action" in
-            language)
-              locale_set_dimension language "''${2:-}"
-              ;;
-            region)
-              locale_set_dimension region "''${2:-}"
-              ;;
+          local dimension=''${1:-}
+          require_instance
+          case "$dimension" in
             show)
-              require_src
-              printf 'language: %s\n' "$(get_value locale.language)"
-              printf 'region: %s\n' "$(get_value locale.region)"
+              printf 'language: %s\n' "$(get_value locale.language 2>/dev/null || echo default)"
+              printf 'region: %s\n' "$(get_value locale.region 2>/dev/null || echo default)"
               ;;
-            reset)
-              local which=''${2:-}
-              require_src
-              case "$which" in
-                language | region)
-                  if [[ -f $LOCAL ]]; then
-                    cp -a "$LOCAL" "$LOCAL.leenix-backup"
-                  fi
-                  read_overrides
-                  if [[ $which == "language" ]]; then
-                    OV_locale_lang=""
-                  else
-                    OV_locale_region=""
-                  fi
-                  write_local
-                  debug "locale.$which -> host default"
-                  if [[ -f $LOCAL ]] || [[ -f $LOCAL.leenix-backup ]]; then
-                    transaction
-                  fi
-                  echo "leenix-config: locale.$which reset to host default"
-                  echo "Locale changed. Relogin required for the entire session to use the new locale."
-                  ;;
-                *)
-                  die "usage: leenix-config locale reset <language|region>"
-                  ;;
-              esac
-              ;;
-            *)
-              die "usage: leenix-config locale <language <locale>|region <locale>|show|reset <language|region>>"
-              ;;
+            language) open_editor language ;;
+            region) open_editor region ;;
+            *) open_editor ;;
           esac
-        }
-
-        cmd_rebuild() {
-          require_src
-          leenix-system-apply
-        }
-
-        cmd_switch() {
-          require_src
-          leenix-system-apply
+          if [[ -n $dimension && $dimension != show ]]; then
+            echo "leenix-config: opened $POLICY at locale.$dimension settings. Edit in the editor, then run 'leenix-config rebuild' to apply. A relogin may be needed for the session to adopt the new locale." >&2
+          fi
         }
 
         cmd_sudo_passwordless() {
           local action=''${1:-}
-          require_src
+          require_instance
           case "$action" in
-            on|enable)
-              if [[ -f $LOCAL ]]; then cp -a "$LOCAL" "$LOCAL.leenix-backup"; fi
-              read_overrides
-              OV_passwordless_sudo=true
-              write_local
-              transaction
-              echo "leenix-config: passwordless sudo enabled"
-              ;;
-            off|disable)
-              if [[ -f $LOCAL ]]; then cp -a "$LOCAL" "$LOCAL.leenix-backup"; fi
-              read_overrides
-              OV_passwordless_sudo=""
-              write_local
-              transaction
-              echo "leenix-config: passwordless sudo disabled"
-              ;;
             status)
-              require_src
-              local val
-              val=$(sed -n 's/^    passwordlessSudo = \(true\|false\);$/\1/p' "$LOCAL" 2>/dev/null | head -1)
-              if [[ $val == true ]]; then echo enabled; else echo disabled; fi
+              if get_value security.passwordlessSudo 2>/dev/null | grep -q true; then
+                echo enabled
+              else
+                echo disabled
+              fi
+              ;;
+            on|enable|off|disable|"")
+              open_editor passwordlessSudo
+              echo "leenix-config: opened $POLICY at security.passwordlessSudo. Set it to true (enabled) or false (disabled), save, then run 'leenix-config rebuild' to apply." >&2
               ;;
             *)
               die "usage: leenix-config sudo-passwordless <on|off|status>"
@@ -493,32 +190,63 @@ EXPR
           esac
         }
 
+        cmd_rebuild() {
+          require_instance
+          leenix-system-apply
+        }
+
+        cmd_switch() {
+          require_instance
+          leenix-system-apply
+        }
+
         case "''${1:-}" in
           get)
-            [[ -n ''${2:-} ]] || die "usage: leenix-config get <key>"
-            require_src
-            printf '%s\n' "$(get_value "$2")"
+            [[ -n ''${2:-} ]] || die "usage: leenix-config get <path>"
+            require_instance
+            get_value "$2"
+            ;;
+          show|status|overrides) cmd_status ;;
+          edit)
+            shift
+            cmd_edit "$@"
             ;;
           set)
-            [[ -n ''${2:-} && -n ''${3:-} ]] || die "usage: leenix-config set <key> <value>"
-            cmd_set "$2" "$3"
+            [[ -n ''${2:-} ]] || die "usage: leenix-config set <key> [value]"
+            cmd_set "$2"
             ;;
           unset)
             [[ -n ''${2:-} ]] || die "usage: leenix-config unset <key>"
             cmd_unset "$2"
             ;;
-          dns) shift; export LEENIX_TITLE="Apply DNS settings"; cmd_dns "$@" ;;
-          locale) shift; export LEENIX_TITLE="Apply language & region"; cmd_locale "$@" ;;
-          sudo-passwordless) shift; export LEENIX_TITLE="Apply sudo policy"; cmd_sudo_passwordless "$@" ;;
-          overrides) cmd_overrides ;;
+          dns) shift; export LEENIX_TITLE="Configure DNS"; cmd_dns "$@" ;;
+          locale) shift; export LEENIX_TITLE="Configure language & region"; cmd_locale "$@" ;;
+          sudo-passwordless) shift; export LEENIX_TITLE="Configure sudo policy"; cmd_sudo_passwordless "$@" ;;
           rebuild) export LEENIX_TITLE="LEENIX Rebuild"; cmd_rebuild ;;
           switch) export LEENIX_TITLE="Switch configuration"; cmd_switch ;;
           *)
-            echo "Usage: leenix-config <get|set|unset|dns|locale|sudo-passwordless|overrides|rebuild|switch> [key] [value]" >&2
-            echo "  keys: timezone | locale.language | locale.region | networking.dns[.mode|.servers]" >&2
-            echo "  dns: leenix-config dns <system|reset|preset <name>|custom <ip...>|show>" >&2
-            echo "  locale: leenix-config locale <language <locale>|region <locale>|show|reset <language|region>>" >&2
-            echo "  sudo-passwordless: leenix-config sudo-passwordless <on|off|status>" >&2
+            cat >&2 <<'EOF'
+Usage: leenix-config <command> [key] [value]
+
+Read:
+  get <path>                show effective config.leenix.<path>
+  show | status             show effective instance summary
+  overrides                 alias of status (compatibility)
+
+Edit (opens policy source in $EDITOR; never changes values automatically):
+  edit [key]                open the typed policy; best-effort anchor at key
+  set <key> [value]         open policy near the setting
+  unset <key>               open policy near the setting (omit = inherit default)
+  dns [show]                configure networking DNS (opens policy)
+  locale [language|region]  configure locale (opens policy)
+  sudo-passwordless <on|off|status>
+
+Apply:
+  rebuild                   build and switch the instance
+  switch                    build and switch the instance
+
+A missing option in policy.nix means the Core/profile default applies.
+EOF
             exit 1
             ;;
         esac

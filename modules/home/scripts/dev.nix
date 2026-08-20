@@ -2,7 +2,7 @@
 
 {
   # Development helpers. Installed only when the development profile is
-  # enabled (variables.profiles.development). Not part of the universal base.
+  # enabled (leenix.profiles.development.enable). Not part of the universal base.
   imports = [
     ./leenix-dev-add-migration.nix
     ./leenix-dev-benchmark.nix

@@ -1,15 +1,15 @@
 {
   pkgs,
-  variables,
+  leenix,
   ...
 }:
 
 let
-  laptopCap = variables.profiles.laptop or false;
-  hyprlandCap = variables.desktop.hyprland or false;
-  desktopCap = variables.profiles.desktop or false;
-  wifiCap = variables.networking.iwd or false;
-  bluetoothCap = variables.hardware.bluetooth or false;
+  laptopCap = leenix.profiles.laptop.enable;
+  hyprlandCap = leenix.desktop.hyprland.enable;
+  desktopCap = leenix.profiles.desktop.enable;
+  wifiCap = leenix.networking.iwd.enable;
+  bluetoothCap = leenix.hardware.bluetooth.enable;
 
   caps = ''
     LEENIX_CAP_LAPTOP=${
@@ -494,15 +494,8 @@ in
         }
 
         show_passwordless_menu() {
-          local action
-          if leenix-config sudo-passwordless status 2>/dev/null | grep -q enabled; then
-            action="󰊤  Disable Passwordless Sudo"
-          else
-            action="󰊤  Enable Passwordless Sudo"
-          fi
-          case $(menu "Passwordless Sudo" "$action") in
-          *"Enable"*) present_terminal "leenix-config sudo-passwordless on" ;;
-          *"Disable"*) present_terminal "leenix-config sudo-passwordless off" ;;
+          case $(menu "Passwordless Sudo" "󰊤  Configure Passwordless Sudo") in
+          *"Configure"*) present_terminal "leenix-config sudo-passwordless" ;;
           *) back_to show_setup_menu ;;
           esac
         }

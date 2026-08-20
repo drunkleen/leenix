@@ -1,9 +1,9 @@
-{ imageViewer, ... }:
+{ leenix, ... }:
 
 {
   imports = [
     {
       imv = ./imv.nix;
-    }.${imageViewer}
+    }.${leenix.desktop.imageViewer}
   ];
 }

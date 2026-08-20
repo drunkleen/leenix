@@ -1,8 +1,15 @@
-{ variables, ... }:
+{ leenix, ... }:
 
+let
+  gitCfg = leenix.git;
+  allowedSigners = leenix.git.allowedSigners;
+in
 {
+  # Git SSH commit-signing allowed-signers record, from typed LEENIX policy
+  # (typed leenix.* policy -> config.leenix -> HM specialArg `leenix`). No
+  # Core-relative personal key path is read here.
   home.file.".config/git/allowed_signers".text = ''
-    ${variables.git.email} ${builtins.readFile ../../../keys/github.pub}
+    ${if allowedSigners != null then allowedSigners else ""}
   '';
 
   programs.git = {
@@ -10,8 +17,8 @@
 
     settings = {
       user = {
-        name = variables.git.name;
-        email = variables.git.email;
+        name = gitCfg.name;
+        email = gitCfg.email;
         signingKey = "~/.ssh/github.pub";
       };
 
@@ -28,7 +35,7 @@
 
       tag.gpgSign = true;
 
-      init.defaultBranch = variables.git.branch;
+      init.defaultBranch = gitCfg.branch;
 
       pull.rebase = true;
       push.autoSetupRemote = true;
